@@ -1,0 +1,84 @@
+<div class="page">
+  <div class="page-header">
+    <h1>Gestion des utilisateurs</h1>
+    <button class="btn-primary" (click)="ouvrirModal()">+ Nouvel utilisateur</button>
+  </div>
+
+  <div class="loading" *ngIf="chargement">Chargement...</div>
+
+  <div class="table-container" *ngIf="!chargement">
+    <table>
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Email</th>
+          <th>Rôle</th>
+          <th>Département</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users">
+          <td>{{ user.prenom }} {{ user.nom }}</td>
+          <td>{{ user.email }}</td>
+          <td><span class="badge" [ngClass]="getRoleBadgeClass(user.role)">{{ user.role }}</span></td>
+          <td>{{ user.departement || '—' }}</td>
+          <td>
+            <span class="badge" [ngClass]="user.actif ? 'badge-actif' : 'badge-inactif'">
+              {{ user.actif ? 'Actif' : 'Inactif' }}
+            </span>
+          </td>
+          <td>
+            <button class="btn-icon" (click)="ouvrirModal(user)">✏️</button>
+            <button class="btn-icon btn-danger" (click)="desactiver(user.id)" *ngIf="user.actif">🚫</button>
+          </td>
+        </tr>
+        <tr *ngIf="users.length === 0">
+          <td colspan="6" class="empty">Aucun utilisateur trouvé.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" *ngIf="modalOuvert" (click)="fermerModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ modeEdition ? 'Modifier' : 'Nouvel' }} utilisateur</h2>
+        <button (click)="fermerModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Prénom</label>
+          <input type="text" [(ngModel)]="userSelectionne.prenom" />
+        </div>
+        <div class="form-group">
+          <label>Nom</label>
+          <input type="text" [(ngModel)]="userSelectionne.nom" />
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" [(ngModel)]="userSelectionne.email" />
+        </div>
+        <div class="form-group">
+          <label>Rôle</label>
+          <select [(ngModel)]="userSelectionne.role">
+            <option value="ADMIN">Administrateur</option>
+            <option value="MANAGER">Manager</option>
+            <option value="RESPONSABLE">Responsable</option>
+            <option value="AUDITEUR">Auditeur</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Département</label>
+          <input type="text" [(ngModel)]="userSelectionne.departement" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="fermerModal()">Annuler</button>
+        <button class="btn-primary" (click)="sauvegarder()">Sauvegarder</button>
+      </div>
+    </div>
+  </div>
+</div>
