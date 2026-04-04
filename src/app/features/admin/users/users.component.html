@@ -23,7 +23,7 @@
           <td>{{ user.prenom }} {{ user.nom }}</td>
           <td>{{ user.email }}</td>
           <td><span class="badge" [ngClass]="getRoleBadgeClass(user.role)">{{ user.role }}</span></td>
-          <td>{{ user.departement || '—' }}</td>
+          <td>{{ user.departmentName || '—' }}</td>
           <td>
             <span class="badge" [ngClass]="user.actif ? 'badge-actif' : 'badge-inactif'">
               {{ user.actif ? 'Actif' : 'Inactif' }}
@@ -72,7 +72,7 @@
         </div>
         <div class="form-group">
           <label>Département</label>
-          <input type="text" [(ngModel)]="userSelectionne.departement" />
+          <input type="text" [(ngModel)]="userSelectionne.departmentName" />
         </div>
       </div>
       <div class="modal-footer">

@@ -20,7 +20,7 @@ export interface User {
   prenom: string;
   email: string;
   role: Role;
-  departement?: string;
+  departmentName?: string;
   equipe?: string;
   chefHierarchiqueId?: number;
   actif: boolean;
@@ -35,7 +35,7 @@ export interface Plan {
   piloteId: number;
   pilote?: User;
   processus: string;
-  departement?: string;
+  departmentName?: string;
   priorite: Priorite;
   visibilite: 'PUBLIC' | 'PRIVE';
   dateDebut: Date;
