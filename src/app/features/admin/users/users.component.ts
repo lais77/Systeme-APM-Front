@@ -32,7 +32,7 @@ export class UsersComponent implements OnInit {
 
   ouvrirModal(user?: User): void {
     this.modeEdition = !!user;
-    this.userSelectionne = user ? { ...user } : { role: 'RESPONSABLE', actif: true };
+    this.userSelectionne = user ? { ...user } : { role: 'RESPONSABLE', isActive: true };
     this.modalOuvert = true;
   }
 

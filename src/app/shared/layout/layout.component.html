@@ -11,12 +11,6 @@
 
       <!-- ADMIN -->
       <ng-container *ngIf="isAdmin()">
-        <a routerLink="/dashboard" [routerLinkActiveOptions]="{exact: true}" routerLinkActive="active">
-          <span class="icon">📊</span> Dashboard
-        </a>
-        <a routerLink="/dashboard/reporting" routerLinkActive="active">
-          <span class="icon">📈</span> Reporting
-        </a>
         <a routerLink="/admin/users" routerLinkActive="active">
           <span class="icon">👥</span> Utilisateurs
         </a>
@@ -30,13 +24,10 @@
 
       <!-- MANAGER -->
       <ng-container *ngIf="isManager()">
-        <a routerLink="/dashboard" [routerLinkActiveOptions]="{exact: true}" routerLinkActive="active">
+        <a routerLink="/dashboard" routerLinkActive="active">
           <span class="icon">📊</span> Dashboard
         </a>
-        <a routerLink="/dashboard/reporting" routerLinkActive="active">
-          <span class="icon">📈</span> Reporting
-        </a>
-        <a routerLink="/plans" routerLinkActive="active">
+        <a routerLink="/plans" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
           <span class="icon">📋</span> Plans Usine
         </a>
         <a routerLink="/plans/mes-plans" routerLinkActive="active">
@@ -61,10 +52,10 @@
     <div class="sidebar-footer">
       <div class="user-info">
         <div class="user-avatar">
-          {{ user?.prenom?.charAt(0) }}{{ user?.nom?.charAt(0) }}
+          {{ getInitiales() }}
         </div>
         <div class="user-details">
-          <span class="user-name">{{ user?.prenom }} {{ user?.nom }}</span>
+          <span class="user-name">{{ user?.fullName }}</span>
           <span class="user-role">{{ getRoleBadge() }}</span>
         </div>
       </div>

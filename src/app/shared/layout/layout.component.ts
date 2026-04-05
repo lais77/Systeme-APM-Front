@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { User } from '../../core/models/models';
+
 @Component({
   selector: 'app-layout',
   standalone: true,
@@ -12,7 +13,6 @@ import { User } from '../../core/models/models';
 })
 export class LayoutComponent {
   user: User | null;
-  menuOuvert = false;
 
   constructor(private authService: AuthService, private router: Router) {
     this.user = this.authService.getCurrentUser();
@@ -32,5 +32,12 @@ export class LayoutComponent {
       AUDITEUR: 'Auditeur'
     };
     return labels[this.user?.role || ''] || '';
+  }
+
+  getInitiales(): string {
+    if (!this.user?.fullName) return '?';
+    const parts = this.user.fullName.split(' ');
+    if (parts.length >= 2) return parts[0].charAt(0) + parts[1].charAt(0);
+    return parts[0].charAt(0);
   }
 }
