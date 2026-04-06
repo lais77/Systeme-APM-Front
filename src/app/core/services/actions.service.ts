@@ -33,6 +33,10 @@ export class ActionsService {
     return this.http.delete(API.actions.delete(id));
   }
 
+  demarrer(id: number): Observable<Action> {
+    return this.http.post<Action>(API.actions.demarrer(id), {});
+  }
+
   soumettre(id: number, data: any): Observable<Action> {
     return this.http.post<Action>(API.actions.submit(id), data);
   }

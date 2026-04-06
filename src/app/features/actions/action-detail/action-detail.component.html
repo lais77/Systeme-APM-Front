@@ -15,6 +15,9 @@
         </div>
       </div>
       <div class="header-actions">
+        <button class="btn-demarrer" *ngIf="peutDemarrer()" (click)="demarrer()">
+          ▶ Démarrer l'action
+        </button>
         <button class="btn-soumettre" *ngIf="peutSoumettre()" (click)="modalSoumission = true">
           Soumettre pour validation
         </button>

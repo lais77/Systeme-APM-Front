@@ -99,6 +99,13 @@ export class ActionDetailComponent implements OnInit {
     });
   }
 
+  demarrer(): void {
+    if (!this.action) return;
+    this.actionsService.demarrer(this.action.id).subscribe({
+      next: (data) => { this.action = data; }
+    });
+  }
+
   soumettre(): void {
     if (!this.action) return;
     this.actionsService.soumettre(this.action.id, this.soumissionData).subscribe({
@@ -145,6 +152,10 @@ export class ActionDetailComponent implements OnInit {
 
   isResponsable(): boolean {
     return this.currentUser?.role === 'RESPONSABLE';
+  }
+
+  peutDemarrer(): boolean {
+    return this.isManager() && this.action?.status === 'Created';
   }
 
   peutSoumettre(): boolean {
