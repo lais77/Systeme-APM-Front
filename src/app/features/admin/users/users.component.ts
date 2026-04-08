@@ -14,14 +14,22 @@ import { API } from '../../../core/services/api-endpoints';
 })
 export class UsersComponent implements OnInit {
   users: User[] = [];
+  departements: any[] = [];
   chargement = true;
   modalOuvert = false;
+  modalConfirmOuvert = false;
+  userADesactiver: number | null = null;
   userSelectionne: Partial<User> = {};
   modeEdition = false;
 
   constructor(private http: HttpClient) {}
 
-  ngOnInit(): void { this.chargerUsers(); }
+  ngOnInit(): void { 
+    this.chargerUsers();
+    this.http.get<any[]>(API.departements.getAll).subscribe({
+      next: (data) => { this.departements = data; }
+    });
+  }
 
   chargerUsers(): void {
     this.http.get<User[]>(API.users.getAll).subscribe({
@@ -51,11 +59,22 @@ export class UsersComponent implements OnInit {
   }
 
   desactiver(id: number): void {
-    if (confirm('Désactiver cet utilisateur ?')) {
-      this.http.patch(API.users.deactivate(id), {}).subscribe({
-        next: () => this.chargerUsers()
+    this.userADesactiver = id;
+    this.modalConfirmOuvert = true;
+  }
+
+  confirmerDesactivation(): void {
+    if (this.userADesactiver) {
+      this.http.patch(API.users.deactivate(this.userADesactiver), {}).subscribe({
+        next: () => { this.chargerUsers(); this.modalConfirmOuvert = false; }
       });
     }
+  }
+
+  activer(id: number): void {
+    this.http.put(API.users.activer(id), {}).subscribe({
+      next: () => this.chargerUsers()
+    });
   }
 
   getRoleBadgeClass(role: string): string {

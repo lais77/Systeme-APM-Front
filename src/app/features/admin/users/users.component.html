@@ -34,6 +34,7 @@
           <td>
             <button class="btn-icon" (click)="ouvrirModal(user)">✏️</button>
             <button class="btn-icon btn-danger" (click)="desactiver(user.id)" *ngIf="user.isActive">🚫</button>
+            <button class="btn-icon btn-success" (click)="activer(user.id)" *ngIf="!user.isActive">✅</button>
           </td>
         </tr>
         <tr *ngIf="users.length === 0">
@@ -72,10 +73,36 @@
             <option value="AUDITEUR">Auditeur</option>
           </select>
         </div>
+        <div class="form-group">
+          <label>Département</label>
+          <select [(ngModel)]="userSelectionne.departmentId">
+            <option [ngValue]="null">-- Aucun --</option>
+            <option *ngFor="let dept of departements" [ngValue]="dept.id">
+              {{ dept.nom }}
+            </option>
+          </select>
+        </div>
       </div>
       <div class="modal-footer">
         <button class="btn-secondary" (click)="fermerModal()">Annuler</button>
         <button class="btn-primary" (click)="sauvegarder()">Sauvegarder</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal confirmation désactivation -->
+  <div class="modal-overlay" *ngIf="modalConfirmOuvert" (click)="modalConfirmOuvert = false">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Confirmation</h2>
+        <button (click)="modalConfirmOuvert = false">✕</button>
+      </div>
+      <div class="modal-body">
+        <p>Voulez-vous vraiment désactiver cet utilisateur ?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="modalConfirmOuvert = false">Annuler</button>
+        <button class="btn-danger" (click)="confirmerDesactivation()">Désactiver</button>
       </div>
     </div>
   </div>

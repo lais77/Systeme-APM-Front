@@ -93,7 +93,7 @@
       <h2>Commentaires</h2>
       <div class="commentaires-list">
         <div class="commentaire" *ngFor="let c of commentaires">
-          <div class="commentaire-avatar">{{ c.authorName?.charAt(0) }}</div>
+          <div class="commentaire-avatar">{{ c.authorName ? c.authorName.charAt(0) : '?' }}</div>
           <div class="commentaire-content">
             <div class="commentaire-header">
               <span class="commentaire-auteur">{{ c.authorName }}</span>

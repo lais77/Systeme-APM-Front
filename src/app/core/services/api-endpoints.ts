@@ -15,6 +15,7 @@ export const API = {
     create: `${BASE}/users`,
     update: (id: number) => `${BASE}/users/${id}`,
     deactivate: (id: number) => `${BASE}/users/${id}/desactiver`,
+    activer: (id: number) => `${BASE}/users/${id}/activer`,
     logs: (id: number) => `${BASE}/users/${id}/logs`,
   },
   departements: {

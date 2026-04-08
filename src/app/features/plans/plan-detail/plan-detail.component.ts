@@ -38,6 +38,21 @@ export class PlanDetailComponent implements OnInit {
     return classes[priority] || '';
   }
 
+  getDelaiCouleur(dateRealisation: string | undefined): string {
+    // Gérer le cas où la date est undefined
+    if (!dateRealisation) {
+      return ''; // Pas de couleur si pas de date
+    }
+
+    const maintenant = new Date();
+    const echeance = new Date(dateRealisation);
+    const joursRestants = Math.ceil((echeance.getTime() - maintenant.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (joursRestants < 0) return 'rouge';      // En retard
+    if (joursRestants <= 3) return 'orange';    // Moins de 3 jours
+    return 'vert';                              // Plus de 3 jours
+  }
+
   getStatutActionClass(status: string): string {
     const classes: any = {
       Created: 'badge-cree',

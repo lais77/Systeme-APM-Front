@@ -74,7 +74,9 @@
               <td>{{ action.responsibleName }}</td>
               <td>{{ action.type }}</td>
               <td>{{ action.criticity }}</td>
-              <td>{{ action.deadline | date:'dd/MM/yyyy' }}</td>
+              <td [ngClass]="getDelaiCouleur(action.date_realisation || action.delai)">
+                {{ (action.date_realisation || action.delai) | date:'dd/MM/yyyy' }}
+              </td>
               <td>
                 <span class="badge" [ngClass]="getStatutActionClass(action.status)">
                   {{ action.status }}

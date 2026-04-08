@@ -45,10 +45,14 @@ export interface Action {
   status: string;
   progressPercentage: number;
   deadline: Date;
+  delai?: string;
+  date_realisation?: string;
   realizationMethod?: string;
   realizationDate?: Date;
   verificationMethod?: string;
   verificationDate?: Date;
+  format_verification?: string;
+  commentaire?: string;
   effectiveness?: string;
   effectivenessComment?: string;
   starRating?: number;
@@ -63,7 +67,7 @@ export interface Commentaire {
   id: number;
   actionItemId: number;
   authorId: number;
-  authorName: string;
+  authorName?: string;
   content: string;
   createdAt: Date;
 }

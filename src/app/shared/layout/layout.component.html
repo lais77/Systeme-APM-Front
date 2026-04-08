@@ -10,6 +10,12 @@
 
       <!-- ADMIN -->
       <ng-container *ngIf="isAdmin()">
+        <a routerLink="/dashboard" routerLinkActive="active">
+          <span class="icon">📊</span> Dashboard
+        </a>
+        <a routerLink="/dashboard/reporting" routerLinkActive="active">
+          <span class="icon">📈</span> Reporting
+        </a>
         <a routerLink="/admin/users" routerLinkActive="active">
           <span class="icon">👥</span> Utilisateurs
         </a>

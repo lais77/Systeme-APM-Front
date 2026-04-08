@@ -1,19 +1,35 @@
 .dashboard {
   padding: 2rem;
+  background: #f8fafc;
+  min-height: 100vh;
 }
 
 .page-header {
   margin-bottom: 2rem;
-  h1 { font-size: 1.8rem; font-weight: 600; margin: 0; }
-  .subtitle { color: #666; font-size: 0.9rem; }
+  h1 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 0;
+    color: #1e293b;
+  }
+  .subtitle {
+    color: #64748b;
+    font-size: 0.9rem;
+  }
 }
 
-.loading { text-align: center; padding: 3rem; color: #666; }
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: #64748b;
+  font-size: 1.1rem;
+}
 
+// Compteurs KPI (comme dans le manuel page 3)
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
   margin-bottom: 2rem;
 }
 
@@ -23,16 +39,78 @@
   padding: 1.5rem;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   text-align: center;
+  transition: transform 0.2s;
 
-  .kpi-label { font-size: 0.85rem; color: #666; margin-bottom: 0.5rem; }
-  .kpi-value { font-size: 2rem; font-weight: 700; }
-  .kpi-value.blue { color: #3b82f6; }
-  .kpi-value.green { color: #22c55e; }
-  .kpi-value.red { color: #ef4444; }
-  .kpi-value.purple { color: #8b5cf6; }
-  .kpi-value.orange { color: #f97316; }
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  }
+
+  .kpi-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .kpi-value {
+    font-size: 2.8rem;
+    font-weight: 700;
+    line-height: 1;
+    margin: 0.5rem 0;
+
+    &.blue { color: #3b82f6; }
+    &.green { color: #22c55e; }
+    &.red { color: #ef4444; }
+    &.purple { color: #8b5cf6; }
+  }
+
+  .kpi-label {
+    font-size: 0.9rem;
+    color: #64748b;
+    margin-top: 0.5rem;
+    font-weight: 500;
+  }
+
+  .kpi-link {
+    display: inline-block;
+    margin-top: 0.75rem;
+    font-size: 0.8rem;
+    color: #3b82f6;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s;
+
+    &:hover {
+      color: #2563eb;
+      text-decoration: underline;
+    }
+  }
 }
 
+// Graphiques (comme dans le manuel page 3)
+.graphiques-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.graphique-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  min-height: 350px;
+
+  canvas {
+    max-height: 300px;
+  }
+}
+
+// Section indicateurs
 .section {
   background: white;
   border-radius: 12px;
@@ -40,65 +118,44 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   margin-bottom: 1.5rem;
 
-  h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; }
+  h2 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #1e293b;
+  }
 }
 
 .progress-item {
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
   .progress-label {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 0.25rem;
-    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+    color: #475569;
+    font-weight: 500;
   }
+
   .progress-bar {
     background: #f1f5f9;
-    border-radius: 8px;
-    height: 10px;
+    border-radius: 10px;
+    height: 12px;
     overflow: hidden;
+
     .progress-fill {
       height: 100%;
-      border-radius: 8px;
-      transition: width 0.5s ease;
-      &.blue { background: #3b82f6; }
-      &.green { background: #22c55e; }
-      &.orange { background: #f97316; }
+      border-radius: 10px;
+      transition: width 0.8s ease;
+
+      &.blue { background: linear-gradient(90deg, #3b82f6, #2563eb); }
+      &.green { background: linear-gradient(90deg, #22c55e, #16a34a); }
+      &.orange { background: linear-gradient(90deg, #f97316, #ea580c); }
     }
-  }
-}
-
-.stats-table {
-  width: 100%;
-  border-collapse: collapse;
-  th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #f1f5f9; }
-  th { font-size: 0.8rem; color: #666; text-transform: uppercase; }
-}
-
-.badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  &.green { background: #dcfce7; color: #166534; }
-  &.orange { background: #ffedd5; color: #9a3412; }
-  &.red { background: #fee2e2; color: #991b1b; }
-}
-
-.repartition {
-  display: flex;
-  gap: 2rem;
-  .rep-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.95rem;
-  }
-  .rep-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    &.blue { background: #3b82f6; }
-    &.green { background: #22c55e; }
-    &.red { background: #ef4444; }
   }
 }
