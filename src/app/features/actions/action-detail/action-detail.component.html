@@ -9,7 +9,7 @@
         <a class="retour" (click)="retour()">← Retour</a>
         <h1>{{ action.theme }}</h1>
         <div class="header-meta">
-          <span class="badge" [ngClass]="getStatutClass(action.status)">{{ action.status }}</span>
+          <span class="badge" [ngClass]="getStatutClass(action.status)">{{ getStatutLabel(action.status) }}</span>
           <span class="type-badge">{{ action.type }}</span>
           <span class="criticity-badge">{{ action.criticity }}</span>
         </div>
@@ -19,7 +19,7 @@
           ▶ Démarrer l'action
         </button>
         <button class="btn-soumettre" *ngIf="peutSoumettre()" (click)="modalSoumission = true">
-          Soumettre pour validation
+          Clôturer action
         </button>
         <button class="btn-valider" *ngIf="peutValider()" (click)="modalValidation = true">
           Valider / Rejeter
@@ -105,8 +105,8 @@
         <div class="empty" *ngIf="commentaires.length === 0">Aucun commentaire.</div>
       </div>
       <div class="commentaire-input">
-        <textarea [(ngModel)]="nouveauCommentaire" placeholder="Ajouter un commentaire..." rows="3"></textarea>
-        <button class="btn-primary" (click)="ajouterCommentaire()">Envoyer</button>
+        <textarea [(ngModel)]="nouveauCommentaire" placeholder="Ajouter un commentaire..." rows="3" [disabled]="estEnLectureSeule()"></textarea>
+        <button class="btn-primary" (click)="ajouterCommentaire()" [disabled]="estEnLectureSeule()">Envoyer</button>
       </div>
     </div>
 
@@ -122,15 +122,15 @@
           </div>
           <div class="fichier-actions">
             <button class="btn-icon" (click)="telechargerFichier(f.id, f.fileName)">⬇️</button>
-            <button class="btn-icon" (click)="supprimerFichier(f.id)">🗑️</button>
+            <button class="btn-icon" (click)="supprimerFichier(f.id)" [disabled]="estEnLectureSeule()">🗑️</button>
           </div>
         </div>
         <div class="empty" *ngIf="fichiers.length === 0">Aucune pièce jointe.</div>
       </div>
       <div class="upload-zone">
-        <input type="file" (change)="onFichierChange($event)" id="fileInput" />
-        <input type="text" [(ngModel)]="descriptionFichier" placeholder="Description du fichier" />
-        <button class="btn-primary" (click)="uploadFichier()" [disabled]="!fichierSelectionne">
+        <input type="file" (change)="onFichierChange($event)" id="fileInput" [disabled]="estEnLectureSeule()" />
+        <input type="text" [(ngModel)]="descriptionFichier" placeholder="Description du fichier" [disabled]="estEnLectureSeule()" />
+        <button class="btn-primary" (click)="uploadFichier()" [disabled]="!fichierSelectionne || estEnLectureSeule()">
           Uploader
         </button>
       </div>

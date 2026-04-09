@@ -17,7 +17,8 @@ export class AuthService {
 
   login(credentials: AuthRequest): Observable<any> {
     return this.http.post<any>(API.auth.login, credentials).pipe(
-      tap(res => {
+      tap({
+        next: (res) => {
         if (res && res.token && res.user) {
           const user: User = {
             id: res.user.id,
@@ -30,7 +31,7 @@ export class AuthService {
           localStorage.setItem('user', JSON.stringify(user));
           this.currentUserSubject.next(user);
         }
-      })
+      }})
     );
   }
 

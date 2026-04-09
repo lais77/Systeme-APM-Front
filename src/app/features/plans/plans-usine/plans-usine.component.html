@@ -59,7 +59,7 @@
           </td>
           <td>
             <span class="badge" [ngClass]="getStatutClass(plan.status)">
-              {{ plan.status === 'InProgress' ? 'En cours' : 'Clôturé' }}
+              {{ getStatutLabel(plan.status) }}
             </span>
           </td>
           <td>{{ plan.dueDate | date:'dd/MM/yyyy' }}</td>

@@ -1,44 +1,192 @@
-import { Component } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { Router, RouterModule, RouterOutlet, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
+
 import { AuthService } from '../../core/services/auth.service';
 import { User } from '../../core/models/models';
+import { API } from '../../core/services/api-endpoints';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, RouterOutlet],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.scss'
 })
-export class LayoutComponent {
-  user: User | null;
+export class LayoutComponent implements OnInit {
 
-  constructor(private authService: AuthService, private router: Router) {
-    this.user = this.authService.getCurrentUser();
+  // ── Utilisateur connecté ──────────────────────────────────
+  currentUser: User | null = null;
+  userRole: string = '';
+  currentYear = new Date().getFullYear();
+
+  // ── Badge notifications ───────────────────────────────────
+  unreadCount: number = 0;
+  notificationMenuOpen = false;
+  settingsMenuOpen = false;
+  userMenuOpen = false;
+  isLightMode = false;
+  notifications: Array<{ id?: number; title: string; details: string; time: string; read: boolean }> = [
+    { title: 'Nouveau processus créé', details: 'créé par Admin APM', time: "À l'instant", read: false },
+    { title: 'Rapport mensuel prêt', details: 'disponible pour téléchargement', time: 'Il y a 10 min', read: false },
+    { title: 'Alerte système', details: 'Stockage saturé à 90%', time: 'Il y a 25 min', read: false },
+    { title: 'Ticket support résolu', details: 'Ticket #241 marqué résolu', time: 'Il y a 1 h', read: true },
+    { title: 'Nouveau département', details: 'Département Qualité ajouté', time: 'Hier', read: true }
+  ];
+
+  // ── Titre page (topbar) ───────────────────────────────────
+  pageTitle: string = 'Dashboard';
+
+  // ── Mapping route → titre ─────────────────────────────────
+  private routeTitles: { [key: string]: string } = {
+    '/dashboard':             'Tableau de bord',
+    '/reporting':             'Reporting',
+    '/admin/utilisateurs':    'Utilisateurs',
+    '/admin/departements':    'Départements',
+    '/admin/processus':       'Processus',
+    '/notifications':         'Notifications',
+    '/support':               'Support',
+    '/plans-usine':           'Plans Usine',
+    '/mes-plans':             'Mes Plans',
+    '/mes-actions':           'Mes Actions',
+  };
+
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    private http: HttpClient
+  ) {}
+
+  ngOnInit(): void {
+    // S'abonner aux changements de l'utilisateur
+    this.authService.currentUser$.subscribe(user => {
+      this.currentUser = user;
+      this.userRole = user?.role ? user.role.toUpperCase() : '';
+    });
+    this.loadUnreadCount();
+    this.watchRouteChanges();
   }
 
-  isAdmin(): boolean { return this.user?.role === 'ADMIN'; }
-  isManager(): boolean { return this.user?.role === 'MANAGER'; }
-  isResponsable(): boolean { return this.user?.role === 'RESPONSABLE'; }
-  isAuditeur(): boolean { return this.user?.role === 'AUDITEUR'; }
-
-  logout(): void { this.authService.logout(); }
-
-  getRoleBadge(): string {
-    const labels: any = {
-      ADMIN: 'Administrateur',
-      MANAGER: 'Manager',
-      RESPONSABLE: 'Responsable',
-      AUDITEUR: 'Auditeur'
-    };
-    return labels[this.user?.role || ''] || '';
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.closeMenus();
   }
 
-  getInitiales(): string {
-    if (!this.user?.fullName) return '?';
-    const parts = this.user.fullName.split(' ');
-    if (parts.length >= 2) return parts[0].charAt(0) + parts[1].charAt(0);
-    return parts[0].charAt(0);
+  // ── Charger le nombre de notifications non lues ──────────
+  private loadUnreadCount(): void {
+    this.http.get<any[]>(API.notifications.getMes).subscribe({
+      next: (data) => {
+        this.notifications = (data || []).slice(0, 5).map((n: any) => ({
+          id: n.id,
+          title: n.title || 'Notification',
+          details: n.message || '',
+          time: this.formatRelativeTime(n.createdAt),
+          read: !!(n.isRead ?? n.lue)
+        }));
+        this.unreadCount = this.notifications.filter(n => !n.read).length;
+      },
+      error: () => {
+        this.unreadCount = this.notifications.filter(n => !n.read).length;
+      }
+    });
+  }
+
+  // ── Mettre à jour le titre selon la route active ─────────
+  private watchRouteChanges(): void {
+    // Titre initial
+    this.updateTitle(this.router.url);
+
+    // Titre à chaque navigation
+    this.router.events
+      .pipe(filter(e => e instanceof NavigationEnd))
+      .subscribe((e: any) => this.updateTitle(e.urlAfterRedirects));
+  }
+
+  private updateTitle(url: string): void {
+    const cleanUrl = url.split('?')[0];
+    this.pageTitle = this.routeTitles[cleanUrl] || 'APM';
+  }
+
+  toggleNotificationMenu(event: MouseEvent): void {
+    event.stopPropagation();
+    this.notificationMenuOpen = !this.notificationMenuOpen;
+    this.settingsMenuOpen = false;
+    this.userMenuOpen = false;
+  }
+
+  toggleSettingsMenu(event: MouseEvent): void {
+    event.stopPropagation();
+    this.settingsMenuOpen = !this.settingsMenuOpen;
+    this.notificationMenuOpen = false;
+    this.userMenuOpen = false;
+  }
+
+  toggleUserMenu(event: MouseEvent): void {
+    event.stopPropagation();
+    this.userMenuOpen = !this.userMenuOpen;
+    this.notificationMenuOpen = false;
+    this.settingsMenuOpen = false;
+  }
+
+  markAllNotificationsAsRead(event: MouseEvent): void {
+    event.stopPropagation();
+    this.http.patch(API.notifications.markAllRead, {}).subscribe({
+      next: () => {
+        this.notifications = this.notifications.map(n => ({ ...n, read: true }));
+        this.unreadCount = 0;
+      },
+      error: () => {
+        this.notifications = this.notifications.map(n => ({ ...n, read: true }));
+        this.unreadCount = 0;
+      }
+    });
+  }
+
+  openNotificationsPage(event: MouseEvent): void {
+    event.stopPropagation();
+    this.closeMenus();
+    this.router.navigate(['/notifications']);
+  }
+
+  openProfile(event: MouseEvent): void {
+    event.stopPropagation();
+    this.closeMenus();
+    this.router.navigate(['/support']);
+  }
+
+  openSystemSettings(event: MouseEvent): void {
+    event.stopPropagation();
+    this.closeMenus();
+    this.router.navigate(['/admin/users']);
+  }
+
+  toggleTheme(event: MouseEvent): void {
+    event.stopPropagation();
+    this.isLightMode = !this.isLightMode;
+  }
+
+  private closeMenus(): void {
+    this.notificationMenuOpen = false;
+    this.settingsMenuOpen = false;
+    this.userMenuOpen = false;
+  }
+
+  private formatRelativeTime(dateValue?: string): string {
+    if (!dateValue) return "À l'instant";
+    const date = new Date(dateValue);
+    const diffMs = Date.now() - date.getTime();
+    const mins = Math.floor(diffMs / 60000);
+    if (mins < 1) return "À l'instant";
+    if (mins < 60) return `Il y a ${mins} min`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `Il y a ${hours} h`;
+    return 'Hier';
+  }
+
+  // ── Déconnexion ───────────────────────────────────────────
+  logout(): void {
+    this.authService.logout();
   }
 }

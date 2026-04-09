@@ -8,69 +8,63 @@ import { API } from '../../../core/services/api-endpoints';
   selector: 'app-processus',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  template: `
-    <div class="page">
-      <div class="page-header">
-        <h1>Processus</h1>
-        <button class="btn-primary" (click)="ouvrirModal()">+ Nouveau</button>
-      </div>
-      <div class="table-container">
-        <table>
-          <thead><tr><th>Nom</th><th>Actions</th></tr></thead>
-          <tbody>
-            <tr *ngFor="let p of processus">
-              <td>{{ p.nom }}</td>
-              <td>
-                <button class="btn-icon" (click)="ouvrirModal(p)">✏️</button>
-                <button class="btn-icon" (click)="supprimer(p.id)">🗑️</button>
-              </td>
-            </tr>
-            <tr *ngIf="processus.length === 0">
-              <td colspan="2" class="empty">Aucun processus.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="modal-overlay" *ngIf="modalOuvert" (click)="fermerModal()">
-        <div class="modal" (click)="$event.stopPropagation()">
-          <div class="modal-header">
-            <h2>{{ modeEdition ? 'Modifier' : 'Nouveau' }} processus</h2>
-            <button (click)="fermerModal()">✕</button>
-          </div>
-          <div class="modal-body">
-            <div class="form-group">
-              <label>Nom</label>
-              <input type="text" [(ngModel)]="selectionne.nom" />
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn-secondary" (click)="fermerModal()">Annuler</button>
-            <button class="btn-primary" (click)="sauvegarder()">Sauvegarder</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  `,
-  styleUrl: '../users/users.component.scss'
+  templateUrl: './processus.component.html',
+  styleUrl: './processus.component.scss'
 })
 export class ProcessusComponent implements OnInit {
   processus: any[] = [];
-  modalOuvert = false;
-  modeEdition = false;
-  selectionne: any = {};
+  searchTerm = '';
+  showFormModal = false;
+  showConfirmModal = false;
+  isEditMode = false;
+  selectedItem: any = null;
+  formData: any = {};
+
+  get filteredProcessus() {
+    if (!this.searchTerm) return this.processus;
+    return this.processus.filter(p =>
+      p.nom?.toLowerCase().includes(this.searchTerm.toLowerCase())
+    );
+  }
 
   constructor(private http: HttpClient) {}
+
   ngOnInit(): void { this.charger(); }
-  charger(): void { this.http.get<any[]>(API.processus.getAll).subscribe(p => this.processus = p); }
-  ouvrirModal(p?: any): void { this.modeEdition = !!p; this.selectionne = p ? { ...p } : {}; this.modalOuvert = true; }
-  fermerModal(): void { this.modalOuvert = false; }
-  sauvegarder(): void {
-    const obs = this.modeEdition
-      ? this.http.put(API.processus.update(this.selectionne.id), this.selectionne)
-      : this.http.post(API.processus.create, this.selectionne);
-    obs.subscribe(() => { this.charger(); this.fermerModal(); });
+
+  charger(): void {
+    this.http.get<any[]>(API.processus.getAll)
+      .subscribe(p => this.processus = p);
   }
-  supprimer(id: number): void {
-    if (confirm('Supprimer ?')) this.http.delete(API.processus.delete(id)).subscribe(() => this.charger());
+
+  openCreateModal(): void {
+    this.isEditMode = false;
+    this.formData = {};
+    this.showFormModal = true;
+  }
+
+  openEditModal(p: any): void {
+    this.isEditMode = true;
+    this.formData = { ...p };
+    this.showFormModal = true;
+  }
+
+  openConfirmModal(p: any): void {
+    this.selectedItem = p;
+    this.showConfirmModal = true;
+  }
+
+  closeFormModal(): void { this.showFormModal = false; }
+  closeConfirmModal(): void { this.showConfirmModal = false; }
+
+  saveProcessus(): void {
+    const obs = this.isEditMode
+      ? this.http.put(API.processus.update(this.formData.id), this.formData)
+      : this.http.post(API.processus.create, this.formData);
+    obs.subscribe(() => { this.charger(); this.closeFormModal(); });
+  }
+
+  deleteProcessus(): void {
+    this.http.delete(API.processus.delete(this.selectedItem.id))
+      .subscribe(() => { this.charger(); this.closeConfirmModal(); });
   }
 }

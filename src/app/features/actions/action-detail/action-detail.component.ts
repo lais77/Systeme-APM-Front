@@ -71,7 +71,7 @@ export class ActionDetailComponent implements OnInit {
   }
 
   ajouterCommentaire(): void {
-    if (!this.nouveauCommentaire.trim() || !this.action) return;
+    if (!this.nouveauCommentaire.trim() || !this.action || this.estEnLectureSeule()) return;
     this.http.post(API.commentaires.add(this.action.id), { content: this.nouveauCommentaire }).subscribe({
       next: (c: any) => {
         this.commentaires.push(c);
@@ -85,7 +85,7 @@ export class ActionDetailComponent implements OnInit {
   }
 
   uploadFichier(): void {
-    if (!this.fichierSelectionne || !this.action) return;
+    if (!this.fichierSelectionne || !this.action || this.estEnLectureSeule()) return;
     const formData = new FormData();
     formData.append('file', this.fichierSelectionne);
     formData.append('description', this.descriptionFichier);
@@ -100,14 +100,14 @@ export class ActionDetailComponent implements OnInit {
   }
 
   demarrer(): void {
-    if (!this.action) return;
+    if (!this.action || !this.peutDemarrer()) return;
     this.actionsService.demarrer(this.action.id).subscribe({
       next: (data) => { this.action = data; }
     });
   }
 
   soumettre(): void {
-    if (!this.action) return;
+    if (!this.action || !this.peutSoumettre()) return;
     this.actionsService.soumettre(this.action.id, this.soumissionData).subscribe({
       next: (data) => {
         this.action = data;
@@ -117,7 +117,7 @@ export class ActionDetailComponent implements OnInit {
   }
 
   valider(): void {
-    if (!this.action) return;
+    if (!this.action || !this.peutValider()) return;
     this.actionsService.valider(this.action.id, this.validationData).subscribe({
       next: (data) => {
         this.action = data;
@@ -127,7 +127,7 @@ export class ActionDetailComponent implements OnInit {
   }
 
   evaluer(): void {
-    if (!this.action) return;
+    if (!this.action || !this.peutEvaluer()) return;
     const data = {
       ...this.evaluationData,
       replacementAction: this.evaluationData.effectiveness === 'Ineffective'
@@ -155,7 +155,7 @@ export class ActionDetailComponent implements OnInit {
   }
 
   peutDemarrer(): boolean {
-    return this.isManager() && this.action?.status === 'Created';
+    return this.isManager() && ['Created', 'Assigned'].includes(this.action?.status || '');
   }
 
   peutSoumettre(): boolean {
@@ -168,6 +168,23 @@ export class ActionDetailComponent implements OnInit {
 
   peutEvaluer(): boolean {
     return this.isManager() && this.action?.status === 'Validated';
+  }
+
+  estEnLectureSeule(): boolean {
+    return this.action?.status === 'Closed';
+  }
+
+  getStatutLabel(status: string): string {
+    const labels: Record<string, string> = {
+      Created: 'P - Planifiée',
+      Assigned: 'P - Planifiée',
+      InProgress: 'En réalisation',
+      UnderReview: 'D - À valider',
+      Validated: 'D - Réalisée',
+      Rejected: 'À reprendre',
+      Closed: 'C - Clôturée'
+    };
+    return labels[status] || status;
   }
 
   getStatutClass(status: string): string {
@@ -195,6 +212,7 @@ export class ActionDetailComponent implements OnInit {
   }
 
   supprimerFichier(id: number): void {
+    if (this.estEnLectureSeule()) return;
     if (confirm('Supprimer ce fichier ?')) {
       this.http.delete(API.fichiers.delete(id)).subscribe({
         next: () => {

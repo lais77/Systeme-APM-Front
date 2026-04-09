@@ -1,0 +1,119 @@
+<div class="dept-page">
+  <div class="page-topbar">
+    <div>
+      <div class="page-breadcrumb">
+        <i class="pi pi-home"></i> Administration
+        <i class="pi pi-angle-right"></i> Départements
+      </div>
+      <h1 class="page-title">Gestion des Départements</h1>
+    </div>
+    <button class="btn-primary" (click)="openCreateModal()">
+      <i class="pi pi-plus"></i> Créer Département
+    </button>
+  </div>
+
+  <div class="card">
+    <div class="card-toolbar">
+      <div class="search-wrap">
+        <i class="pi pi-search"></i>
+        <input type="text" placeholder="Rechercher un département..."
+               [(ngModel)]="searchTerm" />
+      </div>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width:80px">ID</th>
+          <th>Nom</th>
+          <th style="width:120px">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let dep of filteredDepartements">
+          <td class="td-id">#{{ dep.id }}</td>
+          <td>
+            <div class="item-cell">
+              <div class="item-icon-wrap"><i class="pi pi-building"></i></div>
+              <span>{{ dep.nom }}</span>
+            </div>
+          </td>
+          <td>
+            <div class="actions-cell">
+              <button class="btn-action btn-edit" (click)="openEditModal(dep)" title="Modifier">
+                <i class="pi pi-pencil"></i>
+              </button>
+              <button class="btn-action btn-delete" (click)="openConfirmModal(dep)" title="Supprimer">
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filteredDepartements.length === 0">
+          <td colspan="3">
+            <div class="empty-state">
+              <i class="pi pi-building"></i>
+              <p>Aucun département trouvé</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal Créer/Modifier -->
+<div class="modal-overlay" *ngIf="showFormModal" (click)="closeFormModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title">
+        <i class="pi pi-building"></i>
+        {{ isEditMode ? 'Modifier le département' : 'Créer un département' }}
+      </div>
+      <button class="btn-close" (click)="closeFormModal()">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Nom du département</label>
+        <input type="text" [(ngModel)]="formData.nom"
+               placeholder="Ex: Production, Qualité..." />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeFormModal()">
+        <i class="pi pi-times"></i> Annuler
+      </button>
+      <button class="btn-primary" (click)="saveDepartement()">
+        <i class="pi pi-check"></i> {{ isEditMode ? 'Enregistrer' : 'Créer' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Confirmation Suppression -->
+<div class="modal-overlay" *ngIf="showConfirmModal" (click)="closeConfirmModal()">
+  <div class="modal" style="max-width:400px" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title">
+        <i class="pi pi-exclamation-triangle"></i> Confirmation
+      </div>
+      <button class="btn-close" (click)="closeConfirmModal()">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="confirm-icon"><i class="pi pi-trash"></i></div>
+      <p class="confirm-title">Supprimer ce département ?</p>
+      <p class="confirm-text">
+        Le département <strong>{{ selectedItem?.nom }}</strong> sera supprimé définitivement.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeConfirmModal()">Annuler</button>
+      <button class="btn-danger" (click)="deleteDepartement()">
+        <i class="pi pi-trash"></i> Supprimer
+      </button>
+    </div>
+  </div>
+</div>

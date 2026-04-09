@@ -1,89 +1,210 @@
-<div class="app-container">
+<!-- Wrapper global qui prend tout l'écran -->
+<div class="app-root" [class.theme-light]="isLightMode">
 
+  <!-- ── SIDEBAR ──────────────────────────────────── -->
   <aside class="sidebar">
-    <div class="sidebar-header">
-      <span class="logo">APM</span>
-      <span class="logo-sub">TIS Circuits</span>
+
+    <div class="sidebar-logo">
+      <div class="logo-inner">
+        <div class="logo-icon">
+          <i class="pi pi-th-large"></i>
+        </div>
+        <div class="logo-texts">
+          <span class="logo-name">TIS Circuits</span>
+          <span class="logo-tagline">Action Plan Management</span>
+        </div>
+      </div>
     </div>
 
-    <nav class="nav-menu">
+    <nav class="sidebar-nav">
 
       <!-- ADMIN -->
-      <ng-container *ngIf="isAdmin()">
-        <a routerLink="/dashboard" routerLinkActive="active">
-          <span class="icon">📊</span> Dashboard
+      <div class="nav-section" *ngIf="userRole === 'ADMIN'">
+        <span class="nav-section-label">Administration</span>
+        <a class="nav-item" routerLink="/dashboard" routerLinkActive="active">
+          <i class="pi pi-chart-bar"></i>
+          <span class="nav-label">Tableau de bord</span>
         </a>
-        <a routerLink="/dashboard/reporting" routerLinkActive="active">
-          <span class="icon">📈</span> Reporting
+        <a class="nav-item" routerLink="/reporting" routerLinkActive="active">
+          <i class="pi pi-chart-line"></i>
+          <span class="nav-label">Reporting</span>
         </a>
-        <a routerLink="/admin/users" routerLinkActive="active">
-          <span class="icon">👥</span> Utilisateurs
+        <a class="nav-item" routerLink="/admin/users" routerLinkActive="active">
+          <i class="pi pi-users"></i>
+          <span class="nav-label">Utilisateurs</span>
         </a>
-        <a routerLink="/admin/departements" routerLinkActive="active">
-          <span class="icon">🏭</span> Départements
+        <a class="nav-item" routerLink="/admin/departements" routerLinkActive="active">
+          <i class="pi pi-building"></i>
+          <span class="nav-label">Départements</span>
         </a>
-        <a routerLink="/admin/processus" routerLinkActive="active">
-          <span class="icon">⚙️</span> Processus
+        <a class="nav-item" routerLink="/admin/processus" routerLinkActive="active">
+          <i class="pi pi-cog"></i>
+          <span class="nav-label">Processus</span>
         </a>
-        <a routerLink="/notifications" routerLinkActive="active">
-          <span class="icon">🔔</span> Notifications
+        <a class="nav-item" routerLink="/notifications" routerLinkActive="active">
+          <i class="pi pi-bell"></i>
+          <span class="nav-label">Notifications</span>
+          <span class="nav-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
         </a>
-      </ng-container>
+      </div>
 
       <!-- MANAGER -->
-      <ng-container *ngIf="isManager()">
-        <a routerLink="/dashboard" routerLinkActive="active">
-          <span class="icon">📊</span> Dashboard
+      <div class="nav-section" *ngIf="userRole === 'MANAGER'">
+        <span class="nav-section-label">Espace Manager</span>
+        <a class="nav-item" routerLink="/dashboard" routerLinkActive="active">
+          <i class="pi pi-chart-bar"></i>
+          <span class="nav-label">Tableau de bord</span>
         </a>
-        <a routerLink="/plans" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
-          <span class="icon">📋</span> Plans Usine
+        <a class="nav-item" routerLink="/plans-usine" routerLinkActive="active">
+          <i class="pi pi-list"></i>
+          <span class="nav-label">Plans Usine</span>
         </a>
-        <a routerLink="/plans/mes-plans" routerLinkActive="active">
-          <span class="icon">📁</span> Mes Plans
+        <a class="nav-item" routerLink="/mes-plans" routerLinkActive="active">
+          <i class="pi pi-file"></i>
+          <span class="nav-label">Mes Plans</span>
         </a>
-        <a routerLink="/notifications" routerLinkActive="active">
-          <span class="icon">🔔</span> Notifications
+        <a class="nav-item" routerLink="/notifications" routerLinkActive="active">
+          <i class="pi pi-bell"></i>
+          <span class="nav-label">Notifications</span>
+          <span class="nav-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
         </a>
-      </ng-container>
+      </div>
 
       <!-- RESPONSABLE -->
-      <ng-container *ngIf="isResponsable()">
-        <a routerLink="/actions/mes-actions" routerLinkActive="active">
-          <span class="icon">✅</span> Mes Actions
+      <div class="nav-section" *ngIf="userRole === 'RESPONSABLE'">
+        <span class="nav-section-label">Espace Responsable</span>
+        <a class="nav-item" routerLink="/mes-actions" routerLinkActive="active">
+          <i class="pi pi-check-square"></i>
+          <span class="nav-label">Mes Actions</span>
         </a>
-        <a routerLink="/notifications" routerLinkActive="active">
-          <span class="icon">🔔</span> Notifications
+        <a class="nav-item" routerLink="/notifications" routerLinkActive="active">
+          <i class="pi pi-bell"></i>
+          <span class="nav-label">Notifications</span>
+          <span class="nav-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
         </a>
-      </ng-container>
+      </div>
 
       <!-- AUDITEUR -->
-      <ng-container *ngIf="isAuditeur()">
-        <a routerLink="/dashboard" routerLinkActive="active">
-          <span class="icon">📊</span> Dashboard
+      <div class="nav-section" *ngIf="userRole === 'AUDITEUR'">
+        <span class="nav-section-label">Espace Auditeur</span>
+        <a class="nav-item" routerLink="/dashboard" routerLinkActive="active">
+          <i class="pi pi-chart-bar"></i>
+          <span class="nav-label">Tableau de bord</span>
         </a>
-        <a routerLink="/notifications" routerLinkActive="active">
-          <span class="icon">🔔</span> Notifications
+        <a class="nav-item" routerLink="/notifications" routerLinkActive="active">
+          <i class="pi pi-bell"></i>
+          <span class="nav-label">Notifications</span>
+          <span class="nav-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
         </a>
-      </ng-container>
+      </div>
 
     </nav>
 
     <div class="sidebar-footer">
-      <div class="user-info">
-        <div class="user-avatar">
-          {{ getInitiales() }}
-        </div>
-        <div class="user-details">
-          <span class="user-name">{{ user?.fullName }}</span>
-          <span class="user-role">{{ getRoleBadge() }}</span>
-        </div>
-      </div>
-      <button class="logout-btn" (click)="logout()">Déconnexion</button>
+      <button class="sidebar-footer-item" routerLink="/support">
+        <i class="pi pi-question-circle"></i>
+        Support
+      </button>
+      <button class="sidebar-footer-item logout" (click)="logout()">
+        <i class="pi pi-sign-out"></i>
+        Déconnexion
+      </button>
     </div>
+
   </aside>
 
-  <main class="main-content">
-    <router-outlet />
-  </main>
+  <!-- ── ZONE DROITE (header + contenu) ────────────── -->
+  <div class="app-right">
+
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-actions">
+        <div class="header-menu-wrap" (click)="$event.stopPropagation()">
+          <button class="header-btn" title="Notifications" (click)="toggleNotificationMenu($event)">
+            <i class="pi pi-bell"></i>
+            <span class="notif-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+          </button>
+          <div class="header-dropdown notif-dropdown" *ngIf="notificationMenuOpen">
+            <div class="dropdown-head">
+              <span>Notifications</span>
+              <button class="link-btn" (click)="markAllNotificationsAsRead($event)">Tout lu</button>
+            </div>
+            <button class="notif-item" *ngFor="let n of notifications" (click)="openNotificationsPage($event)">
+              <span class="notif-dot" *ngIf="!n.read"></span>
+              <div class="notif-texts">
+                <span class="notif-title">{{ n.title }}</span>
+                <span class="notif-desc">{{ n.details }}</span>
+              </div>
+              <span class="notif-time">{{ n.time }}</span>
+            </button>
+            <button class="view-all-btn" (click)="openNotificationsPage($event)">Voir toutes les notifications</button>
+          </div>
+        </div>
+
+        <div class="header-menu-wrap" (click)="$event.stopPropagation()">
+          <button class="header-btn" title="Paramètres" (click)="toggleSettingsMenu($event)">
+            <i class="pi pi-cog"></i>
+          </button>
+          <div class="header-dropdown" *ngIf="settingsMenuOpen">
+            <button class="dropdown-item" (click)="toggleTheme($event)">
+              <i class="pi" [class.pi-moon]="!isLightMode" [class.pi-sun]="isLightMode"></i>
+              {{ isLightMode ? 'Mode sombre' : 'Mode clair' }}
+            </button>
+            <button class="dropdown-item" (click)="openProfile($event)">
+              <i class="pi pi-user"></i>
+              Gérer le profil
+            </button>
+            <button class="dropdown-item" (click)="openSystemSettings($event)">
+              <i class="pi pi-sliders-h"></i>
+              Configuration système
+            </button>
+          </div>
+        </div>
+        <div class="header-divider"></div>
+        <div class="header-menu-wrap" (click)="$event.stopPropagation()">
+        <div class="header-user" (click)="toggleUserMenu($event)">
+          <div class="user-info">
+            <span class="user-name">{{ currentUser?.fullName || 'Admin APM' }}</span>
+            <span class="user-role">{{ (currentUser?.role || 'ADMIN') | uppercase }}</span>
+          </div>
+          <div class="user-avatar">
+            A
+          </div>
+        </div>
+        <div class="header-dropdown user-dropdown" *ngIf="userMenuOpen">
+          <div class="user-mini">
+            <strong>{{ currentUser?.fullName || 'Admin APM' }}</strong>
+            <span>{{ (currentUser?.role || 'ADMIN') | uppercase }}</span>
+          </div>
+          <button class="dropdown-item" (click)="openProfile($event)">
+            <i class="pi pi-id-card"></i>
+            Mon profil
+          </button>
+          <button class="dropdown-item danger" (click)="logout()">
+            <i class="pi pi-sign-out"></i>
+            Déconnexion
+          </button>
+        </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Contenu scrollable -->
+    <main class="page-content">
+      <router-outlet></router-outlet>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <div class="footer-status">
+        <span class="status-dot"></span>
+        Tous les systèmes opérationnels
+      </div>
+      <div class="footer-spacer"></div>
+      <span class="footer-rights">© {{ currentYear }} TIS Circuits — Tous droits réservés</span>
+      <span class="footer-version">v2.0.0</span>
+    </footer>
+
+  </div>
 
 </div>

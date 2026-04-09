@@ -120,3 +120,26 @@ export interface StatsGlobal {
   inProgressActions: number;
   closedActions: number;
 }
+
+export type TicketStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED';
+export type TicketPriority = 'LOW' | 'MEDIUM' | 'HIGH';
+export type TicketCategory = 'TECHNICAL' | 'PROCESS' | 'ACCESS';
+
+export interface SupportTicket {
+  id: number;
+  category: TicketCategory;
+  priority: TicketPriority;
+  status: TicketStatus;
+  message: string;
+  pageUrl: string;
+  fileName?: string;
+  createdAt: string;
+}
+
+export interface CreateSupportTicketRequest {
+  category: TicketCategory;
+  priority: TicketPriority;
+  message: string;
+  pageUrl: string;
+  fileName?: string;
+}

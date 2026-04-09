@@ -67,14 +67,18 @@ export const API = {
     markRead: (id: number) => `${BASE}/notifications/${id}/read`,
     markAllRead: `${BASE}/notifications/read-all`,
   },
+  support: {
+    getMyTickets: `${BASE}/support/tickets/my`,
+    createTicket: `${BASE}/support/tickets`,
+  },
   stats: {
     global: `${BASE}/stats/global`,
     byDepartement: `${BASE}/stats/by-department`,
     byPilote: `${BASE}/stats/by-pilot`,
-    byPeriode: `${BASE}/stats/by-period`,
+    byPeriode: `${BASE}/stats/by-periode`,
     performance: `${BASE}/stats/performance`,
     export: {
-      pdf: `${BASE}/export/pdf`,
+      pdf: `${BASE}/export/excel`,
       excel: `${BASE}/export/excel`,
     }
   }

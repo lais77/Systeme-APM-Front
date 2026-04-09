@@ -65,4 +65,21 @@ export class PlanDetailComponent implements OnInit {
     };
     return classes[status] || '';
   }
+
+  getStatutActionLabel(status: string): string {
+    const labels: Record<string, string> = {
+      Created: 'P - Planifiée',
+      Assigned: 'P - Planifiée',
+      InProgress: 'En réalisation',
+      UnderReview: 'D - À valider',
+      Validated: 'D - Réalisée',
+      Rejected: 'À reprendre',
+      Closed: 'C - Clôturée'
+    };
+    return labels[status] || status;
+  }
+
+  planLectureSeule(): boolean {
+    return this.plan?.status === 'Closed';
+  }
 }

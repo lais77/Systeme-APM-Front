@@ -1,16 +1,49 @@
-<div class="page">
-  <div class="page-header">
-    <h1>Gestion des utilisateurs</h1>
-    <button class="btn-primary" (click)="ouvrirModal()">+ Nouvel utilisateur</button>
+<div class="users-page">
+
+  <!-- Topbar -->
+  <div class="page-topbar">
+    <div>
+      <div class="page-breadcrumb">
+        <i class="pi pi-home"></i>
+        Administration
+        <i class="pi pi-angle-right"></i>
+        Utilisateurs
+      </div>
+      <h1 class="page-title">Gestion des Utilisateurs</h1>
+    </div>
+    <button class="btn-primary" (click)="openCreateModal()">
+      <i class="pi pi-plus"></i>
+      Créer Utilisateur
+    </button>
   </div>
 
-  <div class="loading" *ngIf="chargement">Chargement...</div>
+  <!-- Tableau -->
+  <div class="card">
+    <div class="card-toolbar">
+      <div class="search-wrap">
+        <i class="pi pi-search"></i>
+        <input type="text" placeholder="Rechercher un utilisateur..."
+               [(ngModel)]="searchTerm" />
+      </div>
+      <select [(ngModel)]="filterRole">
+        <option value="">Tous les rôles</option>
+        <option value="ADMIN">Admin</option>
+        <option value="MANAGER">Manager</option>
+        <option value="RESPONSABLE">Responsable</option>
+        <option value="AUDITEUR">Auditeur</option>
+      </select>
+      <select [(ngModel)]="filterStatut">
+        <option value="">Tous les statuts</option>
+        <option value="true">Actif</option>
+        <option value="false">Inactif</option>
+      </select>
+    </div>
 
-  <div class="table-container" *ngIf="!chargement">
-    <table>
+    <table class="data-table">
       <thead>
         <tr>
-          <th>Nom complet</th>
+          <th>ID</th>
+          <th>Nom Complet</th>
           <th>Email</th>
           <th>Rôle</th>
           <th>Statut</th>
@@ -18,56 +51,97 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let user of users">
-          <td>{{ user.fullName }}</td>
-          <td>{{ user.email }}</td>
+        <tr *ngFor="let user of filteredUsers">
+          <td class="td-id">#{{ user.id }}</td>
           <td>
-            <span class="badge" [ngClass]="getRoleBadgeClass(user.role)">
+            <div class="user-cell">
+              <div class="user-avatar">
+                {{ user.prenom?.charAt(0) }}{{ user.nom?.charAt(0) }}
+              </div>
+              <span class="user-nom">{{ user.prenom }} {{ user.nom }}</span>
+            </div>
+          </td>
+          <td style="color:var(--text-secondary);">{{ user.email }}</td>
+          <td>
+            <span class="badge"
+              [class.badge-admin]="user.role === 'ADMIN'"
+              [class.badge-manager]="user.role === 'MANAGER'"
+              [class.badge-responsable]="user.role === 'RESPONSABLE'"
+              [class.badge-auditeur]="user.role === 'AUDITEUR'">
               {{ user.role }}
             </span>
           </td>
           <td>
-            <span class="badge" [ngClass]="user.isActive ? 'badge-actif' : 'badge-inactif'">
-              {{ user.isActive ? 'Actif' : 'Inactif' }}
+            <span class="badge"
+              [class.badge-actif]="user.actif"
+              [class.badge-inactif]="!user.actif">
+              <i class="pi" [class.pi-check]="user.actif" [class.pi-times]="!user.actif"></i>
+              {{ user.actif ? 'Actif' : 'Inactif' }}
             </span>
           </td>
           <td>
-            <button class="btn-icon" (click)="ouvrirModal(user)">✏️</button>
-            <button class="btn-icon btn-danger" (click)="desactiver(user.id)" *ngIf="user.isActive">🚫</button>
-            <button class="btn-icon btn-success" (click)="activer(user.id)" *ngIf="!user.isActive">✅</button>
+            <div class="actions-cell">
+              <button class="btn-action btn-edit" (click)="openEditModal(user)" title="Modifier">
+                <i class="pi pi-pencil"></i>
+              </button>
+              <button class="btn-action btn-delete" (click)="openConfirmModal(user)"
+                      title="Désactiver" *ngIf="user.actif">
+                <i class="pi pi-ban"></i>
+              </button>
+            </div>
           </td>
         </tr>
-        <tr *ngIf="users.length === 0">
-          <td colspan="5" class="empty">Aucun utilisateur trouvé.</td>
+        <tr *ngIf="filteredUsers.length === 0">
+          <td colspan="6">
+            <div class="empty-state">
+              <i class="pi pi-users"></i>
+              <p>Aucun utilisateur trouvé</p>
+            </div>
+          </td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <!-- Modal -->
-  <div class="modal-overlay" *ngIf="modalOuvert" (click)="fermerModal()">
-    <div class="modal" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h2>{{ modeEdition ? 'Modifier' : 'Nouvel' }} utilisateur</h2>
-        <button (click)="fermerModal()">✕</button>
+</div>
+
+<!-- Modal Créer/Modifier -->
+<div class="modal-overlay" *ngIf="showFormModal" (click)="closeFormModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title">
+        <i class="pi pi-user"></i>
+        {{ isEditMode ? 'Modifier l\'utilisateur' : 'Créer un utilisateur' }}
       </div>
-      <div class="modal-body">
+      <button class="btn-close" (click)="closeFormModal()">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
         <div class="form-group">
-          <label>Nom complet</label>
-          <input type="text" [(ngModel)]="userSelectionne.fullName" placeholder="Nom complet" />
+          <label>Prénom</label>
+          <input type="text" [(ngModel)]="formData.prenom" placeholder="Prénom" />
         </div>
         <div class="form-group">
-          <label>Email</label>
-          <input type="email" [(ngModel)]="userSelectionne.email" placeholder="email@tis.com" />
+          <label>Nom</label>
+          <input type="text" [(ngModel)]="formData.nom" placeholder="Nom" />
         </div>
-        <div class="form-group" *ngIf="!modeEdition">
-          <label>Mot de passe</label>
-          <input type="password" [(ngModel)]="userSelectionne.password" placeholder="••••••••" />
-        </div>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" [(ngModel)]="formData.email" placeholder="email@tiscircuits.com" />
+      </div>
+      <div class="form-group" *ngIf="!isEditMode">
+        <label>Mot de passe</label>
+        <input type="password" [(ngModel)]="formData.password" placeholder="••••••••" />
+      </div>
+      <div class="form-row">
         <div class="form-group">
           <label>Rôle</label>
-          <select [(ngModel)]="userSelectionne.role">
-            <option value="ADMIN">Administrateur</option>
+          <select [(ngModel)]="formData.role">
+            <option value="">Sélectionner...</option>
+            <option value="ADMIN">Admin</option>
             <option value="MANAGER">Manager</option>
             <option value="RESPONSABLE">Responsable</option>
             <option value="AUDITEUR">Auditeur</option>
@@ -75,35 +149,50 @@
         </div>
         <div class="form-group">
           <label>Département</label>
-          <select [(ngModel)]="userSelectionne.departmentId">
-            <option [ngValue]="null">-- Aucun --</option>
-            <option *ngFor="let dept of departements" [ngValue]="dept.id">
-              {{ dept.nom }}
-            </option>
+          <select [(ngModel)]="formData.departementId">
+            <option value="">Sélectionner...</option>
+            <option *ngFor="let dep of departements" [value]="dep.id">{{ dep.nom }}</option>
           </select>
         </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn-secondary" (click)="fermerModal()">Annuler</button>
-        <button class="btn-primary" (click)="sauvegarder()">Sauvegarder</button>
-      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeFormModal()">
+        <i class="pi pi-times"></i> Annuler
+      </button>
+      <button class="btn-primary" (click)="saveUser()">
+        <i class="pi pi-check"></i>
+        {{ isEditMode ? 'Enregistrer' : 'Créer' }}
+      </button>
     </div>
   </div>
+</div>
 
-  <!-- Modal confirmation désactivation -->
-  <div class="modal-overlay" *ngIf="modalConfirmOuvert" (click)="modalConfirmOuvert = false">
-    <div class="modal" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h2>Confirmation</h2>
-        <button (click)="modalConfirmOuvert = false">✕</button>
+<!-- Modal Confirmation -->
+<div class="modal-overlay" *ngIf="showConfirmModal" (click)="closeConfirmModal()">
+  <div class="modal" style="max-width:400px;" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title">
+        <i class="pi pi-exclamation-triangle"></i>
+        Confirmation
       </div>
-      <div class="modal-body">
-        <p>Voulez-vous vraiment désactiver cet utilisateur ?</p>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-secondary" (click)="modalConfirmOuvert = false">Annuler</button>
-        <button class="btn-danger" (click)="confirmerDesactivation()">Désactiver</button>
-      </div>
+      <button class="btn-close" (click)="closeConfirmModal()">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="confirm-icon"><i class="pi pi-ban"></i></div>
+      <p class="confirm-title">Désactiver cet utilisateur ?</p>
+      <p class="confirm-text">
+        L'utilisateur <strong>{{ selectedUser?.prenom }} {{ selectedUser?.nom }}</strong>
+        sera désactivé et ne pourra plus se connecter.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeConfirmModal()">Annuler</button>
+      <button class="btn-danger" (click)="disableUser()">
+        <i class="pi pi-ban"></i> Désactiver
+      </button>
     </div>
   </div>
 </div>

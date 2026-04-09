@@ -3,93 +3,132 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f5f5f5;
+  background: var(--bg-app); /* #f6fafe */
+  font-family: var(--font-family);
 }
 
 .login-card {
-  background: white;
-  border-radius: 12px;
-  padding: 2.5rem;
+  background: var(--bg-card); /* #ffffff */
+  border-radius: 16px;
+  padding: 3rem 2.5rem;
   width: 100%;
-  max-width: 400px;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+  max-width: 420px;
+  box-shadow: var(--ambient-shadow);
+  border: 1px solid var(--border-light);
 }
 
 .login-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
 
   h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #1a73e8;
-    margin-bottom: 0.25rem;
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: var(--primary-color); /* #b70011 */
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.5px;
   }
 
   p {
     font-size: 0.85rem;
-    color: #888;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
   }
 }
 
 .form-group {
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
 
   label {
     display: block;
     font-size: 0.875rem;
-    font-weight: 500;
-    color: #333;
+    font-weight: 600;
+    color: var(--text-main);
     margin-bottom: 0.5rem;
   }
 
   input {
     width: 100%;
-    padding: 0.75rem 1rem;
-    border: 1px solid #ddd;
+    padding: 0.875rem 1rem;
+    background: #f0f4f8; /* surface container low */
+    border: 1px solid transparent;
     border-radius: 8px;
     font-size: 0.95rem;
-    transition: border-color 0.2s;
+    color: var(--text-main);
+    transition: all 0.2s;
 
     &:focus {
       outline: none;
-      border-color: #1a73e8;
+      background: var(--bg-card);
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(183, 0, 17, 0.1); /* red glow */
+    }
+
+    &::placeholder {
+      color: var(--text-placeholder);
     }
   }
 }
 
 .erreur {
-  background: #fdecea;
-  color: #c62828;
-  padding: 0.75rem 1rem;
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  padding: 0.875rem 1rem;
   border-radius: 8px;
   font-size: 0.875rem;
-  margin-bottom: 1rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &::before {
+    content: '\e911'; /* PrimeIcons standard alert icon or similar, or just text */
+    font-family: 'primeicons';
+  }
 }
 
 button[type="submit"] {
   width: 100%;
-  padding: 0.875rem;
-  background: #1a73e8;
+  padding: 1rem;
+  background: var(--primary-color);
   color: white;
   border: none;
   border-radius: 8px;
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px var(--primary-glow);
 
-  &:hover:not(:disabled) { background: #1557b0; }
-  &:disabled { background: #9dc3f7; cursor: not-allowed; }
+  &:hover:not(:disabled) { 
+    background: var(--primary-hover); 
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px var(--primary-glow);
+  }
+  
+  &:disabled { 
+    background: #e6bdb8; /* outline-variant or similar light red */
+    color: rgba(255,255,255,0.7);
+    cursor: not-allowed; 
+    box-shadow: none;
+    transform: none;
+  }
 }
 
 .lien-oubli {
   display: block;
   text-align: center;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
   font-size: 0.875rem;
-  color: #1a73e8;
+  font-weight: 500;
+  color: var(--text-muted);
   text-decoration: none;
+  transition: color 0.2s;
 
-  &:hover { text-decoration: underline; }
+  &:hover { 
+    color: var(--primary-color); 
+  }
 }

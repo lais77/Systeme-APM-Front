@@ -58,4 +58,8 @@ export class PlansUsineComponent implements OnInit {
   getStatutClass(status: string): string {
     return status === 'InProgress' ? 'badge-encours' : 'badge-cloture';
   }
+
+  getStatutLabel(status: string): string {
+    return status === 'Closed' ? 'Clôturé' : 'En cours';
+  }
 }

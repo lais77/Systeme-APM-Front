@@ -1,29 +1,196 @@
-<div class="page">
-  <div class="page-header">
-    <h1>Notifications</h1>
-    <button class="btn-secondary" (click)="marquerToutLu()">Tout marquer comme lu</button>
+<div class="notif-page">
+
+  <!-- ── Topbar ──────────────────────────────────────── -->
+  <div class="page-topbar">
+    <div class="page-left">
+      <div class="page-breadcrumb">
+        <i class="pi pi-home"></i>
+        Système
+        <i class="pi pi-angle-right"></i>
+        Notifications
+      </div>
+      <h1 class="page-title">
+        Centre de Notifications
+        <span class="unread-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+      </h1>
+      <p class="page-subtitle">
+        Alertes et événements — Circuit de production TIS
+      </p>
+    </div>
+    <div class="page-actions">
+      <button class="btn-outline" (click)="markAllAsRead()" *ngIf="unreadCount > 0">
+        <i class="pi pi-check-circle"></i>
+        Marquer tout comme lu
+      </button>
+      <button class="btn-outline">
+        <i class="pi pi-filter"></i>
+        Vue Filtre
+      </button>
+    </div>
   </div>
 
-  <div class="loading" *ngIf="chargement">Chargement...</div>
+  <!-- ── Layout 2 colonnes ───────────────────────────── -->
+  <div class="notif-layout">
 
-  <div class="notifications-list" *ngIf="!chargement">
-    <div
-      *ngFor="let notif of notifications"
-      class="notification-card"
-      [class.unread]="!notif.isRead"
-    >
-      <div class="notif-icon">🔔</div>
-      <div class="notif-content">
-        <h4>{{ notif.title }}</h4>
-        <p>{{ notif.message }}</p>
-        <span class="notif-date">{{ notif.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+    <!-- Panel gauche statut -->
+    <div class="status-panel">
+
+      <!-- Alertes critiques -->
+      <div class="status-card">
+        <div class="status-card-head head-danger">
+          <i class="pi pi-exclamation-circle"></i>
+          <span>Alertes Critiques</span>
+        </div>
+        <div class="status-counter">
+          <div class="counter-item">
+            <span class="counter-label">
+              <i class="pi pi-clock"></i>
+              En Retard
+            </span>
+            <span class="counter-value danger">
+              {{ retardCount }}
+            </span>
+          </div>
+          <div class="counter-item">
+            <span class="counter-label">
+              <i class="pi pi-exclamation-triangle"></i>
+              Urgent
+            </span>
+            <span class="counter-value danger">
+              {{ urgentCount }}
+            </span>
+          </div>
+          <div class="counter-item">
+            <span class="counter-label">
+              <i class="pi pi-bell"></i>
+              Non lues
+            </span>
+            <span class="counter-value warn">{{ unreadCount }}</span>
+          </div>
+        </div>
       </div>
-      <div class="notif-actions" *ngIf="!notif.isRead">
-        <button class="btn-icon" (click)="marquerLu(notif.id)">✓</button>
+
+      <!-- Logs info -->
+      <div class="status-card">
+        <div class="status-card-head head-info">
+          <i class="pi pi-info-circle"></i>
+          <span>Logs Info</span>
+        </div>
+        <div class="status-counter">
+          <div class="counter-item">
+            <span class="counter-label">
+              <i class="pi pi-check-circle"></i>
+              Clôturées
+            </span>
+            <span class="counter-value info">
+              {{ clotureCount }}
+            </span>
+          </div>
+          <div class="counter-item">
+            <span class="counter-label">
+              <i class="pi pi-list"></i>
+              Total
+            </span>
+            <span class="counter-value">{{ notifications.length }}</span>
+          </div>
+        </div>
       </div>
+
     </div>
-    <div class="empty" *ngIf="notifications.length === 0">
-      Aucune notification.
+
+    <!-- Panel droit liste -->
+    <div class="notif-panel">
+
+      <!-- Onglets -->
+      <div class="notif-tabs">
+        <button class="tab-btn" [class.active]="activeTab === 'all'" (click)="setTab('all')">
+          Toute l'activité
+          <span class="tab-count">{{ notifications.length }}</span>
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'unread'" (click)="setTab('unread')">
+          Non lues
+          <span class="tab-count">{{ unreadCount }}</span>
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'important'" (click)="setTab('important')">
+          Important
+        </button>
+      </div>
+
+      <!-- Liste -->
+      <ul class="notif-list" *ngIf="filteredNotifications.length > 0">
+        <li class="notif-item"
+            [class.unread]="!notif.lue"
+            *ngFor="let notif of filteredNotifications"
+            (click)="markAsRead(notif)">
+
+          <!-- Icône type -->
+          <div class="notif-icon-wrap"
+               [class.type-retard]="notif.type === 'RETARD'"
+               [class.type-urgent]="notif.type === 'URGENT'"
+               [class.type-cloture]="notif.type === 'CLOTURE'"
+               [class.type-info]="notif.type === 'INFO'"
+               [class.type-default]="!notif.type">
+            <i class="pi"
+               [class.pi-clock]="notif.type === 'RETARD'"
+               [class.pi-exclamation-triangle]="notif.type === 'URGENT'"
+               [class.pi-check-circle]="notif.type === 'CLOTURE'"
+               [class.pi-info-circle]="notif.type === 'INFO'"
+               [class.pi-bell]="!notif.type">
+            </i>
+          </div>
+
+          <!-- Contenu -->
+          <div class="notif-body">
+            <div class="notif-top">
+              <span class="notif-title">{{ notif.titre }}</span>
+              <span class="notif-time">
+                {{ notif.dateCreation | date:'HH:mm' }}
+              </span>
+            </div>
+            <div class="notif-desc">{{ notif.message }}</div>
+            <div class="notif-footer">
+              <span class="type-badge"
+                [class.tb-retard]="notif.type === 'RETARD'"
+                [class.tb-urgent]="notif.type === 'URGENT'"
+                [class.tb-cloture]="notif.type === 'CLOTURE'"
+                [class.tb-info]="notif.type === 'INFO'"
+                *ngIf="notif.type">
+                {{ notif.type }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Point non lu -->
+          <div class="unread-dot" *ngIf="!notif.lue"></div>
+
+        </li>
+      </ul>
+
+      <!-- État vide -->
+      <div class="empty-notif" *ngIf="filteredNotifications.length === 0">
+        <i class="pi pi-bell-slash"></i>
+        <h3>Aucune notification</h3>
+        <p>Il n'y a rien à afficher dans cet onglet.</p>
+      </div>
+
+      <!-- Pagination -->
+      <div class="notif-pagination">
+        <span class="pag-info">
+          {{ filteredNotifications.length }} notification(s)
+        </span>
+        <div class="pag-buttons">
+          <button class="pag-btn" [disabled]="currentPage === 1" (click)="prevPage()">
+            <i class="pi pi-angle-left"></i>
+          </button>
+          <button class="pag-btn active">{{ currentPage }}</button>
+          <button class="pag-btn" [disabled]="currentPage >= totalPages" (click)="nextPage()">
+            <i class="pi pi-angle-right"></i>
+          </button>
+        </div>
+      </div>
+
     </div>
+
   </div>
+
 </div>

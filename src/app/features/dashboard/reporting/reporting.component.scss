@@ -8,8 +8,8 @@
   align-items: center;
   margin-bottom: 2rem;
 
-  h1 { margin: 0; font-size: 1.8rem; font-weight: 600; }
-  .subtitle { color: #666; font-size: 0.95rem; }
+  h1 { margin: 0; font-size: 1.8rem; font-weight: 600; color: var(--text-main); }
+  .subtitle { color: var(--text-muted); font-size: 0.95rem; }
 }
 
 .btn-primary {
@@ -30,10 +30,11 @@
 }
 
 .table-container {
-  background: white;
+  background: var(--bg-card);
   border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: var(--ambient-shadow);
+  border: 1px solid var(--border-light);
 }
 
 .reporting-table {
@@ -48,14 +49,14 @@
   
   th {
     font-size: 0.85rem;
-    color: #64748b;
+    color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     font-weight: 600;
   }
   
   td {
-    color: #334155;
+    color: var(--text-main);
     font-size: 0.95rem;
   }
 }

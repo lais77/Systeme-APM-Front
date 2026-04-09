@@ -115,77 +115,113 @@
 .loading { text-align: center; color: #64748b; padding: 2rem; }
 
 .btn-primary {
-  padding: 0.625rem 1.25rem;
-  background: #1d4ed8;
-  color: white;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: var(--primary-color);
+  color: #fff;
   border: none;
   border-radius: 8px;
   font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
-  &:hover { background: #1e40af; }
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px var(--primary-glow);
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px var(--primary-glow);
+  }
 }
 
 .btn-secondary {
   padding: 0.625rem 1.25rem;
-  background: white;
-  color: #334155;
-  border: 1px solid #e2e8f0;
+  background: rgba(255,255,255,0.08);
+  color: var(--text-main);
+  border: none;
   border-radius: 8px;
   font-size: 0.9rem;
   cursor: pointer;
+  transition: all 0.2s;
+  &:hover { background: rgba(255,255,255,0.14); }
 }
 
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background: rgba(11, 15, 25, 0.85);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  padding: 20px;
 }
 
 .modal {
-  background: white;
-  border-radius: 12px;
+  background: var(--bg-sidebar);
+  border: none;
+  border-radius: 16px;
   width: 100%;
-  max-width: 520px;
+  max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  box-shadow: 0 30px 70px rgba(0,0,0,0.52);
 }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  padding: 24px;
+  border-bottom: none;
   position: sticky;
   top: 0;
-  background: white;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.14) 100%);
 
-  h2 { font-size: 1.1rem; font-weight: 600; color: #1e293b; }
-  button { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #64748b; }
+  h2 { font-size: 1.1rem; font-weight: 700; color: var(--text-main); }
+  button {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background: rgba(255,255,255,0.05);
+    font-size: 1rem;
+    cursor: pointer;
+    color: var(--text-muted);
+  }
 }
 
 .modal-body {
-  padding: 1.5rem;
+  padding: 24px;
 
   .form-group {
     margin-bottom: 1rem;
 
-    label { display: block; font-size: 0.875rem; font-weight: 500; color: #334155; margin-bottom: 0.4rem; }
+    label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 0.45rem;
+    }
 
     input, select, textarea {
       width: 100%;
       padding: 0.625rem 0.875rem;
-      border: 1px solid #e2e8f0;
+      border: none;
       border-radius: 8px;
       font-size: 0.9rem;
       box-sizing: border-box;
       font-family: inherit;
-      &:focus { outline: none; border-color: #1d4ed8; }
+      color: var(--text-main);
+      background: rgba(240, 244, 248, 0.95);
+      &:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(183, 0, 17, 0.25), 0 6px 16px rgba(0,0,0,0.18);
+      }
     }
   }
 
@@ -199,10 +235,10 @@
 .modal-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 0.75rem;
-  padding: 1rem 1.5rem;
-  border-top: 1px solid #e2e8f0;
+  gap: 12px;
+  padding: 20px 24px;
+  border-top: none;
   position: sticky;
   bottom: 0;
-  background: white;
+  background: linear-gradient(0deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.14) 100%);
 }

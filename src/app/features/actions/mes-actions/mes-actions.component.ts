@@ -52,6 +52,19 @@ export class MesActionsComponent implements OnInit {
     return classes[status] || '';
   }
 
+  getStatutLabel(status: string): string {
+    const labels: Record<string, string> = {
+      Created: 'P - Planifiée',
+      Assigned: 'P - Planifiée',
+      InProgress: 'En réalisation',
+      UnderReview: 'D - À valider',
+      Validated: 'D - Réalisée',
+      Rejected: 'À reprendre',
+      Closed: 'C - Clôturée'
+    };
+    return labels[status] || status;
+  }
+
   getCriticiteClass(criticity: string): string {
     const classes: any = {
       High: 'badge-critique',

@@ -34,8 +34,8 @@ export class LoginComponent {
         const user = this.authService.getCurrentUser();
         const role = user?.role;
         if (role === 'ADMIN') this.router.navigate(['/admin/users']);
-        else if (role === 'MANAGER') this.router.navigate(['/plans']);
-        else if (role === 'RESPONSABLE') this.router.navigate(['/actions/mes-actions']);
+        else if (role === 'MANAGER') this.router.navigate(['/mes-plans']);
+        else if (role === 'RESPONSABLE') this.router.navigate(['/mes-actions']);
         else if (role === 'AUDITEUR') this.router.navigate(['/dashboard']);
         else this.router.navigate(['/auth/login']);
       },

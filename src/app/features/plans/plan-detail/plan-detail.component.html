@@ -44,7 +44,7 @@
     <div class="section">
       <div class="section-header">
         <h2>Actions</h2>
-        <button class="btn-primary" [routerLink]="['/plans', plan.id, 'actions', 'nouvelle']">
+        <button class="btn-primary" [routerLink]="['/plans', plan.id, 'actions', 'nouvelle']" [disabled]="planLectureSeule()">
           + Ajouter une action
         </button>
       </div>
@@ -79,7 +79,7 @@
               </td>
               <td>
                 <span class="badge" [ngClass]="getStatutActionClass(action.status)">
-                  {{ action.status }}
+                  {{ getStatutActionLabel(action.status) }}
                 </span>
               </td>
               <td>

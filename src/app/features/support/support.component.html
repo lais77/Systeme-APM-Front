@@ -1,0 +1,117 @@
+<div class="support-page">
+  <div class="page-topbar">
+    <div>
+      <div class="page-breadcrumb">
+        <i class="pi pi-home"></i>
+        Support
+      </div>
+      <h1 class="page-title">Mes Tickets</h1>
+    </div>
+    <button class="btn-primary" (click)="openModal()">
+      <i class="pi pi-plus"></i>
+      Nouveau ticket
+    </button>
+  </div>
+
+  <div class="card">
+    <table class="data-table" *ngIf="!loading">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Catégorie</th>
+          <th>Priorité</th>
+          <th>Statut</th>
+          <th>Message</th>
+          <th>Page</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let ticket of tickets">
+          <td class="td-id">#{{ ticket.id }}</td>
+          <td>{{ getCategoryLabel(ticket.category) }}</td>
+          <td>{{ getPriorityLabel(ticket.priority) }}</td>
+          <td>
+            <span class="badge"
+              [class.badge-open]="ticket.status === 'OPEN'"
+              [class.badge-progress]="ticket.status === 'IN_PROGRESS'"
+              [class.badge-resolved]="ticket.status === 'RESOLVED'">
+              {{ getStatusLabel(ticket.status) }}
+            </span>
+          </td>
+          <td class="message">{{ ticket.message }}</td>
+          <td class="url">{{ ticket.pageUrl }}</td>
+          <td>{{ ticket.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+        </tr>
+        <tr *ngIf="tickets.length === 0">
+          <td colspan="7">
+            <div class="empty-state">
+              <i class="pi pi-inbox"></i>
+              <p>Aucun ticket pour le moment.</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="loading" *ngIf="loading">Chargement...</div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title">
+        <i class="pi pi-question-circle"></i>
+        Nouveau ticket support
+      </div>
+      <button class="btn-close" (click)="closeModal()">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Catégorie</label>
+          <select [(ngModel)]="form.category">
+            <option value="TECHNICAL">Problème technique</option>
+            <option value="PROCESS">Question sur un processus</option>
+            <option value="ACCESS">Demande d'accès</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Priorité</label>
+          <select [(ngModel)]="form.priority">
+            <option value="LOW">Basse</option>
+            <option value="MEDIUM">Moyenne</option>
+            <option value="HIGH">Haute</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Message</label>
+        <textarea rows="4" [(ngModel)]="form.message" placeholder="Décrivez votre problème..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>URL capturée automatiquement</label>
+        <input type="text" [value]="form.pageUrl" readonly />
+      </div>
+
+      <div class="form-group">
+        <label>Pièce jointe (optionnel)</label>
+        <input type="file" (change)="onFileSelected($event)" />
+        <small *ngIf="selectedFileName">{{ selectedFileName }}</small>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeModal()">Annuler</button>
+      <button class="btn-primary" [disabled]="submitting || !form.message.trim()" (click)="submit()">
+        <i class="pi pi-send"></i>
+        Envoyer la demande
+      </button>
+    </div>
+  </div>
+</div>

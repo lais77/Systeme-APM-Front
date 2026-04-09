@@ -1,93 +1,226 @@
 <div class="dashboard">
-  <div class="page-header">
-    <h1>Tableau de bord APM</h1>
-    <span class="subtitle">Gestion des Plans d'Action Usine — TIS Circuits</span>
-  </div>
 
-  <div *ngIf="chargement" class="loading">
-    <p>Chargement des statistiques...</p>
-  </div>
-
-  <div *ngIf="!chargement && stats">
-
-    <!-- Compteurs principaux (selon le manuel page 3) -->
-    <div class="kpi-grid">
-      <div class="kpi-card">
-        <div class="kpi-icon">📋</div>
-        <div class="kpi-value blue">{{ stats.totalPlans }}</div>
-        <div class="kpi-label">Total Plan d'Action</div>
-        <a class="kpi-link" routerLink="/plans-action-usine">Plus de Détails →</a>
+  <!-- ── Barre supérieure ─────────────────────── -->
+  <div class="page-topbar">
+    <div>
+      <div class="page-breadcrumb">
+        <i class="pi pi-home"></i>
+        Aperçu Système
       </div>
-
-      <div class="kpi-card">
-        <div class="kpi-icon">✅</div>
-        <div class="kpi-value green">{{ stats.totalActions }}</div>
-        <div class="kpi-label">Total Action</div>
-        <a class="kpi-link" routerLink="/mes-actions">Plus de Détails →</a>
-      </div>
-
-      <div class="kpi-card">
-        <div class="kpi-icon">👥</div>
-        <div class="kpi-value purple">{{ stats.totalPilotes || 4 }}</div>
-        <div class="kpi-label">Total Pilote</div>
-        <a class="kpi-link">Plus de Détails →</a>
-      </div>
-
-      <div class="kpi-card">
-        <div class="kpi-icon">⚠️</div>
-        <div class="kpi-value red">{{ stats.actionsEnRetard }}</div>
-        <div class="kpi-label">Actions En Retard</div>
-        <a class="kpi-link">Plus de Détails →</a>
-      </div>
+      <h1 class="page-title">Centre de Contrôle Opérationnel</h1>
     </div>
+  </div>
 
-    <!-- Graphiques (selon le manuel page 3) -->
-    <div class="graphiques-grid">
-      <!-- Histogramme mensuel (gauche) -->
-      <div class="graphique-card">
+  <div class="charts-grid" *ngIf="!chargement">
+    <div class="card chart-card chart-left">
+      <div class="card-head">
+        <span class="card-title">
+          <i class="pi pi-chart-bar"></i>
+          Représentation des Plans d'Action TIS circuits par mois
+        </span>
+      </div>
+      <div class="chart-body">
         <canvas #histogrammeCanvas></canvas>
       </div>
-
-      <!-- Camembert (droite) -->
-      <div class="graphique-card">
+    </div>
+    <div class="card chart-card chart-right">
+      <div class="card-head">
+        <span class="card-title">
+          <i class="pi pi-chart-pie"></i>
+          Représentation des Plans d'Actions TIS circuits
+        </span>
+      </div>
+      <div class="chart-body">
         <canvas #camembertCanvas></canvas>
       </div>
     </div>
+  </div>
 
-    <!-- Indicateurs de performance -->
-    <div class="section">
-      <h2>Indicateurs de performance</h2>
-      
-      <div class="progress-item">
-        <div class="progress-label">
-          <span>Taux de réalisation</span>
-          <span>{{ stats.tauxRealisation }}%</span>
-        </div>
-        <div class="progress-bar">
-          <div class="progress-fill blue" [style.width.%]="stats.tauxRealisation"></div>
+  <!-- ── KPI Cards ────────────────────────────── -->
+  <div class="kpi-grid">
+
+    <div class="kpi-card kpi-blue">
+      <div class="kpi-header">
+        <span class="kpi-label">Plans Actifs</span>
+        <div class="kpi-icon kpi-icon-blue">
+          <i class="pi pi-list"></i>
         </div>
       </div>
+      <div class="kpi-value">{{ totalPlans }}</div>
+      <div class="kpi-sub sub-up">
+        <i class="pi pi-arrow-up"></i>
+        Plans en cours de suivi
+      </div>
+    </div>
 
-      <div class="progress-item">
-        <div class="progress-label">
-          <span>Taux de clôture</span>
-          <span>{{ stats.tauxCloture }}%</span>
-        </div>
-        <div class="progress-bar">
-          <div class="progress-fill green" [style.width.%]="stats.tauxCloture"></div>
+    <div class="kpi-card kpi-green">
+      <div class="kpi-header">
+        <span class="kpi-label">Taux de Conformité</span>
+        <div class="kpi-icon kpi-icon-green">
+          <i class="pi pi-check-circle"></i>
         </div>
       </div>
+      <div class="kpi-value">{{ tauxCloture }}%</div>
+      <div class="kpi-sub sub-up">
+        <i class="pi pi-check"></i>
+        {{ actionsCloturees }} actions clôturées
+      </div>
+    </div>
 
-      <div class="progress-item">
-        <div class="progress-label">
-          <span>Taux d'efficacité</span>
-          <span>{{ stats.tauxEfficacite }}%</span>
+    <div class="kpi-card kpi-yellow">
+      <div class="kpi-header">
+        <span class="kpi-label">Actions En Attente</span>
+        <div class="kpi-icon kpi-icon-yellow">
+          <i class="pi pi-clock"></i>
         </div>
-        <div class="progress-bar">
-          <div class="progress-fill orange" [style.width.%]="stats.tauxEfficacite"></div>
+      </div>
+      <div class="kpi-value">{{ actionsEnCours }}</div>
+      <div class="kpi-sub sub-warn">
+        <i class="pi pi-info-circle"></i>
+        Nécessitent un suivi
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-red">
+      <div class="kpi-header">
+        <span class="kpi-label">Actions En Retard</span>
+        <div class="kpi-icon kpi-icon-red">
+          <i class="pi pi-exclamation-triangle"></i>
         </div>
+      </div>
+      <div class="kpi-value">{{ actionsEnRetard }}</div>
+      <div class="kpi-sub" [class.sub-down]="actionsEnRetard > 0" [class.sub-up]="actionsEnRetard === 0">
+        <i class="pi" [class.pi-times-circle]="actionsEnRetard > 0" [class.pi-check]="actionsEnRetard === 0"></i>
+        {{ actionsEnRetard > 0 ? 'Intervention requise' : 'Aucun retard' }}
       </div>
     </div>
 
   </div>
+
+  <!-- ── Grille principale ─────────────────────── -->
+  <div class="content-grid" *ngIf="!chargement">
+
+    <!-- Plans critiques -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">
+          <i class="pi pi-exclamation-circle"></i>
+          Plans d'Action Critiques
+        </span>
+        <span class="alert-badge" *ngIf="actionsEnRetard > 0">
+          <i class="pi pi-bell"></i>
+          {{ actionsEnRetard }} Alertes
+        </span>
+      </div>
+      <table class="plans-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Processus</th>
+            <th>Responsable</th>
+            <th>Statut</th>
+            <th>Échéance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let plan of statsMensuelles | slice:0:6">
+            <td class="td-id">#{{ plan.id || '—' }}</td>
+            <td class="td-processus">{{ plan.processus || plan.nom || '—' }}</td>
+            <td>
+              <div class="td-responsable">
+                <div class="resp-avatar">
+                  {{ (plan.responsable || 'U')?.charAt(0) }}
+                </div>
+                {{ plan.responsable || '—' }}
+              </div>
+            </td>
+            <td>
+              <span class="badge"
+                [class.badge-en-cours]="plan.statut === 'EN_COURS'"
+                [class.badge-retard]="plan.statut === 'EN_RETARD'"
+                [class.badge-cloture]="plan.statut === 'CLOTURE'"
+                [class.badge-ouvert]="plan.statut === 'OUVERT'">
+                <i class="pi"
+                  [class.pi-clock]="plan.statut === 'EN_COURS'"
+                  [class.pi-times-circle]="plan.statut === 'EN_RETARD'"
+                  [class.pi-check-circle]="plan.statut === 'CLOTURE'"
+                  [class.pi-circle]="plan.statut === 'OUVERT'">
+                </i>
+                {{ plan.statut || '—' }}
+              </span>
+            </td>
+            <td class="td-echeance" [class.overdue]="plan.enRetard">
+              {{ plan.echeance | date:'dd/MM/yyyy' }}
+            </td>
+          </tr>
+          <tr *ngIf="statsMensuelles.length === 0">
+            <td colspan="5" style="text-align:center;padding:32px;color:#9ca3af;font-size:13px;">
+              <i class="pi pi-inbox" style="font-size:24px;display:block;margin-bottom:8px;"></i>
+              Aucun plan critique
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Flux temps réel -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">
+          <i class="pi pi-bolt"></i>
+          Flux en Temps Réel
+        </span>
+      </div>
+      <ul class="activity-list">
+        <li class="activity-item">
+          <div class="activity-dot dot-red">
+            <i class="pi pi-exclamation-triangle"></i>
+          </div>
+          <div class="activity-content">
+            <div class="activity-title">Action en retard détectée</div>
+            <div class="activity-desc">{{ actionsEnRetard }} action(s) dépassent l'échéance</div>
+          </div>
+          <span class="activity-time">À l'instant</span>
+        </li>
+        <li class="activity-item">
+          <div class="activity-dot dot-green">
+            <i class="pi pi-check-circle"></i>
+          </div>
+          <div class="activity-content">
+            <div class="activity-title">Actions clôturées</div>
+            <div class="activity-desc">{{ actionsCloturees }} action(s) terminées avec succès</div>
+          </div>
+          <span class="activity-time">Aujourd'hui</span>
+        </li>
+        <li class="activity-item">
+          <div class="activity-dot dot-blue">
+            <i class="pi pi-list"></i>
+          </div>
+          <div class="activity-content">
+            <div class="activity-title">Plans actifs</div>
+            <div class="activity-desc">{{ totalPlans }} plan(s) en cours de suivi</div>
+          </div>
+          <span class="activity-time">Ce mois</span>
+        </li>
+        <li class="activity-item">
+          <div class="activity-dot dot-yellow">
+            <i class="pi pi-clock"></i>
+          </div>
+          <div class="activity-content">
+            <div class="activity-title">Actions en attente</div>
+            <div class="activity-desc">{{ actionsEnCours }} action(s) nécessitent un suivi</div>
+          </div>
+          <span class="activity-time">En cours</span>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="chargement">
+    <i class="pi pi-spinner"></i>
+    <p>Chargement des données...</p>
+  </div>
+
 </div>
