@@ -20,92 +20,144 @@
 
       <!-- ADMIN -->
       <div class="nav-section" *ngIf="userRole === 'ADMIN'">
-        <span class="nav-section-label">Administration</span>
+        <span class="nav-section-label">Pilotage PDCA</span>
         <a class="nav-item" routerLink="/dashboard" routerLinkActive="active">
-          <i class="pi pi-chart-bar"></i>
+          <i class="pi pi-home"></i>
           <span class="nav-label">Tableau de bord</span>
         </a>
         <a class="nav-item" routerLink="/reporting" routerLinkActive="active">
           <i class="pi pi-chart-line"></i>
           <span class="nav-label">Reporting</span>
         </a>
-        <a class="nav-item" routerLink="/admin/users" routerLinkActive="active">
-          <i class="pi pi-users"></i>
+        <a class="nav-item" routerLink="/plans-usine" routerLinkActive="active">
+          <i class="pi pi-sitemap"></i>
+          <span class="nav-label">Plans usine</span>
+        </a>
+        <a class="nav-item" routerLink="/mes-plans" routerLinkActive="active">
+          <i class="pi pi-folder-open"></i>
+          <span class="nav-label">Mes plans</span>
+        </a>
+        <a class="nav-item" routerLink="/mes-actions" routerLinkActive="active">
+          <i class="pi pi-check-square"></i>
+          <span class="nav-label">Mes actions</span>
+        </a>
+
+        <span class="nav-section-label nav-section-label--secondary">Annuaire &amp; structure</span>
+        <a class="nav-item nav-item--admin" routerLink="/admin/users" routerLinkActive="active">
+          <i class="pi pi-id-card"></i>
           <span class="nav-label">Utilisateurs</span>
         </a>
-        <a class="nav-item" routerLink="/admin/departements" routerLinkActive="active">
+        <a class="nav-item nav-item--admin" routerLink="/admin/departements" routerLinkActive="active">
           <i class="pi pi-building"></i>
           <span class="nav-label">Départements</span>
         </a>
-        <a class="nav-item" routerLink="/admin/processus" routerLinkActive="active">
-          <i class="pi pi-cog"></i>
+        <a class="nav-item nav-item--admin" routerLink="/admin/processus" routerLinkActive="active">
+          <i class="pi pi-bookmark"></i>
           <span class="nav-label">Processus</span>
         </a>
+
+        <span class="nav-section-label nav-section-label--secondary">Système</span>
         <a class="nav-item" routerLink="/notifications" routerLinkActive="active">
           <i class="pi pi-bell"></i>
           <span class="nav-label">Notifications</span>
-          <span class="nav-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+          <span class="nav-badge" *ngIf="unreadCount > 0">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
         </a>
       </div>
 
       <!-- MANAGER -->
       <div class="nav-section" *ngIf="userRole === 'MANAGER'">
-        <span class="nav-section-label">Espace Manager</span>
+        <span class="nav-section-label">Pilotage</span>
         <a class="nav-item" routerLink="/dashboard" routerLinkActive="active">
-          <i class="pi pi-chart-bar"></i>
+          <i class="pi pi-home"></i>
           <span class="nav-label">Tableau de bord</span>
         </a>
+        <a class="nav-item" routerLink="/reporting" routerLinkActive="active">
+          <i class="pi pi-chart-line"></i>
+          <span class="nav-label">Reporting</span>
+        </a>
+
+        <span class="nav-section-label nav-section-label--secondary">Plans &amp; actions</span>
         <a class="nav-item" routerLink="/plans-usine" routerLinkActive="active">
-          <i class="pi pi-list"></i>
-          <span class="nav-label">Plans Usine</span>
+          <i class="pi pi-sitemap"></i>
+          <span class="nav-label">Plans usine</span>
         </a>
         <a class="nav-item" routerLink="/mes-plans" routerLinkActive="active">
-          <i class="pi pi-file"></i>
-          <span class="nav-label">Mes Plans</span>
+          <i class="pi pi-folder-open"></i>
+          <span class="nav-label">Mes plans</span>
         </a>
+        <a class="nav-item" routerLink="/mes-actions" routerLinkActive="active">
+          <i class="pi pi-check-square"></i>
+          <span class="nav-label">Mes actions</span>
+        </a>
+
+        <span class="nav-section-label nav-section-label--secondary">Système</span>
         <a class="nav-item" routerLink="/notifications" routerLinkActive="active">
           <i class="pi pi-bell"></i>
           <span class="nav-label">Notifications</span>
-          <span class="nav-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+          <span class="nav-badge" *ngIf="unreadCount > 0">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
         </a>
       </div>
 
       <!-- RESPONSABLE -->
       <div class="nav-section" *ngIf="userRole === 'RESPONSABLE'">
-        <span class="nav-section-label">Espace Responsable</span>
+        <span class="nav-section-label">Mes missions</span>
         <a class="nav-item" routerLink="/mes-actions" routerLinkActive="active">
           <i class="pi pi-check-square"></i>
-          <span class="nav-label">Mes Actions</span>
+          <span class="nav-label">Mes actions</span>
         </a>
+        <span class="nav-section-label nav-section-label--secondary">Lecture</span>
+        <a class="nav-item" routerLink="/dashboard" routerLinkActive="active">
+          <i class="pi pi-home"></i>
+          <span class="nav-label">Tableau de bord</span>
+        </a>
+        <span class="nav-section-label nav-section-label--secondary">Système</span>
         <a class="nav-item" routerLink="/notifications" routerLinkActive="active">
           <i class="pi pi-bell"></i>
           <span class="nav-label">Notifications</span>
-          <span class="nav-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+          <span class="nav-badge" *ngIf="unreadCount > 0">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
         </a>
       </div>
 
       <!-- AUDITEUR -->
       <div class="nav-section" *ngIf="userRole === 'AUDITEUR'">
-        <span class="nav-section-label">Espace Auditeur</span>
+        <span class="nav-section-label">Consultation</span>
         <a class="nav-item" routerLink="/dashboard" routerLinkActive="active">
-          <i class="pi pi-chart-bar"></i>
+          <i class="pi pi-home"></i>
           <span class="nav-label">Tableau de bord</span>
         </a>
+        <a class="nav-item" routerLink="/reporting" routerLinkActive="active">
+          <i class="pi pi-chart-line"></i>
+          <span class="nav-label">Reporting</span>
+        </a>
+        <span class="nav-section-label nav-section-label--secondary">Plans</span>
+        <a class="nav-item" routerLink="/plans-usine" routerLinkActive="active">
+          <i class="pi pi-sitemap"></i>
+          <span class="nav-label">Plans usine</span>
+        </a>
+        <a class="nav-item" routerLink="/mes-plans" routerLinkActive="active">
+          <i class="pi pi-folder-open"></i>
+          <span class="nav-label">Mes plans</span>
+        </a>
+        <a class="nav-item" routerLink="/mes-actions" routerLinkActive="active">
+          <i class="pi pi-check-square"></i>
+          <span class="nav-label">Mes actions</span>
+        </a>
+        <span class="nav-section-label nav-section-label--secondary">Système</span>
         <a class="nav-item" routerLink="/notifications" routerLinkActive="active">
           <i class="pi pi-bell"></i>
           <span class="nav-label">Notifications</span>
-          <span class="nav-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+          <span class="nav-badge" *ngIf="unreadCount > 0">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
         </a>
       </div>
 
     </nav>
 
     <div class="sidebar-footer">
-      <button class="sidebar-footer-item" routerLink="/support">
+      <button type="button" class="sidebar-footer-item" routerLink="/support">
         <i class="pi pi-question-circle"></i>
         Support
       </button>
-      <button class="sidebar-footer-item logout" (click)="logout()">
+      <button type="button" class="sidebar-footer-item logout" (click)="logout($event)">
         <i class="pi pi-sign-out"></i>
         Déconnexion
       </button>
@@ -120,16 +172,16 @@
     <header class="app-header">
       <div class="header-actions">
         <div class="header-menu-wrap" (click)="$event.stopPropagation()">
-          <button class="header-btn" title="Notifications" (click)="toggleNotificationMenu($event)">
+          <button type="button" class="header-btn" title="Notifications" (click)="toggleNotificationMenu($event)">
             <i class="pi pi-bell"></i>
-            <span class="notif-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+            <span class="notif-badge" *ngIf="unreadCount > 0" aria-label="Notifications non lues">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
           </button>
           <div class="header-dropdown notif-dropdown" *ngIf="notificationMenuOpen">
             <div class="dropdown-head">
               <span>Notifications</span>
-              <button class="link-btn" (click)="markAllNotificationsAsRead($event)">Tout lu</button>
+              <button type="button" class="link-btn" (click)="markAllNotificationsAsRead($event)">Tout lu</button>
             </div>
-            <button class="notif-item" *ngFor="let n of notifications" (click)="openNotificationsPage($event)">
+            <button type="button" class="notif-item" *ngFor="let n of notifications" (click)="openNotificationsPage($event)">
               <span class="notif-dot" *ngIf="!n.read"></span>
               <div class="notif-texts">
                 <span class="notif-title">{{ n.title }}</span>
@@ -137,24 +189,24 @@
               </div>
               <span class="notif-time">{{ n.time }}</span>
             </button>
-            <button class="view-all-btn" (click)="openNotificationsPage($event)">Voir toutes les notifications</button>
+            <button type="button" class="view-all-btn" (click)="openNotificationsPage($event)">Voir toutes les notifications</button>
           </div>
         </div>
 
         <div class="header-menu-wrap" (click)="$event.stopPropagation()">
-          <button class="header-btn" title="Paramètres" (click)="toggleSettingsMenu($event)">
+          <button type="button" class="header-btn" title="Paramètres" (click)="toggleSettingsMenu($event)">
             <i class="pi pi-cog"></i>
           </button>
           <div class="header-dropdown" *ngIf="settingsMenuOpen">
-            <button class="dropdown-item" (click)="toggleTheme($event)">
+            <button type="button" class="dropdown-item" (click)="toggleTheme($event)">
               <i class="pi" [class.pi-moon]="!isLightMode" [class.pi-sun]="isLightMode"></i>
               {{ isLightMode ? 'Mode sombre' : 'Mode clair' }}
             </button>
-            <button class="dropdown-item" (click)="openProfile($event)">
+            <button type="button" class="dropdown-item" (click)="openProfile($event)">
               <i class="pi pi-user"></i>
               Gérer le profil
             </button>
-            <button class="dropdown-item" (click)="openSystemSettings($event)">
+            <button type="button" class="dropdown-item" (click)="openSystemSettings($event)">
               <i class="pi pi-sliders-h"></i>
               Configuration système
             </button>
@@ -176,11 +228,11 @@
             <strong>{{ currentUser?.fullName || 'Admin APM' }}</strong>
             <span>{{ (currentUser?.role || 'ADMIN') | uppercase }}</span>
           </div>
-          <button class="dropdown-item" (click)="openProfile($event)">
+          <button type="button" class="dropdown-item" (click)="openProfile($event)">
             <i class="pi pi-id-card"></i>
             Mon profil
           </button>
-          <button class="dropdown-item danger" (click)="logout()">
+          <button type="button" class="dropdown-item danger" (click)="logout($event)">
             <i class="pi pi-sign-out"></i>
             Déconnexion
           </button>

@@ -27,7 +27,9 @@ export class LayoutComponent implements OnInit {
   notificationMenuOpen = false;
   settingsMenuOpen = false;
   userMenuOpen = false;
-  isLightMode = false;
+  /** Aligné sur l’apparence claire par défaut (:root) ; persistant dans localStorage */
+  isLightMode = true;
+  private readonly themeStorageKey = 'apm-ui-light-mode';
   notifications: Array<{ id?: number; title: string; details: string; time: string; read: boolean }> = [
     { title: 'Nouveau processus créé', details: 'créé par Admin APM', time: "À l'instant", read: false },
     { title: 'Rapport mensuel prêt', details: 'disponible pour téléchargement', time: 'Il y a 10 min', read: false },
@@ -60,6 +62,10 @@ export class LayoutComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    const stored = localStorage.getItem(this.themeStorageKey);
+    if (stored !== null) {
+      this.isLightMode = stored === 'true';
+    }
     // S'abonner aux changements de l'utilisateur
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
@@ -69,8 +75,13 @@ export class LayoutComponent implements OnInit {
     this.watchRouteChanges();
   }
 
-  @HostListener('document:click')
-  onDocumentClick(): void {
+  /** Ne pas fermer les menus sur un clic à l’intérieur d’une zone header (sinon le menu disparaît avant le handler du bouton). */
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const t = event.target as HTMLElement | null;
+    if (t?.closest('.header-menu-wrap')) {
+      return;
+    }
     this.closeMenus();
   }
 
@@ -78,14 +89,15 @@ export class LayoutComponent implements OnInit {
   private loadUnreadCount(): void {
     this.http.get<any[]>(API.notifications.getMes).subscribe({
       next: (data) => {
-        this.notifications = (data || []).slice(0, 5).map((n: any) => ({
+        const all = data || [];
+        this.unreadCount = all.filter((n: any) => !(n.isRead ?? n.lue)).length;
+        this.notifications = all.slice(0, 5).map((n: any) => ({
           id: n.id,
           title: n.title || 'Notification',
           details: n.message || '',
           time: this.formatRelativeTime(n.createdAt),
           read: !!(n.isRead ?? n.lue)
         }));
-        this.unreadCount = this.notifications.filter(n => !n.read).length;
       },
       error: () => {
         this.unreadCount = this.notifications.filter(n => !n.read).length;
@@ -132,7 +144,7 @@ export class LayoutComponent implements OnInit {
 
   markAllNotificationsAsRead(event: MouseEvent): void {
     event.stopPropagation();
-    this.http.patch(API.notifications.markAllRead, {}).subscribe({
+    this.http.put(API.notifications.markAllRead, {}).subscribe({
       next: () => {
         this.notifications = this.notifications.map(n => ({ ...n, read: true }));
         this.unreadCount = 0;
@@ -165,6 +177,8 @@ export class LayoutComponent implements OnInit {
   toggleTheme(event: MouseEvent): void {
     event.stopPropagation();
     this.isLightMode = !this.isLightMode;
+    localStorage.setItem(this.themeStorageKey, String(this.isLightMode));
+    this.closeMenus();
   }
 
   private closeMenus(): void {
@@ -186,7 +200,9 @@ export class LayoutComponent implements OnInit {
   }
 
   // ── Déconnexion ───────────────────────────────────────────
-  logout(): void {
+  logout(event?: MouseEvent): void {
+    event?.stopPropagation();
+    this.closeMenus();
     this.authService.logout();
   }
 }

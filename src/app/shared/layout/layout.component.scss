@@ -73,6 +73,27 @@
   text-transform: uppercase;
   letter-spacing: 1.2px;
   font-weight: 700;
+
+  &--secondary {
+    margin-top: 14px;
+    padding-top: 4px;
+    color: #64748b;
+    font-size: 0.58rem;
+    letter-spacing: 1.4px;
+    font-weight: 600;
+    border-top: 1px solid rgba(148, 163, 184, 0.2);
+  }
+}
+
+.nav-item--admin {
+  border-left: 2px solid rgba(148, 163, 184, 0.25);
+  margin-left: 4px;
+  border-radius: 0 8px 8px 0;
+
+  &:hover,
+  &.active {
+    border-left-color: var(--primary-color);
+  }
 }
 
 .nav-item {
@@ -279,20 +300,23 @@
 
     .notif-badge {
       position: absolute;
-      top: -4px;
-      right: -4px;
-      width: 18px;
-      height: 18px;
-      background: var(--color-danger);
+      top: -6px;
+      right: -6px;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 5px;
+      background: var(--primary-color);
       color: white;
-      font-size: 0.6rem;
-      font-weight: 700;
-      border-radius: 50%;
+      font-size: 0.65rem;
+      font-weight: 800;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 2px 8px var(--color-danger-bg);
-      border: 2px solid var(--bg-app);
+      box-shadow: 0 2px 10px rgba(183, 0, 17, 0.45);
+      border: 2px solid #ffffff;
+      z-index: 2;
+      line-height: 1;
     }
   }
 
@@ -499,6 +523,28 @@
       font-size: 0.7rem;
       color: #98a2b3;
       letter-spacing: 0.4px;
+    }
+  }
+}
+
+/* Mode sombre : zone principale (le menu paramètres propose « Mode clair » quand on est en sombre) */
+.app-root:not(.theme-light) {
+  .app-right {
+    background: #0f172a;
+    color: #e2e8f0;
+  }
+
+  .page-content {
+    color: #e2e8f0;
+  }
+
+  .app-header {
+    .header-user .user-name {
+      color: #f1f5f9;
+    }
+
+    .header-user .user-role {
+      color: #94a3b8;
     }
   }
 }

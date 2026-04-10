@@ -71,6 +71,9 @@ export const API = {
     getMyTickets: `${BASE}/support/tickets/my`,
     createTicket: `${BASE}/support/tickets`,
   },
+  chat: {
+    message: `${BASE}/chat`,
+  },
   stats: {
     global: `${BASE}/stats/global`,
     byDepartement: `${BASE}/stats/by-department`,

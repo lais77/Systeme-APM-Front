@@ -1,0 +1,109 @@
+<button type="button" class="apm-chat-fab" (click)="toggle()" [class.is-open]="isOpen" [title]="isOpen ? 'Fermer' : 'Assistant IA'">
+  <svg *ngIf="!isOpen" class="fab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    <circle cx="9" cy="10" r="1" fill="currentColor" stroke="none"/>
+    <circle cx="12" cy="10" r="1" fill="currentColor" stroke="none"/>
+    <circle cx="15" cy="10" r="1" fill="currentColor" stroke="none"/>
+  </svg>
+  <svg *ngIf="isOpen" class="fab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+    <line x1="18" y1="6" x2="6" y2="18"/>
+    <line x1="6" y1="6" x2="18" y2="18"/>
+  </svg>
+  <span class="fab-badge" *ngIf="unreadCount > 0 && !isOpen">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
+</button>
+
+<div class="apm-chat-window" [class.is-visible]="isOpen">
+
+  <div class="chat-header">
+    <div class="header-left">
+      <div class="header-avatar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="18" height="18">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="header-info">
+        <span class="header-title">Assistant APM</span>
+        <span class="header-status">
+          <span class="status-dot"></span>
+          En ligne
+        </span>
+      </div>
+    </div>
+    <button type="button" class="header-close" (click)="toggle()" aria-label="Fermer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="chat-messages" #messagesContainer>
+
+    <div class="welcome-block" *ngIf="messages.length <= 1">
+      <p class="welcome-text">Posez-moi une question sur vos plans d'action, vos actions en retard ou vos indicateurs.</p>
+      <div class="suggestions">
+        <button type="button" class="suggestion-chip" *ngFor="let s of suggestions" (click)="sendSuggestion(s)">
+          {{ s }}
+        </button>
+      </div>
+    </div>
+
+    <div *ngFor="let msg of messages; let i = index"
+         class="message-row"
+         [class.is-user]="msg.role === 'user'"
+         [class.is-assistant]="msg.role === 'assistant'">
+      <div class="message-avatar" *ngIf="msg.role === 'assistant'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+        </svg>
+      </div>
+      <div class="message-bubble">
+        <p *ngIf="msg.role === 'user'" class="message-text message-text--plain">{{ msg.content }}</p>
+        <p *ngIf="msg.role === 'assistant'" class="message-text" [innerHTML]="msg.assistantHtml"></p>
+        <span class="message-time">{{ msg.time }}</span>
+      </div>
+    </div>
+
+    <div class="message-row is-assistant" *ngIf="isLoading">
+      <div class="message-avatar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+        </svg>
+      </div>
+      <div class="message-bubble typing-bubble">
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="chat-input-area">
+    <div class="input-wrapper">
+      <textarea
+        [(ngModel)]="userInput"
+        placeholder="Posez votre question..."
+        (keydown)="onKeydown($event)"
+        [disabled]="isLoading"
+        rows="1"
+        #inputField
+      ></textarea>
+      <button type="button" class="send-btn"
+              (click)="send()"
+              [disabled]="!userInput.trim() || isLoading"
+              [class.is-active]="userInput.trim()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2" fill="currentColor" stroke="none"/>
+        </svg>
+      </button>
+    </div>
+    <p class="input-hint">Entrée pour envoyer · Maj+Entrée pour sauter une ligne</p>
+  </div>
+
+</div>
