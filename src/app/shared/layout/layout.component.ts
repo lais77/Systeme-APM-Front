@@ -31,7 +31,7 @@ export class LayoutComponent implements OnInit {
   isLightMode = true;
   private readonly themeStorageKey = 'apm-ui-light-mode';
   notifications: Array<{ id?: number; title: string; details: string; time: string; read: boolean }> = [
-    { title: 'Nouveau processus créé', details: 'créé par Admin APM', time: "À l'instant", read: false },
+    { title: 'Nouveau departement cree', details: 'cree par Admin APM', time: "A l'instant", read: false },
     { title: 'Rapport mensuel prêt', details: 'disponible pour téléchargement', time: 'Il y a 10 min', read: false },
     { title: 'Alerte système', details: 'Stockage saturé à 90%', time: 'Il y a 25 min', read: false },
     { title: 'Ticket support résolu', details: 'Ticket #241 marqué résolu', time: 'Il y a 1 h', read: true },
@@ -45,9 +45,8 @@ export class LayoutComponent implements OnInit {
   private routeTitles: { [key: string]: string } = {
     '/dashboard':             'Tableau de bord',
     '/reporting':             'Reporting',
-    '/admin/utilisateurs':    'Utilisateurs',
+    '/admin/users':           'Utilisateurs',
     '/admin/departements':    'Départements',
-    '/admin/processus':       'Processus',
     '/notifications':         'Notifications',
     '/support':               'Support',
     '/plans-usine':           'Plans Usine',
@@ -204,5 +203,18 @@ export class LayoutComponent implements OnInit {
     event?.stopPropagation();
     this.closeMenus();
     this.authService.logout();
+  }
+
+  getProfileGreeting(): string {
+    const hour = new Date().getHours();
+    const salutation = hour < 18 ? 'Bonjour' : 'Bonsoir';
+    const fullName = this.currentUser?.fullName?.trim() || 'Utilisateur';
+    return `${salutation}, ${fullName}`;
+  }
+
+  getUserInitial(): string {
+    const fullName = this.currentUser?.fullName?.trim();
+    if (!fullName) return 'U';
+    return fullName.charAt(0).toUpperCase();
   }
 }

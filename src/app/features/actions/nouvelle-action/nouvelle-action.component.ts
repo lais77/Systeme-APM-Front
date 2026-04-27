@@ -19,6 +19,7 @@ export class NouvelleActionComponent implements OnInit {
   action: any = {
     type: 'Corrective',
     criticity: 'Medium',
+    prevCorr: 'Corrective',
     deadline: new Date().toISOString().split('T')[0]
   };
   chargement = false;
@@ -37,8 +38,9 @@ export class NouvelleActionComponent implements OnInit {
   }
 
   chargerUsers(): void {
-    this.http.get<any[]>(API.users.getAll).subscribe({
-      next: (data) => { this.users = data.filter(u => u.role === 'RESPONSABLE'); }
+    this.http.get<any[]>(API.users.responsables).subscribe({
+      next: (data) => { this.users = data || []; },
+      error: () => { this.erreur = 'Impossible de charger les responsables.'; }
     });
   }
 
@@ -57,5 +59,10 @@ export class NouvelleActionComponent implements OnInit {
         this.chargement = false;
       }
     });
+  }
+
+  getTypeLabel(type: string | undefined): string {
+    if (type === 'Preventive') return 'Préventif';
+    return 'Correctif';
   }
 }

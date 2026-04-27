@@ -4,9 +4,10 @@
 :root {
   /* Light Theme Palette */
   --bg-app: #f6fafe;
-  --bg-sidebar: #0f172a; /* slate-900 */
+  --bg-sidebar: #ffffff;
   --bg-card: #ffffff;
   --bg-card-hover: #f0f4f8; /* surface-container-low */
+  --bg-head: #f9fafb;
   
   /* Primary & Accent Colors */
   --primary-color: #b70011; /* TIS Red */
@@ -45,13 +46,45 @@
 
   /* Variables manquantes */
   --border: #e5e7eb;
-  --border-light: #f3f4f6;
+  --border-light: #e5e7eb;
   --text-primary: #111827;
   --text-secondary: #6b7280;
   --text-muted: #9ca3af;
   --content-bg: #f8f9fa;
   --primary: #b70011;
   --primary-dark: #8f0000;
+}
+
+.app-root.theme-dark {
+  --bg-head: #1f2937;
+}
+
+/* Lisibilite globale des formulaires en mode sombre:
+   champs clairs avec texte noir dans toutes les fonctionnalites. */
+.app-root.theme-dark input,
+.app-root.theme-dark textarea,
+.app-root.theme-dark select {
+  color: #111827 !important;
+  background: #f3f4f6 !important;
+  border: 1px solid #d1d5db !important;
+}
+
+.app-root.theme-dark input::placeholder,
+.app-root.theme-dark textarea::placeholder {
+  color: #4b5563 !important;
+  opacity: 1;
+}
+
+.app-root.theme-dark select option {
+  color: #111827;
+  background: #ffffff;
+}
+
+.app-root.theme-dark input:disabled,
+.app-root.theme-dark textarea:disabled,
+.app-root.theme-dark select:disabled {
+  color: #6b7280 !important;
+  background: #e5e7eb !important;
 }
 
 * {
@@ -112,7 +145,7 @@ table {
   border-spacing: 0;
 }
 th {
-  background: #f0f4f8 !important; /* surface-container-low */
+  background: var(--bg-head) !important;
   color: var(--text-muted) !important;
   font-weight: 600 !important;
   text-transform: uppercase;

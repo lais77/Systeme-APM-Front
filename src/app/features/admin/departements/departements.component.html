@@ -25,6 +25,7 @@
         <tr>
           <th style="width:80px">ID</th>
           <th>Nom</th>
+          <th style="width:260px">Plans / Actions</th>
           <th style="width:120px">Actions</th>
         </tr>
       </thead>
@@ -35,6 +36,34 @@
             <div class="item-cell">
               <div class="item-icon-wrap"><i class="pi pi-building"></i></div>
               <span>{{ dep.nom }}</span>
+            </div>
+          </td>
+          <td>
+            <div class="plan-summary-cell">
+              <div class="plan-summary-line">
+                <span class="plan-kpi">{{ getDepartmentSummaryLabel(dep.id) }}</span>
+                <button class="btn-link-details" (click)="openDepartmentPlans(dep.id)">
+                  Voir détails
+                </button>
+              </div>
+              <button class="btn-secondary btn-inline" (click)="togglePlans(dep.id)">
+                {{ isExpanded(dep.id) ? 'Masquer la liste' : 'Afficher la liste' }}
+              </button>
+            </div>
+
+            <div class="plans-inline-panel" *ngIf="isExpanded(dep.id)">
+              <div class="plans-inline-item" *ngFor="let plan of getPlansByDepartment(dep.id)">
+                <div class="plans-inline-main">
+                  <strong>{{ plan.title }}</strong>
+                  <span class="plan-meta">{{ plan.type || 'Mono' }} - {{ (plan.actions?.length || plan.totalActions || 0) }} action(s)</span>
+                </div>
+                <button class="btn-action-open" [routerLink]="['/plans', plan.id]">
+                  Ouvrir
+                </button>
+              </div>
+              <div class="plans-inline-empty" *ngIf="getPlansByDepartment(dep.id).length === 0">
+                Aucun plan rattaché à ce département.
+              </div>
             </div>
           </td>
           <td>
@@ -49,7 +78,7 @@
           </td>
         </tr>
         <tr *ngIf="filteredDepartements.length === 0">
-          <td colspan="3">
+          <td colspan="4">
             <div class="empty-state">
               <i class="pi pi-building"></i>
               <p>Aucun département trouvé</p>

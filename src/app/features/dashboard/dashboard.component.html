@@ -165,48 +165,44 @@
       <table class="plans-table">
         <thead>
           <tr>
-            <th>ID</th>
+            <th>Plan</th>
+            <th>Pilote</th>
             <th>Processus</th>
-            <th>Responsable</th>
             <th>Statut</th>
-            <th>Échéance</th>
+            <th>Actions en retard</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let plan of plansCritiques">
-            <td class="td-id">#{{ plan.id || '—' }}</td>
-            <td class="td-processus">{{ plan.processus || plan.nom || '—' }}</td>
-            <td>
-              <div class="td-responsable">
-                <div class="resp-avatar">
-                  {{ (plan.responsable || 'U')?.charAt(0) }}
-                </div>
-                {{ plan.responsable || '—' }}
-              </div>
+          <tr *ngFor="let plan of plansCritiques" [routerLink]="['/plans', plan.id]" class="plans-table-row">
+            <td class="td-plan">
+              <strong>{{ plan.title }}</strong>
             </td>
+            <td class="td-pilot">{{ plan.pilotName }}</td>
+            <td class="td-process">{{ plan.processName }}</td>
             <td>
               <span class="badge"
-                [class.badge-en-cours]="plan.statut === 'EN_COURS'"
-                [class.badge-retard]="plan.statut === 'EN_RETARD'"
-                [class.badge-cloture]="plan.statut === 'CLOTURE'"
-                [class.badge-ouvert]="plan.statut === 'OUVERT'">
+                [class.badge-en-cours]="plan.status === 'InProgress' || plan.status === 'D'"
+                [class.badge-cloture]="plan.status === 'Closed' || plan.status === 'C'"
+                [class.badge-ouvert]="plan.status === 'Created' || plan.status === 'P'">
                 <i class="pi"
-                  [class.pi-clock]="plan.statut === 'EN_COURS'"
-                  [class.pi-times-circle]="plan.statut === 'EN_RETARD'"
-                  [class.pi-check-circle]="plan.statut === 'CLOTURE'"
-                  [class.pi-circle]="plan.statut === 'OUVERT'">
+                  [class.pi-clock]="plan.status === 'InProgress' || plan.status === 'D'"
+                  [class.pi-check-circle]="plan.status === 'Closed' || plan.status === 'C'"
+                  [class.pi-circle]="plan.status === 'Created' || plan.status === 'P'">
                 </i>
-                {{ plan.statut || '—' }}
+                {{ plan.status }}
               </span>
             </td>
-            <td class="td-echeance" [class.overdue]="plan.enRetard">
-              {{ plan.echeance | date:'dd/MM/yyyy' }}
+            <td class="td-retard">
+              <span class="retard-count" *ngIf="plan.actionRetardCount > 0">
+                <i class="pi pi-exclamation-triangle"></i>
+                {{ plan.actionRetardCount }}
+              </span>
             </td>
           </tr>
           <tr *ngIf="plansCritiques.length === 0">
             <td colspan="5" class="plans-empty-cell">
               <i class="pi pi-inbox"></i>
-              Aperçu des plans critiques non disponible pour le moment.
+              Aucun plan critique détecté — toutes les actions sont dans les délais.
             </td>
           </tr>
         </tbody>

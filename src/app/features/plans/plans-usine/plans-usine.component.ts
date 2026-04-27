@@ -62,4 +62,12 @@ export class PlansUsineComponent implements OnInit {
   getStatutLabel(status: string): string {
     return status === 'Closed' ? 'Clôturé' : 'En cours';
   }
+
+  get totalActions(): number {
+    return this.plansFiltres.reduce((sum, p) => sum + (p.totalActions || 0), 0);
+  }
+
+  get totalPilotes(): number {
+    return new Set(this.plansFiltres.map(p => p.pilotName).filter(Boolean)).size;
+  }
 }

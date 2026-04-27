@@ -66,7 +66,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   constructor(
     private http: HttpClient,
     private authService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.authService.currentUser$.subscribe(u => {
@@ -75,7 +75,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.chargerStats();
   }
 
-  ngAfterViewInit(): void {}
+  ngAfterViewInit(): void { }
 
   setPeriode(p: PeriodeHistogramme): void {
     this.periodeHistogramme = p;
@@ -472,12 +472,46 @@ export class DashboardComponent implements OnInit, AfterViewInit {
           }
         }
         traiterListe(items);
+        this.chargerPlansCritiques(plans);
       },
       error: () => {
         this.actionsUrgentes = [];
         this.chargementActionsUrgentes = false;
       }
     });
+  }
+
+  private chargerPlansCritiques(plans: any[]): void {
+    const today = new Date();
+    const plansCritiques: any[] = [];
+
+    for (const p of plans || []) {
+      const actions = p.actions || p.Actions || [];
+      const actionsEnRetard = actions.filter((a: any) => {
+        const deadline = new Date(a.deadline ?? a.Deadline);
+        const status = (a.status ?? a.Status ?? '').toUpperCase();
+        const terminee = status === 'CLÔTURÉ' || status === 'CLOSED' || status === 'C' ||
+                         status === 'ANNULÉ' || status === 'CANCELLED';
+        return !terminee && deadline < today;
+      });
+
+      if (actionsEnRetard.length > 0) {
+        const pilotName = p.pilotName ?? p.PilotName ?? '—';
+        const processName = p.processName ?? p.ProcessName ?? '—';
+        plansCritiques.push({
+          id: p.id ?? p.Id,
+          title: p.title ?? p.Title ?? '—',
+          pilotName: pilotName,
+          processName: processName,
+          status: p.status ?? p.Status ?? 'InProgress',
+          dueDate: p.dueDate ?? p.DueDate ?? '',
+          enRetard: true,
+          actionRetardCount: actionsEnRetard.length
+        });
+      }
+    }
+
+    this.plansCritiques = plansCritiques;
   }
 
   private lireRoleUtilisateur(): string {

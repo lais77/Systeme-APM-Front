@@ -19,6 +19,7 @@ export interface Plan {
   objective?: string;
   priority: string;
   status: string;
+  type: string;
   startDate: Date;
   dueDate: Date;
   progressPercentage: number;

@@ -88,6 +88,10 @@
                       title="Désactiver" *ngIf="user.actif">
                 <i class="pi pi-ban"></i>
               </button>
+              <button class="btn-action btn-edit" (click)="enableUser(user)"
+                      title="Réactiver" *ngIf="!user.actif">
+                <i class="pi pi-refresh"></i>
+              </button>
             </div>
           </td>
         </tr>

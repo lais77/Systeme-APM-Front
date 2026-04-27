@@ -11,6 +11,7 @@ export const API = {
   },
   users: {
     getAll: `${BASE}/users`,
+    responsables: `${BASE}/users/responsables`,
     getById: (id: number) => `${BASE}/users/${id}`,
     create: `${BASE}/users`,
     update: (id: number) => `${BASE}/users/${id}`,
@@ -36,6 +37,7 @@ export const API = {
     getById: (id: number) => `${BASE}/plans/${id}`,
     create: `${BASE}/plans`,
     update: (id: number) => `${BASE}/plans/${id}`,
+    valider: (id: number) => `${BASE}/plans/${id}/valider`,
     cloturer: (id: number) => `${BASE}/plans/${id}/cloturer`,
   },
   actions: {
@@ -72,7 +74,9 @@ export const API = {
     createTicket: `${BASE}/support/tickets`,
   },
   chat: {
-    message: `${BASE}/chat`,
+    message:     `${BASE}/chat`,
+    suggestions: (planId: number) => `${BASE}/chat/plans/${planId}/suggestions`,
+    resume:      (planId: number) => `${BASE}/chat/plans/${planId}/resume`,
   },
   stats: {
     global: `${BASE}/stats/global`,

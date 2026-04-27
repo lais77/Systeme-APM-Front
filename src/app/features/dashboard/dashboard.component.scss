@@ -47,14 +47,15 @@
 }
 
 .chart-card {
-  background: #ffffff;
-  border-color: #e5e7eb;
+  background: var(--bg-card);
+  border-color: var(--border-light);
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+  border: 1px solid var(--border-light);
 
   .card-head {
     min-height: 54px;
-    background: #f9fafb;
-    border-bottom: 1px solid #e5e7eb;
+    background: var(--bg-head);
+    border-bottom: 1px solid var(--border-light);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -66,12 +67,12 @@
   }
 
   .card-title {
-    color: #374151;
+    color: var(--text-main);
     font-size: 0.88rem;
     letter-spacing: 0.2px;
     text-transform: none;
     i {
-      color: #6b7280;
+      color: var(--text-muted);
       filter: none;
       font-size: 0.9rem;
     }
@@ -86,9 +87,9 @@
 }
 
 .period-chip {
-  border: 1px solid #e2e8f0;
-  background: #fff;
-  color: #64748b;
+  border: 1px solid var(--border-light);
+  background: var(--bg-card);
+  color: var(--text-muted);
   font-size: 0.72rem;
   font-weight: 600;
   padding: 6px 10px;
@@ -99,6 +100,7 @@
   &:hover {
     border-color: var(--primary-color);
     color: var(--primary-color);
+    background: rgba(183, 0, 17, 0.04);
   }
 
   &.active {
@@ -141,19 +143,19 @@
   justify-content: center;
   text-align: center;
   padding: 16px 20px;
-  color: #64748b;
+  color: var(--text-muted);
 
   > i {
     font-size: 1.6rem;
     margin-bottom: 10px;
-    color: #94a3b8;
+    color: var(--text-placeholder);
   }
 
   > p {
     margin: 0 0 8px;
     font-size: 0.95rem;
     font-weight: 700;
-    color: #334155;
+    color: var(--text-main);
   }
 
   &--compact {
@@ -166,7 +168,7 @@
   font-size: 0.78rem;
   line-height: 1.45;
   max-width: 280px;
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .card-head--split {
@@ -183,9 +185,9 @@
 }
 
 .period-btn {
-  border: 1px solid #e2e8f0;
-  background: #fff;
-  color: #64748b;
+  border: 1px solid var(--border-light);
+  background: var(--bg-card);
+  color: var(--text-muted);
   font-size: 0.7rem;
   font-weight: 600;
   padding: 6px 10px;
@@ -196,6 +198,7 @@
   &:hover {
     border-color: var(--primary-color);
     color: var(--primary-color);
+    background: rgba(183, 0, 17, 0.04);
   }
 
   &.active {
@@ -341,14 +344,14 @@
 .plans-empty-cell {
   text-align: center;
   padding: 32px 24px;
-  color: #9ca3af;
+  color: var(--text-placeholder);
   font-size: 13px;
 
   i {
     display: block;
     font-size: 24px;
     margin-bottom: 8px;
-    color: #cbd5e1;
+    color: var(--text-placeholder);
   }
 }
 
@@ -356,7 +359,7 @@
   width: 56px;
   height: 56px;
   border-radius: 14px;
-  background: #f1f5f9;
+  background: var(--bg-card-hover);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -364,14 +367,14 @@
 
   i {
     font-size: 1.5rem;
-    color: #94a3b8;
+    color: var(--text-placeholder);
   }
 }
 
 .chart-empty-title {
   font-size: 0.95rem;
   font-weight: 700;
-  color: #334155;
+  color: var(--text-main);
   margin-bottom: 6px;
 }
 
@@ -682,7 +685,7 @@
   justify-content: space-between;
   padding: 20px 24px;
   border-bottom: 1px solid var(--border-light);
-  background: rgba(0,0,0,0.1);
+  background: var(--bg-head);
 }
 
 .card-title {
@@ -780,10 +783,10 @@
   letter-spacing: 0.5px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 
-  &.badge-en-cours  { background: var(--color-info-bg); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3); }
-  &.badge-retard    { background: var(--color-danger-bg); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.3); }
-  &.badge-cloture   { background: var(--color-success-bg); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.3); }
-  &.badge-ouvert    { background: var(--color-warning-bg); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3); }
+  &.badge-en-cours  { background: var(--color-info-bg); color: var(--color-info); border: 1px solid color-mix(in srgb, var(--color-info) 25%, transparent); }
+  &.badge-retard    { background: var(--color-danger-bg); color: var(--color-danger); border: 1px solid color-mix(in srgb, var(--color-danger) 25%, transparent); }
+  &.badge-cloture   { background: var(--color-success-bg); color: var(--color-success); border: 1px solid color-mix(in srgb, var(--color-success) 25%, transparent); }
+  &.badge-ouvert    { background: var(--color-warning-bg); color: var(--color-warning); border: 1px solid color-mix(in srgb, var(--color-warning) 25%, transparent); }
 }
 
 /* ── Real-Time Activity ── */

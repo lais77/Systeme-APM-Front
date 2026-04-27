@@ -216,12 +216,23 @@
       font-size: 0.9rem;
       box-sizing: border-box;
       font-family: inherit;
-      color: var(--text-main);
-      background: rgba(240, 244, 248, 0.95);
+      color: #111827;
+      background: #f3f4f6;
       &:focus {
         outline: none;
         box-shadow: 0 0 0 2px rgba(183, 0, 17, 0.25), 0 6px 16px rgba(0,0,0,0.18);
       }
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: #6b7280;
+      opacity: 1;
+    }
+
+    select option {
+      color: #111827;
+      background: #ffffff;
     }
   }
 
@@ -241,4 +252,62 @@
   position: sticky;
   bottom: 0;
   background: linear-gradient(0deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.14) 100%);
+}
+
+.legacy-section {
+  margin-top: 1.5rem;
+}
+
+.legacy-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #334155;
+  margin: 0 0 0.75rem;
+}
+
+.legacy-table-wrap {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.legacy-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    background: #f8fafc;
+    font-size: 0.78rem;
+    color: #64748b;
+    text-transform: uppercase;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+    font-size: 0.88rem;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+.legacy-clickable {
+  cursor: pointer;
+}
+
+.legacy-clickable:hover td {
+  background: #f8fafc;
+}
+
+.legacy-empty {
+  text-align: center;
+  color: #94a3b8;
+  padding: 1.5rem !important;
 }

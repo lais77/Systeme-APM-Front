@@ -88,51 +88,112 @@
       </div>
     </div>
 
+    <div class="section">
+      <h2>Timeline PDCA</h2>
+      <div class="pdca-timeline">
+        <div class="pdca-stage pdca-plan" [class.active]="getEtatCode(action.status) === 'P' || isAfterStage('P')">
+          <div class="pdca-step">
+            <div class="pdca-circle">
+              <span class="pdca-letter">P</span>
+              <i class="pi pi-check" *ngIf="isAfterStage('P')"></i>
+            </div>
+            <div class="pdca-label">Plan</div>
+            <div class="pdca-desc">Planifiée</div>
+          </div>
+          <div class="pdca-connector" *ngIf="!isLastStage('P')"></div>
+        </div>
+
+        <div class="pdca-stage pdca-do" [class.active]="getEtatCode(action.status) === 'D' || isAfterStage('D')">
+          <div class="pdca-step">
+            <div class="pdca-circle">
+              <span class="pdca-letter">D</span>
+              <i class="pi pi-check" *ngIf="isAfterStage('D')"></i>
+            </div>
+            <div class="pdca-label">Do</div>
+            <div class="pdca-desc">En réalisation</div>
+          </div>
+          <div class="pdca-connector" *ngIf="!isLastStage('D')"></div>
+        </div>
+
+        <div class="pdca-stage pdca-check" [class.active]="getEtatCode(action.status) === 'C' || isAfterStage('C')">
+          <div class="pdca-step">
+            <div class="pdca-circle">
+              <span class="pdca-letter">C</span>
+              <i class="pi pi-check" *ngIf="isAfterStage('C')"></i>
+            </div>
+            <div class="pdca-label">Check</div>
+            <div class="pdca-desc">Clôturée</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="deadline-indicator">
+        <i class="pi pi-calendar"></i>
+        <span class="deadline-text">Échéance :</span>
+        <span class="deadline-value" [ngClass]="getDeadlineClass()">
+          {{ action.deadline | date:'dd/MM/yyyy' }}
+        </span>
+      </div>
+    </div>
+
     <!-- Commentaires -->
     <div class="section">
       <h2>Commentaires</h2>
-      <div class="commentaires-list">
-        <div class="commentaire" *ngFor="let c of commentaires">
-          <div class="commentaire-avatar">{{ c.authorName ? c.authorName.charAt(0) : '?' }}</div>
-          <div class="commentaire-content">
-            <div class="commentaire-header">
-              <span class="commentaire-auteur">{{ c.authorName }}</span>
-              <span class="commentaire-date">{{ c.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+      <div class="commentaires-grid">
+        <div class="commentaires-list">
+          <div class="commentaire" *ngFor="let c of commentaires">
+            <div class="commentaire-avatar">{{ c.authorName ? c.authorName.charAt(0) : '?' }}</div>
+            <div class="commentaire-content">
+              <div class="commentaire-header">
+                <span class="commentaire-auteur">{{ c.authorName }}</span>
+                <span class="commentaire-date">{{ c.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+              </div>
+              <p>{{ c.content }}</p>
             </div>
-            <p>{{ c.content }}</p>
+          </div>
+          <div class="empty" *ngIf="commentaires.length === 0">Aucun commentaire.</div>
+        </div>
+        <div class="commentaire-input-card">
+          <h3>Ajouter un commentaire</h3>
+          <div class="commentaire-input">
+            <textarea [(ngModel)]="nouveauCommentaire" placeholder="Ajouter un commentaire..." rows="4" [disabled]="estEnLectureSeule()"></textarea>
+            <button class="btn-primary" (click)="ajouterCommentaire()" [disabled]="estEnLectureSeule()">Envoyer</button>
           </div>
         </div>
-        <div class="empty" *ngIf="commentaires.length === 0">Aucun commentaire.</div>
-      </div>
-      <div class="commentaire-input">
-        <textarea [(ngModel)]="nouveauCommentaire" placeholder="Ajouter un commentaire..." rows="3" [disabled]="estEnLectureSeule()"></textarea>
-        <button class="btn-primary" (click)="ajouterCommentaire()" [disabled]="estEnLectureSeule()">Envoyer</button>
       </div>
     </div>
 
     <!-- Pièces jointes -->
     <div class="section">
       <h2>Pièces jointes</h2>
-      <div class="fichiers-list">
-        <div class="fichier" *ngFor="let f of fichiers">
-          <span class="fichier-icon">📎</span>
-          <div class="fichier-info">
-            <span class="fichier-nom">{{ f.fileName }}</span>
-            <span class="fichier-desc" *ngIf="f.description">{{ f.description }}</span>
-          </div>
-          <div class="fichier-actions">
-            <button class="btn-icon" (click)="telechargerFichier(f.id, f.fileName)">⬇️</button>
-            <button class="btn-icon" (click)="supprimerFichier(f.id)" [disabled]="estEnLectureSeule()">🗑️</button>
+      <div class="fichiers-grid">
+        <div class="fichiers-col">
+          <h3 class="bloc-title">Fichier annexe à cette action</h3>
+          <div class="fichiers-list">
+            <div class="fichier" *ngFor="let f of fichiers">
+              <span class="fichier-icon">📎</span>
+              <div class="fichier-info">
+                <span class="fichier-nom">{{ f.fileName }}</span>
+                <span class="fichier-desc" *ngIf="f.description">{{ f.description }}</span>
+              </div>
+              <div class="fichier-actions">
+                <button class="btn-icon" (click)="telechargerFichier(f.id, f.fileName)">⬇️</button>
+                <button class="btn-icon" (click)="supprimerFichier(f.id)" [disabled]="estEnLectureSeule()">🗑️</button>
+              </div>
+            </div>
+            <div class="empty" *ngIf="fichiers.length === 0">Aucune pièce jointe.</div>
           </div>
         </div>
-        <div class="empty" *ngIf="fichiers.length === 0">Aucune pièce jointe.</div>
-      </div>
-      <div class="upload-zone">
-        <input type="file" (change)="onFichierChange($event)" id="fileInput" [disabled]="estEnLectureSeule()" />
-        <input type="text" [(ngModel)]="descriptionFichier" placeholder="Description du fichier" [disabled]="estEnLectureSeule()" />
-        <button class="btn-primary" (click)="uploadFichier()" [disabled]="!fichierSelectionne || estEnLectureSeule()">
-          Uploader
-        </button>
+        <div class="fichiers-col">
+          <h3 class="bloc-title">Ajouter un fichier annexe</h3>
+          <div class="upload-zone">
+            <input type="file" (change)="onFichierChange($event)" id="fileInput" [disabled]="estEnLectureSeule()" />
+            <input type="text" [(ngModel)]="descriptionFichier" placeholder="Description du fichier" [disabled]="estEnLectureSeule()" />
+            <button class="btn-primary" (click)="uploadFichier()" [disabled]="!fichierSelectionne || estEnLectureSeule()">
+              Uploader
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -146,6 +207,7 @@
         <button (click)="modalSoumission = false">✕</button>
       </div>
       <div class="modal-body">
+        <p class="modal-hint">{{ getSoumissionHint() }}</p>
         <div class="form-group">
           <label>Méthode de réalisation *</label>
           <textarea [(ngModel)]="soumissionData.realizationMethod" rows="3" placeholder="Décrivez la méthode..."></textarea>
@@ -170,6 +232,7 @@
         <button (click)="modalValidation = false">✕</button>
       </div>
       <div class="modal-body">
+        <p class="modal-hint">{{ getValidationHint() }}</p>
         <div class="form-group">
           <label>Décision</label>
           <select [(ngModel)]="validationData.isApproved">
@@ -234,8 +297,11 @@
             <input type="date" [(ngModel)]="actionRemplacement.deadline" />
           </div>
           <div class="form-group">
-            <label>Responsable ID *</label>
-            <input type="number" [(ngModel)]="actionRemplacement.responsibleId" />
+            <label>Responsable *</label>
+            <select [(ngModel)]="actionRemplacement.responsibleId">
+              <option value="">Sélectionner...</option>
+              <option *ngFor="let u of responsables" [value]="u.id">{{ u.fullName }}</option>
+            </select>
           </div>
         </div>
       </div>

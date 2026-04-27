@@ -29,6 +29,10 @@ export class PlansService {
     return this.http.put<Plan>(API.plans.update(id), plan);
   }
 
+  validerPlan(id: number): Observable<any> {
+    return this.http.patch(API.plans.valider(id), {});
+  }
+
   cloturerPlan(id: number): Observable<any> {
     return this.http.patch(API.plans.cloturer(id), {});
   }

@@ -77,4 +77,22 @@ export class MesActionsComponent implements OnInit {
   isEnRetard(deadline: Date): boolean {
     return new Date(deadline) < new Date();
   }
+
+  getEtatCode(status: string): 'P' | 'D' | 'C' {
+    if (status === 'Closed') return 'C';
+    if (status === 'UnderReview' || status === 'Validated') return 'D';
+    return 'P';
+  }
+
+  get nbRetard(): number {
+    return this.actionsFiltrees.filter(a => this.isEnRetard(a.deadline) && a.status !== 'Closed').length;
+  }
+
+  get nbCloturees(): number {
+    return this.actionsFiltrees.filter(a => a.status === 'Closed').length;
+  }
+
+  get nbEncours(): number {
+    return this.actionsFiltrees.filter(a => a.status === 'InProgress').length;
+  }
 }

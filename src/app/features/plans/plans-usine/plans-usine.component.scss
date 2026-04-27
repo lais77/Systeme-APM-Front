@@ -10,6 +10,37 @@
   .total { font-size: 0.85rem; color: #64748b; background: #f1f5f9; padding: 3px 10px; border-radius: 999px; }
 }
 
+.lecture-note {
+  margin: -0.5rem 0 1rem;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.summary-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+}
+
+.summary-label {
+  display: block;
+  color: #64748b;
+  font-size: 0.75rem;
+}
+
+.summary-value {
+  color: #1e293b;
+  font-size: 1.2rem;
+}
+
 .filtres {
   display: flex;
   gap: 1rem;

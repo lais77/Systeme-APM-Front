@@ -19,13 +19,17 @@ export class MesPlansComponent implements OnInit {
   chargement = true;
   modalOuvert = false;
   nouveauPlan: any = {};
+  departements: any[] = [];
   processus: any[] = [];
+  piloteNom = '';
 
   constructor(private plansService: PlansService, private http: HttpClient) {}
 
   ngOnInit(): void {
     this.chargerPlans();
+    this.chargerDepartements();
     this.chargerProcessus();
+    this.chargerPiloteConnecte();
   }
 
   chargerPlans(): void {
@@ -35,27 +39,71 @@ export class MesPlansComponent implements OnInit {
     });
   }
 
-  chargerProcessus(): void {
-    this.http.get<any[]>(API.processus.getAll).subscribe({
-      next: (data) => { this.processus = data; }
+  chargerDepartements(): void {
+    this.http.get<any[]>(API.departements.getAll).subscribe({
+      next: (data) => { this.departements = data; },
+      error: () => {
+        // Fallback: si l'utilisateur n'a pas acces aux departements,
+        // on utilise la liste des processus comme source de selection.
+        this.http.get<any[]>(API.processus.getAll).subscribe({
+          next: (processes) => {
+            this.departements = (processes || []).map((p: any) => ({
+              id: p.id,
+              nom: p.nom
+            }));
+          }
+        });
+      }
     });
   }
 
   ouvrirModal(): void {
     this.nouveauPlan = {
       priority: 'Medium',
+      type: 'Mono',
+      departmentId: null,
+      processId: null,
+      visibility: 'Publique',
+      createdAtDisplay: new Date().toISOString().split('T')[0],
       startDate: new Date().toISOString().split('T')[0],
       dueDate: new Date().toISOString().split('T')[0]
     };
     this.modalOuvert = true;
   }
 
+  onDepartementChange(value: string): void {
+    const id = Number(value);
+    this.nouveauPlan.departmentId = Number.isFinite(id) ? id : null;
+    if (!this.nouveauPlan.processId) {
+      // Compatibilite backend: processId est requis.
+      this.nouveauPlan.processId = this.nouveauPlan.departmentId;
+    }
+  }
+
+  onProcessusChange(value: string): void {
+    const id = Number(value);
+    this.nouveauPlan.processId = Number.isFinite(id) ? id : null;
+  }
+
   fermerModal(): void { this.modalOuvert = false; }
 
   creerPlan(): void {
+    if (!this.nouveauPlan.title || !String(this.nouveauPlan.title).trim()) {
+      alert('Veuillez renseigner le titre du plan.');
+      return;
+    }
+
+    if (!this.nouveauPlan.departmentId) {
+      alert('Veuillez selectionner un departement.');
+      return;
+    }
+
     this.plansService.creerPlan(this.nouveauPlan).subscribe({
       next: () => { this.chargerPlans(); this.fermerModal(); },
-      error: (err) => { console.error(err); }
+      error: (err) => {
+        console.error(err);
+        alert('Creation du plan impossible. Verifiez les champs.');
+      }
     });
   }
 
@@ -69,12 +117,38 @@ export class MesPlansComponent implements OnInit {
     return classes[priority] || '';
   }
 
+  getPlanStatutLabel(status: string): string {
+    return status === 'Closed' ? 'Clôturé' : 'En cours';
+  }
+
   cloturerPlan(id: number, event: Event): void {
     event.stopPropagation();
     if (confirm('Clôturer ce plan ?')) {
       this.plansService.cloturerPlan(id).subscribe({
         next: () => this.chargerPlans()
       });
+    }
+  }
+
+  private chargerProcessus(): void {
+    this.http.get<any[]>(API.processus.getAll).subscribe({
+      next: (data) => { this.processus = data || []; },
+      error: () => { this.processus = []; }
+    });
+  }
+
+  private chargerPiloteConnecte(): void {
+    const raw = localStorage.getItem('user');
+    if (!raw) {
+      this.piloteNom = '';
+      return;
+    }
+
+    try {
+      const user = JSON.parse(raw);
+      this.piloteNom = user?.fullName || '';
+    } catch {
+      this.piloteNom = '';
     }
   }
 }

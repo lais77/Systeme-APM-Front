@@ -4,6 +4,25 @@
     <span class="total">{{ plansFiltres.length }} plan(s)</span>
   </div>
 
+  <p class="lecture-note">
+    Cette page est en lecture et supervision globale des plans d'action usine.
+  </p>
+
+  <div class="summary-cards" *ngIf="!chargement">
+    <div class="summary-card">
+      <span class="summary-label">Total Plans</span>
+      <strong class="summary-value">{{ plansFiltres.length }}</strong>
+    </div>
+    <div class="summary-card">
+      <span class="summary-label">Total Actions</span>
+      <strong class="summary-value">{{ totalActions }}</strong>
+    </div>
+    <div class="summary-card">
+      <span class="summary-label">Total Pilotes</span>
+      <strong class="summary-value">{{ totalPilotes }}</strong>
+    </div>
+  </div>
+
   <div class="filtres">
     <input
       type="text"

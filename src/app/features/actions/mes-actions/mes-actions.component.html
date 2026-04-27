@@ -4,6 +4,21 @@
     <span class="total">{{ actionsFiltrees.length }} action(s)</span>
   </div>
 
+  <div class="resume-row" *ngIf="!chargement">
+    <div class="resume-card">
+      <span class="resume-label">En cours</span>
+      <strong class="resume-value">{{ nbEncours }}</strong>
+    </div>
+    <div class="resume-card">
+      <span class="resume-label">En retard</span>
+      <strong class="resume-value">{{ nbRetard }}</strong>
+    </div>
+    <div class="resume-card">
+      <span class="resume-label">Clôturées</span>
+      <strong class="resume-value">{{ nbCloturees }}</strong>
+    </div>
+  </div>
+
   <div class="filtres">
     <select [(ngModel)]="filtreStatut" (ngModelChange)="filtrer()">
       <option value="">Tous les statuts</option>
@@ -28,6 +43,7 @@
           <th>Criticité</th>
           <th>Type</th>
           <th>Délai</th>
+          <th>État</th>
           <th>Avancement</th>
           <th>Statut</th>
           <th>Actions</th>
@@ -48,6 +64,9 @@
             <span *ngIf="isEnRetard(action.deadline)" class="retard-label">⚠️ Retard</span>
           </td>
           <td>
+            <span class="etat-pill">{{ getEtatCode(action.status) }}</span>
+          </td>
+          <td>
             <div class="progress-wrap">
               <div class="progress-bar" [style.width.%]="action.progressPercentage"></div>
             </div>
@@ -65,7 +84,7 @@
           </td>
         </tr>
         <tr *ngIf="actionsFiltrees.length === 0">
-          <td colspan="8" class="empty">Aucune action assignée.</td>
+          <td colspan="9" class="empty">Aucune action assignée.</td>
         </tr>
       </tbody>
     </table>

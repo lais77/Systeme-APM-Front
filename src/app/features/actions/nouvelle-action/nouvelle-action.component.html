@@ -8,13 +8,16 @@
     <div class="erreur" *ngIf="erreur">{{ erreur }}</div>
 
     <div class="form-body">
+      <div class="manual-hint">
+        Référence manuel: renseigner thème, PREV/CORR, anomalie/amélioration, criticité, responsable et délai.
+      </div>
       <div class="form-group">
         <label>Thème *</label>
         <input type="text" [(ngModel)]="action.theme" placeholder="Thème de l'action" />
       </div>
 
       <div class="form-group">
-        <label>Description de l'anomalie</label>
+        <label>Anomalie / Amélioration</label>
         <textarea [(ngModel)]="action.anomalyDescription" rows="2" placeholder="Description de l'anomalie..."></textarea>
       </div>
 
@@ -32,6 +35,13 @@
         <div class="form-group">
           <label>Type *</label>
           <select [(ngModel)]="action.type">
+            <option value="Corrective">Correctif</option>
+            <option value="Preventive">Préventif</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>PREV/CORR *</label>
+          <select [(ngModel)]="action.prevCorr">
             <option value="Corrective">Correctif</option>
             <option value="Preventive">Préventif</option>
           </select>
@@ -58,6 +68,10 @@
           <label>Délai *</label>
           <input type="date" [(ngModel)]="action.deadline" />
         </div>
+      </div>
+      <div class="form-group">
+        <label>Commentaire</label>
+        <textarea [(ngModel)]="action.commentaire" rows="2" placeholder="Commentaire optionnel..."></textarea>
       </div>
     </div>
 

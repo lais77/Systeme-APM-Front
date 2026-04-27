@@ -12,11 +12,6 @@ export const ADMIN_ROUTES: Routes = [
       import('./departements/departements.component').then(m => m.DepartementsComponent)
   },
   {
-    path: 'processus',
-    loadComponent: () =>
-      import('./processus/processus.component').then(m => m.ProcessusComponent)
-  },
-  {
     path: '',
     redirectTo: 'users',
     pathMatch: 'full'

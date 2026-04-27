@@ -15,6 +15,7 @@
       </div>
       <h3 class="plan-titre">{{ plan.title }}</h3>
       <p class="plan-processus">{{ plan.processName }}</p>
+      <p class="plan-processus">Type: {{ plan.type || 'Mono' }}</p>
       <div class="plan-progress">
         <div class="progress-wrap">
           <div class="progress-bar" [style.width.%]="plan.progressPercentage"></div>
@@ -40,6 +41,37 @@
 
   </div>
 
+  <div class="legacy-section" *ngIf="!chargement">
+    <h2 class="legacy-title">Vue liste (référence manuel)</h2>
+    <div class="legacy-table-wrap">
+      <table class="legacy-table">
+        <thead>
+          <tr>
+            <th>Titre</th>
+            <th>Date création</th>
+            <th>Processus</th>
+            <th>Pilote</th>
+            <th>Nombre d’actions</th>
+            <th>Clôture</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let plan of plans" [routerLink]="['/plans', plan.id]" class="legacy-clickable">
+            <td>{{ plan.title }}</td>
+            <td>{{ plan.createdAt | date:'dd/MM/yyyy' }}</td>
+            <td>{{ plan.processName }}</td>
+            <td>{{ plan.pilotName }}</td>
+            <td>{{ plan.totalActions }}</td>
+            <td>{{ getPlanStatutLabel(plan.status) }}</td>
+          </tr>
+          <tr *ngIf="plans.length === 0">
+            <td colspan="6" class="legacy-empty">Aucun plan disponible.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
   <!-- Modal -->
   <div class="modal-overlay" *ngIf="modalOuvert" (click)="fermerModal()">
     <div class="modal" (click)="$event.stopPropagation()">
@@ -52,16 +84,41 @@
           <label>Titre *</label>
           <input type="text" [(ngModel)]="nouveauPlan.title" placeholder="Titre du plan" />
         </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Pilote</label>
+            <input type="text" [ngModel]="piloteNom" readonly />
+          </div>
+          <div class="form-group">
+            <label>Date création</label>
+            <input type="date" [ngModel]="nouveauPlan.createdAtDisplay" readonly />
+          </div>
+        </div>
         <div class="form-group">
           <label>Description</label>
           <textarea [(ngModel)]="nouveauPlan.description" rows="3" placeholder="Description..."></textarea>
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label>Processus *</label>
-            <select [(ngModel)]="nouveauPlan.processId">
+            <label>Département *</label>
+            <select [(ngModel)]="nouveauPlan.departmentId" (ngModelChange)="onDepartementChange($event)">
               <option value="">Sélectionner...</option>
-<option *ngFor="let p of processus" [value]="p.id">{{ p.nom }}</option>            </select>
+              <option *ngFor="let d of departements" [value]="d.id">{{ d.nom }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Type *</label>
+            <select [(ngModel)]="nouveauPlan.type">
+              <option value="Mono">Mono</option>
+              <option value="Multi">Multi</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Processus *</label>
+            <select [(ngModel)]="nouveauPlan.processId" (ngModelChange)="onProcessusChange($event)">
+              <option value="">Sélectionner...</option>
+              <option *ngFor="let p of processus" [value]="p.id">{{ p.nom }}</option>
+            </select>
           </div>
           <div class="form-group">
             <label>Priorité *</label>
@@ -70,6 +127,15 @@
               <option value="High">Haute</option>
               <option value="Medium">Moyenne</option>
               <option value="Low">Basse</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Visibilité</label>
+            <select [(ngModel)]="nouveauPlan.visibility">
+              <option value="Publique">Publique</option>
+              <option value="Interne">Interne</option>
             </select>
           </div>
         </div>

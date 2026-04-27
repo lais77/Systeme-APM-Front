@@ -53,7 +53,22 @@ export class UsersComponent implements OnInit {
   // ── Chargement HTTP ───────────────────────────────────────
   loadUsers(): void {
     this.http.get<any[]>(API.users.getAll).subscribe({
-      next: (data) => { this.users = data; },
+      next: (data) => {
+        this.users = (data || []).map((u: any) => {
+          const fullName = (u.fullName || '').trim();
+          const parts = fullName.split(' ').filter((p: string) => p.length > 0);
+          const prenom = parts.length > 0 ? parts[0] : '';
+          const nom = parts.length > 1 ? parts.slice(1).join(' ') : '';
+
+          return {
+            ...u,
+            prenom,
+            nom,
+            actif: u.isActive ?? u.actif ?? false,
+            departementId: u.departmentId ?? u.departementId ?? null
+          };
+        });
+      },
       error: (err) => { console.error('Erreur chargement utilisateurs', err); }
     });
   }
@@ -110,24 +125,47 @@ export class UsersComponent implements OnInit {
 
   // ── Sauvegarde (créer ou modifier) ────────────────────────
   saveUser(): void {
+    const fullName = `${this.formData.prenom || ''} ${this.formData.nom || ''}`.trim();
+    if (!fullName || !this.formData.email || !this.formData.role) {
+      alert('Veuillez renseigner nom, email et role.');
+      return;
+    }
+
+    const payload: any = {
+      fullName,
+      email: this.formData.email,
+      role: this.formData.role,
+      departmentId: this.formData.departementId ? Number(this.formData.departementId) : null
+    };
+
     if (this.isEditMode && this.selectedUser) {
-      // ── Modifier ────────────────────────────────────────────
-      // Adaptez l'URL selon votre API :
-      this.http.put(API.users.update(this.selectedUser.id), this.formData).subscribe({
+      payload.isActive = this.selectedUser.actif ?? true;
+      this.http.put(API.users.update(this.selectedUser.id), payload).subscribe({
         next: () => {
           this.loadUsers();
           this.closeFormModal();
         },
-        error: (err) => { console.error('Erreur modification', err); }
+        error: (err) => {
+          console.error('Erreur modification', err);
+          alert('Creation/modification impossible. Verifiez les champs.');
+        }
       });
     } else {
-      // ── Créer ───────────────────────────────────────────────
-      this.http.post(API.users.create, this.formData).subscribe({
+      if (!this.formData.password) {
+        payload.password = 'Apm@2025';
+      } else {
+        payload.password = this.formData.password;
+      }
+
+      this.http.post(API.users.create, payload).subscribe({
         next: () => {
           this.loadUsers();
           this.closeFormModal();
         },
-        error: (err) => { console.error('Erreur création', err); }
+        error: (err) => {
+          console.error('Erreur création', err);
+          alert('Creation/modification impossible. Verifiez les champs.');
+        }
       });
     }
   }
@@ -153,6 +191,17 @@ export class UsersComponent implements OnInit {
         this.closeConfirmModal();
       },
       error: (err) => { console.error('Erreur désactivation', err); }
+    });
+  }
+
+  // ── Réactiver l'utilisateur ───────────────────────────────
+  enableUser(user: any): void {
+    if (!user?.id) return;
+    this.http.put(API.users.activer(user.id), {}).subscribe({
+      next: () => {
+        this.loadUsers();
+      },
+      error: (err) => { console.error('Erreur réactivation', err); }
     });
   }
 }

@@ -10,6 +10,31 @@
   .total { font-size: 0.85rem; color: #64748b; background: #f1f5f9; padding: 3px 10px; border-radius: 999px; }
 }
 
+.resume-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.resume-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.7rem 0.9rem;
+}
+
+.resume-label {
+  display: block;
+  color: #64748b;
+  font-size: 0.75rem;
+}
+
+.resume-value {
+  color: #1e293b;
+  font-size: 1.1rem;
+}
+
 .filtres {
   margin-bottom: 1.5rem;
 
@@ -93,6 +118,20 @@ table {
 
 .retard { color: #dc2626; }
 .retard-label { font-size: 0.75rem; margin-left: 4px; }
+
+.etat-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 24px;
+  padding: 0 6px;
+  border-radius: 6px;
+  background: #e2e8f0;
+  color: #334155;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
 
 .btn-detail {
   padding: 4px 12px;

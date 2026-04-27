@@ -1,5 +1,5 @@
 <!-- Wrapper global qui prend tout l'écran -->
-<div class="app-root" [class.theme-light]="isLightMode">
+<div class="app-root" [class.theme-light]="isLightMode" [class.theme-dark]="!isLightMode">
 
   <!-- ── SIDEBAR ──────────────────────────────────── -->
   <aside class="sidebar">
@@ -50,10 +50,6 @@
         <a class="nav-item nav-item--admin" routerLink="/admin/departements" routerLinkActive="active">
           <i class="pi pi-building"></i>
           <span class="nav-label">Départements</span>
-        </a>
-        <a class="nav-item nav-item--admin" routerLink="/admin/processus" routerLinkActive="active">
-          <i class="pi pi-bookmark"></i>
-          <span class="nav-label">Processus</span>
         </a>
 
         <span class="nav-section-label nav-section-label--secondary">Système</span>
@@ -216,11 +212,11 @@
         <div class="header-menu-wrap" (click)="$event.stopPropagation()">
         <div class="header-user" (click)="toggleUserMenu($event)">
           <div class="user-info">
-            <span class="user-name">{{ currentUser?.fullName || 'Admin APM' }}</span>
+            <span class="user-name">{{ getProfileGreeting() }}</span>
             <span class="user-role">{{ (currentUser?.role || 'ADMIN') | uppercase }}</span>
           </div>
           <div class="user-avatar">
-            A
+            {{ getUserInitial() }}
           </div>
         </div>
         <div class="header-dropdown user-dropdown" *ngIf="userMenuOpen">

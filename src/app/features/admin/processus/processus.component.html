@@ -25,6 +25,7 @@
         <tr>
           <th style="width:80px">ID</th>
           <th>Nom</th>
+          <th style="width:260px">Plans / Actions</th>
           <th style="width:120px">Actions</th>
         </tr>
       </thead>
@@ -35,6 +36,20 @@
             <div class="item-cell">
               <div class="item-icon-wrap"><i class="pi pi-cog"></i></div>
               <span>{{ p.nom }}</span>
+            </div>
+          </td>
+          <td>
+            <button class="btn-secondary" (click)="togglePlans(p.id)">
+              {{ isExpanded(p.id) ? 'Masquer' : 'Voir' }} ({{ getPlansByProcess(p.id).length }} plans / {{ getTotalActionsForProcess(p.id) }} actions)
+            </button>
+            <div *ngIf="isExpanded(p.id)" style="margin-top:8px; max-height:180px; overflow:auto;">
+              <div *ngFor="let plan of getPlansByProcess(p.id)" style="margin-bottom:8px; padding:8px; border:1px solid #e5e7eb; border-radius:8px;">
+                <div><strong>{{ plan.title }}</strong> ({{ plan.type || 'Mono' }})</div>
+                <div style="font-size:12px; color:#6b7280;">{{ (plan.actions?.length || plan.totalActions || 0) }} actions</div>
+                <ul style="margin:6px 0 0 16px; padding:0;" *ngIf="plan.actions?.length">
+                  <li *ngFor="let a of plan.actions">{{ a.theme }}</li>
+                </ul>
+              </div>
             </div>
           </td>
           <td>
@@ -49,7 +64,7 @@
           </td>
         </tr>
         <tr *ngIf="filteredProcessus.length === 0">
-          <td colspan="3">
+          <td colspan="4">
             <div class="empty-state">
               <i class="pi pi-cog"></i>
               <p>Aucun processus trouvé</p>

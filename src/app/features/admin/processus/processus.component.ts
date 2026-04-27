@@ -13,12 +13,14 @@ import { API } from '../../../core/services/api-endpoints';
 })
 export class ProcessusComponent implements OnInit {
   processus: any[] = [];
+  plans: any[] = [];
   searchTerm = '';
   showFormModal = false;
   showConfirmModal = false;
   isEditMode = false;
   selectedItem: any = null;
   formData: any = {};
+  expandedProcessIds = new Set<number>();
 
   get filteredProcessus() {
     if (!this.searchTerm) return this.processus;
@@ -33,7 +35,16 @@ export class ProcessusComponent implements OnInit {
 
   charger(): void {
     this.http.get<any[]>(API.processus.getAll)
-      .subscribe(p => this.processus = p);
+      .subscribe(p => {
+        this.processus = p;
+        this.chargerPlans();
+      });
+  }
+
+  chargerPlans(): void {
+    this.http.get<any[]>(API.plans.getAll).subscribe({
+      next: (plans) => this.plans = plans
+    });
   }
 
   openCreateModal(): void {
@@ -66,5 +77,25 @@ export class ProcessusComponent implements OnInit {
   deleteProcessus(): void {
     this.http.delete(API.processus.delete(this.selectedItem.id))
       .subscribe(() => { this.charger(); this.closeConfirmModal(); });
+  }
+
+  togglePlans(processId: number): void {
+    if (this.expandedProcessIds.has(processId)) {
+      this.expandedProcessIds.delete(processId);
+    } else {
+      this.expandedProcessIds.add(processId);
+    }
+  }
+
+  isExpanded(processId: number): boolean {
+    return this.expandedProcessIds.has(processId);
+  }
+
+  getPlansByProcess(processId: number): any[] {
+    return this.plans.filter(p => p.processId === processId);
+  }
+
+  getTotalActionsForProcess(processId: number): number {
+    return this.getPlansByProcess(processId).reduce((sum, p) => sum + (p.totalActions ?? p.actions?.length ?? 0), 0);
   }
 }
