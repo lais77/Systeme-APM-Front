@@ -123,48 +123,6 @@
       </div>
     </div>
 
-    <div class="section ia-section" *ngIf="plan">
-      <div class="section-header">
-        <h2>
-          <i class="pi pi-sparkles"></i>
-          Assistant IA
-        </h2>
-        <div class="ia-actions">
-          <button class="btn-ia" (click)="getSuggestions()" [disabled]="chargementIA">
-            <i class="pi pi-stars"></i>
-            {{ chargementIA ? 'Génération...' : 'Suggérer des actions' }}
-          </button>
-          <button class="btn-ia" (click)="getResume()" [disabled]="chargementIA">
-            <i class="pi pi-file-text"></i>
-            {{ chargementIA ? 'Génération...' : (plan.status === 'Closed' ? 'Résumé de clôture' : 'Prévisualiser résumé') }}
-          </button>
-        </div>
-      </div>
-
-      <div class="ia-results" *ngIf="(suggestionsRaw || resumeRaw) || !suggestionsRaw && !resumeRaw">
-        <div class="ia-card suggestions" *ngIf="suggestionsRaw">
-          <div class="ia-card-header">
-            <i class="pi pi-lightbulb"></i>
-            <span>Actions suggérées</span>
-          </div>
-          <div class="ia-content" [innerHTML]="suggestions"></div>
-        </div>
-
-        <div class="ia-card resume" *ngIf="resumeRaw">
-          <div class="ia-card-header">
-            <i class="pi pi-book"></i>
-            <span>Résumé de clôture</span>
-          </div>
-          <div class="ia-content" [innerHTML]="resume"></div>
-        </div>
-
-        <div class="ia-empty" *ngIf="!suggestionsRaw && !resumeRaw">
-          <i class="pi pi-inbox"></i>
-          <p>Aucune suggestion générée</p>
-          <span>Cliquez sur un bouton ci-dessus pour générer des suggestions ou un résumé IA.</span>
-        </div>
-      </div>
-    </div>
 
   </ng-container>
 

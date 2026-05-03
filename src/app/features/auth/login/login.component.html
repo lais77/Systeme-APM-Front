@@ -1,47 +1,80 @@
 <div class="login-container">
-  <div class="login-card">
-
-    <div class="login-header">
-      <h1>TIS Circuits</h1>
-      <p>Action Plan Management</p>
+  <!-- Left Side: Industrial Visual -->
+  <div class="visual-side">
+    <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop" 
+         alt="Industrial Electronics Manufacturing">
+    <div class="overlay"></div>
+    <div class="content">
+      <h1>Excellence en Électronique Industrielle</h1>
+      <p>Solutions de pointe pour la gestion de la production et le suivi qualité au cœur de l'industrie 4.0.</p>
+      <div class="stats">
+        <div class="stat-item">
+          <div class="label">ISO 9001</div>
+          <div class="desc">Certifié Qualité</div>
+        </div>
+        <div class="stat-item">
+          <div class="label">100%</div>
+          <div class="desc">Traçabilité</div>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <form (ngSubmit)="onSubmit()">
-
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input
-          id="email"
-          type="email"
-          [(ngModel)]="email"
-          name="email"
-          placeholder="votre@email.com"
-          autocomplete="email"
-        />
+  <!-- Right Side: Login Form -->
+  <div class="form-side">
+    <div class="form-wrapper">
+      <div class="brand-header">
+        <h2>TIS Circuits</h2>
+        <div class="subtitle-wrapper">
+          <div class="line"></div>
+          <span>Action Plan Management</span>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label for="motDePasse">Mot de passe</label>
-        <input
-          id="motDePasse"
-          type="password"
-          [(ngModel)]="motDePasse"
-          name="motDePasse"
-          placeholder="••••••••"
-          autocomplete="current-password"
-        />
+      <form (ngSubmit)="onSubmit()">
+        <div class="input-group">
+          <label for="email">Email</label>
+          <div class="input-wrapper">
+            <span class="icon">
+              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            </span>
+            <input type="email" id="email" name="email" [(ngModel)]="email" placeholder="nom@tis-circuits.com" required autocomplete="email">
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="motDePasse">Mot de passe</label>
+          <div class="input-wrapper">
+            <span class="icon">
+              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            </span>
+            <input type="password" id="motDePasse" name="motDePasse" [(ngModel)]="motDePasse" placeholder="••••••••" required autocomplete="current-password">
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <label class="remember-me">
+            <input type="checkbox">
+            <span>Se souvenir de moi</span>
+          </label>
+          <a routerLink="/auth/forgot-password" class="forgot-password">Mot de passe oublié ?</a>
+        </div>
+
+        <div class="erreur" *ngIf="erreur">{{ erreur }}</div>
+
+        <button type="submit" class="btn-submit" [disabled]="chargement">
+          {{ chargement ? 'Connexion...' : 'Se connecter' }}
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </button>
+      </form>
+
+      <div class="footer">
+        <p class="disclaimer">Accès restreint au personnel autorisé.</p>
+        <div class="footer-links">
+          <a href="#">Support Technique</a>
+          <a href="#">Mentions Légales</a>
+        </div>
       </div>
-
-      <div class="erreur" *ngIf="erreur">{{ erreur }}</div>
-
-      <button type="submit" [disabled]="chargement">
-        {{ chargement ? 'Connexion...' : 'Se connecter' }}
-      </button>
-
-      <a routerLink="/auth/forgot-password" class="lien-oubli">
-        Mot de passe oublié ?
-      </a>
-
-    </form>
+    </div>
   </div>
 </div>

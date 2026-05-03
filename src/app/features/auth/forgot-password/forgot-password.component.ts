@@ -9,38 +9,101 @@ import { AuthService } from '../../../core/services/auth.service';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   template: `
-    <div class="container">
-      <div class="card">
-        <h2>Mot de passe oublié</h2>
-        <p>Entrez votre email pour recevoir un lien de réinitialisation.</p>
+<div class="login-container">
+  <!-- Left Side: Industrial Visual -->
+  <div class="visual-side">
+    <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop" 
+         alt="Industrial Electronics Manufacturing">
+    <div class="overlay"></div>
+    <div class="content">
+      <h1>Excellence en Électronique Industrielle</h1>
+      <p>Solutions de pointe pour la gestion de la production et le suivi qualité au cœur de l'industrie 4.0.</p>
+      <div class="stats">
+        <div class="stat-item">
+          <div class="label">ISO 9001</div>
+          <div class="desc">Certifié Qualité</div>
+        </div>
+        <div class="stat-item">
+          <div class="label">100%</div>
+          <div class="desc">Traçabilité</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        <div class="form-group">
-          <input type="email" [(ngModel)]="email" placeholder="votre@email.com" />
+  <!-- Right Side: Form -->
+  <div class="form-side">
+    <div class="form-wrapper">
+      <div class="brand-header">
+        <h2>TIS Circuits</h2>
+        <div class="subtitle-wrapper">
+          <div class="line"></div>
+          <span>Réinitialisation du mot de passe</span>
+        </div>
+      </div>
+
+      <form (ngSubmit)="onSubmit()">
+        <p class="instruction-text">Entrez votre email pour recevoir un lien de réinitialisation.</p>
+
+        <div class="input-group">
+          <label for="email">Email</label>
+          <div class="input-wrapper">
+            <span class="icon">
+              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            </span>
+            <input type="email" id="email" name="email" [(ngModel)]="email" placeholder="nom@tis-circuits.com" required autocomplete="email">
+          </div>
         </div>
 
         <div class="succes" *ngIf="succes">Email envoyé ! Vérifiez votre boîte mail.</div>
         <div class="erreur" *ngIf="erreur">{{ erreur }}</div>
 
-        <button (click)="onSubmit()" [disabled]="chargement">
+        <button type="submit" class="btn-submit" [disabled]="chargement">
           {{ chargement ? 'Envoi...' : 'Envoyer le lien' }}
+          <svg *ngIf="!chargement" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
         </button>
 
-        <a routerLink="/auth/login">Retour à la connexion</a>
+        <div class="form-actions" style="justify-content: center; margin-top: 1.5rem;">
+          <a routerLink="/auth/login" class="forgot-password">Retour à la connexion</a>
+        </div>
+      </form>
+
+      <div class="footer">
+        <p class="disclaimer">Accès restreint au personnel autorisé.</p>
+        <div class="footer-links">
+          <a href="#">Support Technique</a>
+          <a href="#">Mentions Légales</a>
+        </div>
       </div>
     </div>
+  </div>
+</div>
   `,
+  styleUrls: ['../login/login.component.scss'],
   styles: [`
-    .container { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f5f5f5; }
-    .card { background: white; border-radius: 12px; padding: 2.5rem; width: 100%; max-width: 400px; box-shadow: 0 2px 16px rgba(0,0,0,0.08); }
-    h2 { margin-bottom: 0.5rem; }
-    p { color: #888; font-size: 0.875rem; margin-bottom: 1.5rem; }
-    .form-group { margin-bottom: 1rem; }
-    input { width: 100%; padding: 0.75rem 1rem; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95rem; }
-    button { width: 100%; padding: 0.875rem; background: #1a73e8; color: white; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; margin-bottom: 1rem; }
-    button:disabled { background: #9dc3f7; }
-    a { display: block; text-align: center; color: #1a73e8; font-size: 0.875rem; text-decoration: none; }
-    .succes { background: #e8f5e9; color: #2e7d32; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.875rem; }
-    .erreur { background: #fdecea; color: #c62828; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.875rem; }
+    .instruction-text {
+      font-size: 0.875rem;
+      color: #64748b;
+      margin-bottom: 1.5rem;
+    }
+    .succes {
+      background: #ecfdf5;
+      border: 1px solid #6ee7b7;
+      color: #059669;
+      padding: 0.75rem 1rem;
+      border-radius: 4px;
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+    }
+    .erreur {
+      background: #fff0f0;
+      border: 1px solid #fca5a5;
+      color: #c00010;
+      padding: 0.75rem 1rem;
+      border-radius: 4px;
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+    }
   `]
 })
 export class ForgotPasswordComponent {
@@ -55,8 +118,8 @@ export class ForgotPasswordComponent {
     if (!this.email) { this.erreur = 'Veuillez entrer votre email.'; return; }
     this.chargement = true;
     this.authService.forgotPassword(this.email).subscribe({
-      next: () => { this.succes = true; this.chargement = false; },
-      error: () => { this.erreur = 'Erreur lors de l\'envoi.'; this.chargement = false; }
+      next: () => { this.succes = true; this.erreur = ''; this.chargement = false; },
+      error: () => { this.erreur = "Erreur lors de l'envoi."; this.succes = false; this.chargement = false; }
     });
   }
 }
