@@ -84,6 +84,7 @@ export const API = {
     byPilote: `${BASE}/stats/by-pilot`,
     byPeriode: `${BASE}/stats/by-periode`,
     performance: `${BASE}/stats/performance`,
+    plansCritiques: `${BASE}/stats/plans-critiques`,
     export: {
       pdf: `${BASE}/export/excel`,
       excel: `${BASE}/export/excel`,

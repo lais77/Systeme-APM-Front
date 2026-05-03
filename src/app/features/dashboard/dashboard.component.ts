@@ -73,6 +73,11 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       this.userRole = (u?.role ?? '').toUpperCase();
     });
     this.chargerStats();
+
+    this.http.get<any[]>(API.stats.plansCritiques).subscribe({
+      next: data => this.plansCritiques = data,
+      error: () => {}
+    });
   }
 
   ngAfterViewInit(): void { }

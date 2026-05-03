@@ -17,10 +17,10 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 export class PlanDetailComponent implements OnInit {
   plan: Plan | null = null;
   chargement = true;
-  suggestions: SafeHtml = '';
-  suggestionsRaw: string = '';
-  resume: SafeHtml = '';
-  resumeRaw: string = '';
+  suggestionsRaw = '';
+  resumeRaw = '';
+  suggestions = '';
+  resume = '';
   chargementIA = false;
 
   // SVG circular progress properties
@@ -160,41 +160,25 @@ export class PlanDetailComponent implements OnInit {
   getResume() {
     if (!this.plan) return;
     this.chargementIA = true;
-    this.http.get<any>(API.chat.resume(this.plan.id))
-      .subscribe({
-        next: r => {
-          this.resumeRaw = r.resume;
-          this.resume = this.formatIaResponse(r.resume);
-          this.chargementIA = false;
-        },
-        error: () => { this.chargementIA = false; }
-      });
+    this.resumeRaw = '';
+    this.suggestionsRaw = '';
+    this.http.get<any>(API.chat.resume(this.plan.id)).subscribe({
+      next: r => {
+        this.resumeRaw = r.resume;
+        this.resume = this.formatIaResponse(r.resume);
+        this.chargementIA = false;
+      },
+      error: () => { this.chargementIA = false; }
+    });
   }
 
-  private formatIaResponse(text: string): SafeHtml {
-    if (!text) return this.sanitizer.bypassSecurityTrustHtml('');
-
-    let html = text
-      // Escape HTML
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      // Restore tags (careful here - only allow safe formatting)
-      .replace(/&lt;(\/?)strong&gt;/g, '<strong>$1</strong>')
-      .replace(/&lt;(\/?)b&gt;/g, '<strong>$1</strong>')
-      // Convert numbered lists: "1. ", "2. " etc to <ol>
-      .replace(/^\d+\.\s+/gm, '')
-      // Convert line breaks to <br>
+  formatIaResponse(text: string): string {
+    if (!text) return '';
+    return text
       .replace(/\n/g, '<br>')
-      // Wrap consecutive <br> sequences into proper list formatting if preceded by numbers
-      .replace(/(\d+\..*?)(?=<br>(?:\d+\.))/g, '<li>$1</li>');
-
-    // If we detected list items, wrap in <ol>
-    if (html.includes('<li>')) {
-      html = html.replace(/(<li>.*?<\/li>)/gs, '<ol>$1</ol>');
-    }
-
-    return this.sanitizer.bypassSecurityTrustHtml(html);
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/^(\d+\.\s)/gm, '<br><strong>$1</strong>');
   }
 
   getCircularDashOffset(): number {
