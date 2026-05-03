@@ -1,0 +1,33 @@
+name: Deploy Frontend to Azure
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Login to ACR
+        uses: docker/login-action@v2
+        with:
+          registry: acrapmtis.azurecr.io
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Build and push Frontend
+        run: |
+          docker build -t acrapmtis.azurecr.io/apm-frontend:latest .
+          docker push acrapmtis.azurecr.io/apm-frontend:latest
+
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: frontend-apm-tis
+          publish-profile: ${{ secrets.AZURE_FRONTEND_PUBLISH_PROFILE }}
+          images: acrapmtis.azurecr.io/apm-frontend:latest
