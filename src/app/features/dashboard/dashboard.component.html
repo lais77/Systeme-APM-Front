@@ -154,56 +154,27 @@
     <div class="card">
       <div class="card-head">
         <span class="card-title">
-          <i class="pi pi-exclamation-circle"></i>
-          Plans d’action critiques
-        </span>
-        <span class="alert-badge" *ngIf="actionsEnRetard > 0">
-          <i class="pi pi-bell"></i>
-          {{ actionsEnRetard }} alerte(s) retard
+          <i class="pi pi-building"></i>
+          PDCA par département
         </span>
       </div>
       <table class="plans-table">
         <thead>
           <tr>
-            <th>Plan</th>
-            <th>Pilote</th>
-            <th>Processus</th>
-            <th>Statut</th>
-            <th>Actions en retard</th>
+            <th>Département</th>
+            <th>Plans</th>
+            <th>Actions</th>
+            <th>En retard</th>
+            <th>Clôturées</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let plan of plansCritiques" [routerLink]="['/plans', plan.id]" class="plans-table-row">
-            <td class="td-plan">
-              <strong>{{ plan.title }}</strong>
-            </td>
-            <td class="td-pilot">{{ plan.pilotName }}</td>
-            <td class="td-process">{{ plan.processName }}</td>
-            <td>
-              <span class="badge"
-                [class.badge-en-cours]="plan.status === 'InProgress' || plan.status === 'D'"
-                [class.badge-cloture]="plan.status === 'Closed' || plan.status === 'C'"
-                [class.badge-ouvert]="plan.status === 'Created' || plan.status === 'P'">
-                <i class="pi"
-                  [class.pi-clock]="plan.status === 'InProgress' || plan.status === 'D'"
-                  [class.pi-check-circle]="plan.status === 'Closed' || plan.status === 'C'"
-                  [class.pi-circle]="plan.status === 'Created' || plan.status === 'P'">
-                </i>
-                {{ plan.status }}
-              </span>
-            </td>
-            <td class="td-retard">
-              <span class="retard-count" *ngIf="plan.actionRetardCount > 0">
-                <i class="pi pi-exclamation-triangle"></i>
-                {{ plan.actionRetardCount }}
-              </span>
-            </td>
-          </tr>
-          <tr *ngIf="plansCritiques.length === 0">
-            <td colspan="5" class="plans-empty-cell">
-              <i class="pi pi-inbox"></i>
-              Aucun plan critique détecté — toutes les actions sont dans les délais.
-            </td>
+          <tr *ngFor="let d of statsByDept">
+            <td>{{ d.departmentName }}</td>
+            <td>{{ d.totalPlans }}</td>
+            <td>{{ d.totalActions }}</td>
+            <td><span class="badge badge-rejected">{{ d.actionsEnRetard }}</span></td>
+            <td><span class="badge badge-cloture">{{ d.actionsCloturees }}</span></td>
           </tr>
         </tbody>
       </table>
@@ -212,52 +183,53 @@
     <div class="card">
       <div class="card-head">
         <span class="card-title">
-          <i class="pi pi-bolt"></i>
-          Flux en temps réel
+          <i class="pi pi-users"></i>
+          PDCA par pilote
         </span>
       </div>
-      <ul class="activity-list">
-        <li class="activity-item">
-          <div class="activity-dot dot-red">
-            <i class="pi pi-exclamation-triangle"></i>
+      <table class="plans-table">
+        <thead>
+          <tr>
+            <th>Pilote</th>
+            <th>Plans</th>
+            <th>En retard</th>
+            <th>Clôturées</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of statsByPilot">
+            <td>{{ p.pilotName }}</td>
+            <td>{{ p.totalPlans }}</td>
+            <td><span class="badge badge-rejected">{{ p.actionsEnRetard }}</span></td>
+            <td><span class="badge badge-cloture">{{ p.actionsCloturees }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card flux-section">
+      <div class="card-head">
+        <span class="card-title">
+          <i class="pi pi-bolt"></i>
+          Flux d'activité récent
+        </span>
+      </div>
+      <div class="activity-list">
+        <div class="activity-item" *ngFor="let item of activiteRecente">
+          <div class="activity-dot" [class.dot-blue]="item.entityType === 'Plan'" [class.dot-green]="item.entityType === 'Action'">
+            <i class="pi pi-circle-fill"></i>
           </div>
           <div class="activity-content">
-            <div class="activity-title">Action en retard détectée</div>
-            <div class="activity-desc">{{ actionsEnRetard }} action(s) dépassent l’échéance</div>
+            <div class="activity-title">{{ item.action }}</div>
+            <div class="activity-desc">
+              {{ item.userName }} · {{ item.createdAt | date:'dd/MM HH:mm' }}
+            </div>
           </div>
-          <span class="activity-time">À l’instant</span>
-        </li>
-        <li class="activity-item">
-          <div class="activity-dot dot-green">
-            <i class="pi pi-check-circle"></i>
-          </div>
-          <div class="activity-content">
-            <div class="activity-title">Actions clôturées</div>
-            <div class="activity-desc">{{ actionsCloturees }} action(s) terminées avec succès</div>
-          </div>
-          <span class="activity-time">Aujourd’hui</span>
-        </li>
-        <li class="activity-item">
-          <div class="activity-dot dot-blue">
-            <i class="pi pi-list"></i>
-          </div>
-          <div class="activity-content">
-            <div class="activity-title">Plans actifs</div>
-            <div class="activity-desc">{{ totalPlans }} plan(s) en cours de suivi</div>
-          </div>
-          <span class="activity-time">Ce mois</span>
-        </li>
-        <li class="activity-item">
-          <div class="activity-dot dot-yellow">
-            <i class="pi pi-clock"></i>
-          </div>
-          <div class="activity-content">
-            <div class="activity-title">Actions en attente</div>
-            <div class="activity-desc">{{ actionsEnCours }} action(s) nécessitent un suivi</div>
-          </div>
-          <span class="activity-time">En cours</span>
-        </li>
-      </ul>
+        </div>
+        <div class="activity-empty" *ngIf="activiteRecente.length === 0">
+          Aucune activité récente.
+        </div>
+      </div>
     </div>
 
   </div>

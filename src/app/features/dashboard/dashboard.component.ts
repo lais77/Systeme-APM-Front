@@ -59,6 +59,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   /** Tableau « plans critiques » : à brancher sur une API dédiée ; évite d’utiliser les stats mensuelles à tort. */
   plansCritiques: any[] = [];
 
+  statsByDept: any[] = [];
+  statsByPilot: any[] = [];
+  activiteRecente: any[] = [];
+
   get isLoading(): boolean {
     return this.chargement;
   }
@@ -73,9 +77,36 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       this.userRole = (u?.role ?? '').toUpperCase();
     });
     this.chargerStats();
+    this.chargerPlansCritiques();
+    this.chargerStatsByDept();
+    this.chargerStatsByPilot();
+    this.chargerActiviteRecente();
+  }
 
+  chargerPlansCritiques(): void {
     this.http.get<any[]>(API.stats.plansCritiques).subscribe({
       next: data => this.plansCritiques = data,
+      error: () => {}
+    });
+  }
+
+  chargerStatsByDept(): void {
+    this.http.get<any[]>(API.stats.byDepartment).subscribe({
+      next: data => this.statsByDept = data,
+      error: () => {}
+    });
+  }
+
+  chargerStatsByPilot(): void {
+    this.http.get<any[]>(API.stats.byPilot).subscribe({
+      next: data => this.statsByPilot = data,
+      error: () => {}
+    });
+  }
+
+  chargerActiviteRecente(): void {
+    this.http.get<any[]>(API.stats.activiteRecente).subscribe({
+      next: data => this.activiteRecente = data,
       error: () => {}
     });
   }
@@ -477,7 +508,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
           }
         }
         traiterListe(items);
-        this.chargerPlansCritiques(plans);
       },
       error: () => {
         this.actionsUrgentes = [];
@@ -486,38 +516,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     });
   }
 
-  private chargerPlansCritiques(plans: any[]): void {
-    const today = new Date();
-    const plansCritiques: any[] = [];
 
-    for (const p of plans || []) {
-      const actions = p.actions || p.Actions || [];
-      const actionsEnRetard = actions.filter((a: any) => {
-        const deadline = new Date(a.deadline ?? a.Deadline);
-        const status = (a.status ?? a.Status ?? '').toUpperCase();
-        const terminee = status === 'CLÔTURÉ' || status === 'CLOSED' || status === 'C' ||
-                         status === 'ANNULÉ' || status === 'CANCELLED';
-        return !terminee && deadline < today;
-      });
-
-      if (actionsEnRetard.length > 0) {
-        const pilotName = p.pilotName ?? p.PilotName ?? '—';
-        const processName = p.processName ?? p.ProcessName ?? '—';
-        plansCritiques.push({
-          id: p.id ?? p.Id,
-          title: p.title ?? p.Title ?? '—',
-          pilotName: pilotName,
-          processName: processName,
-          status: p.status ?? p.Status ?? 'InProgress',
-          dueDate: p.dueDate ?? p.DueDate ?? '',
-          enRetard: true,
-          actionRetardCount: actionsEnRetard.length
-        });
-      }
-    }
-
-    this.plansCritiques = plansCritiques;
-  }
 
   private lireRoleUtilisateur(): string {
     if (this.userRole) return this.userRole;

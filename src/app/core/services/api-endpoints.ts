@@ -85,8 +85,11 @@ export const API = {
     byPeriode: `${BASE}/stats/by-periode`,
     performance: `${BASE}/stats/performance`,
     plansCritiques: `${BASE}/stats/plans-critiques`,
+    byDepartment: `${BASE}/stats/by-department`,
+    byPilot: `${BASE}/stats/by-pilot`,
+    activiteRecente: `${BASE}/stats/activite-recente`,
     export: {
-      pdf: `${BASE}/export/excel`,
+      pdf: `${BASE}/export/pdf`,
       excel: `${BASE}/export/excel`,
     }
   }

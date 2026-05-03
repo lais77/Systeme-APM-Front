@@ -180,24 +180,85 @@ table {
   tr.clickable { cursor: pointer; &:hover td { background: #f8fafc; } }
 }
 
-.badge {
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 500;
+// Badges délai — bien visibles
+.delai-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+
+  &.vert {
+    background: #f0fdf4;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+    &::before { content: '●'; font-size: 8px; }
+  }
+
+  &.orange {
+    background: #fffbeb;
+    color: #b45309;
+    border: 1px solid #fde68a;
+    &::before { content: '●'; font-size: 8px; }
+  }
+
+  &.rouge {
+    background: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+    animation: pulse-red 2s infinite;
+    &::before { content: '●'; font-size: 8px; }
+  }
 }
 
-.badge-critique { background: #fee2e2; color: #dc2626; }
-.badge-haute { background: #ffedd5; color: #ea580c; }
-.badge-moyenne { background: #fef9c3; color: #ca8a04; }
-.badge-basse { background: #dcfce7; color: #16a34a; }
-.badge-cree { background: #f1f5f9; color: #64748b; }
-.badge-assigne { background: #dbeafe; color: #1d4ed8; }
-.badge-encours { background: #ede9fe; color: #5b21b6; }
-.badge-revision { background: #ffedd5; color: #ea580c; }
-.badge-valide { background: #dcfce7; color: #16a34a; }
-.badge-rejete { background: #fee2e2; color: #dc2626; }
-.badge-cloture { background: #f1f5f9; color: #64748b; }
+@keyframes pulse-red {
+  0%, 100% { border-color: #fecaca; }
+  50%       { border-color: #f87171; }
+}
+
+// Statuts PDCA unifiés
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+
+  &.badge-created, &.badge-p {
+    background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe;
+  }
+  &.badge-inprogress, &.badge-d {
+    background: #fffbeb; color: #b45309; border: 1px solid #fde68a;
+  }
+  &.badge-underreview {
+    background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe;
+  }
+  &.badge-validated {
+    background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0;
+  }
+  &.badge-closed, &.badge-c, &.badge-cloture {
+    background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0;
+  }
+  &.badge-rejected {
+    background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca;
+  }
+  &.badge-critique {
+    background: #fef2f2; color: #b91c1c;
+  }
+  &.badge-haute {
+    background: #fff7ed; color: #c2410c;
+  }
+  &.badge-moyenne {
+    background: #fffbeb; color: #b45309;
+  }
+  &.badge-basse {
+    background: #f0fdf4; color: #15803d;
+  }
+}
 
 .progress-wrap {
   width: 80px;

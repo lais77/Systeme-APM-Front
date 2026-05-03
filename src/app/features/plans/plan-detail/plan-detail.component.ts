@@ -51,7 +51,7 @@ export class PlanDetailComponent implements OnInit {
     return classes[priority] || '';
   }
 
-  getDelaiCouleur(dateRealisation: string | undefined): string {
+  getDelaiCouleur(dateRealisation: string | Date | undefined): string {
     // Gérer le cas où la date est undefined
     if (!dateRealisation) {
       return ''; // Pas de couleur si pas de date
@@ -67,29 +67,39 @@ export class PlanDetailComponent implements OnInit {
   }
 
   getStatutActionClass(status: string): string {
-    const classes: any = {
-      Created: 'badge-cree',
-      Assigned: 'badge-assigne',
-      InProgress: 'badge-encours',
-      UnderReview: 'badge-revision',
-      Validated: 'badge-valide',
-      Rejected: 'badge-rejete',
-      Closed: 'badge-cloture'
-    };
-    return classes[status] || '';
+    if (!status) return '';
+    const s = status.toLowerCase();
+    
+    // Classes CSS unifiées
+    if (s === 'created' || s === 'p') return 'badge-p';
+    if (s === 'inprogress' || s === 'd') return 'badge-inprogress';
+    if (s === 'underreview') return 'badge-underreview';
+    if (s === 'validated') return 'badge-validated';
+    if (s === 'closed' || s === 'c' || s === 'cloture' || s === 'clôturée') return 'badge-closed';
+    if (s === 'rejected' || s === 'rejete') return 'badge-rejected';
+    
+    return 'badge-' + s;
   }
 
   getStatutActionLabel(status: string): string {
+    if (!status) return '—';
+    const s = status.toUpperCase();
+    
     const labels: Record<string, string> = {
-      Created: 'P - Planifiée',
-      Assigned: 'P - Planifiée',
-      InProgress: 'En réalisation',
-      UnderReview: 'D - À valider',
-      Validated: 'D - Réalisée',
-      Rejected: 'À reprendre',
-      Closed: 'C - Clôturée'
+      'P': 'P - Planifiée',
+      'CREATED': 'P - Planifiée',
+      'ASSIGNED': 'P - Planifiée',
+      'INPROGRESS': 'D - En réalisation',
+      'D': 'D - Réalisée (À valider)',
+      'UNDERREVIEW': 'D - En vérification',
+      'VALIDATED': 'D - Validée',
+      'REJECTED': 'À reprendre',
+      'C': 'C - Clôturée',
+      'CLOSED': 'C - Clôturée',
+      'CLÔTURÉE': 'C - Clôturée'
     };
-    return labels[status] || status;
+    
+    return labels[s] || status;
   }
 
   planLectureSeule(): boolean {
