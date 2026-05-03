@@ -126,6 +126,52 @@
     </div>
 
 
+    <!-- ── SECTION IA ──────────────────────────────────── -->
+    <div class="section ia-section">
+      <div class="section-header">
+        <h2>
+          <i class="pi pi-sparkles"></i>
+          Intelligence Artificielle APM
+        </h2>
+      </div>
+
+      <div class="ia-actions">
+        <button class="btn-ia" (click)="getSuggestions()" [disabled]="chargementIA">
+          <i class="pi pi-lightbulb"></i>
+          {{ chargementIA ? 'Analyse...' : 'Suggérer des actions' }}
+        </button>
+        <button class="btn-ia" (click)="getResume()" [disabled]="chargementIA">
+          <i class="pi pi-book"></i>
+          {{ chargementIA ? 'Synthèse...' : 'Générer résumé' }}
+        </button>
+      </div>
+
+      <!-- Résultats IA -->
+      <div class="ia-results" *ngIf="suggestions || resume">
+        <div class="ia-card suggestions" *ngIf="suggestions">
+          <div class="ia-card-header">
+            <i class="pi pi-list"></i>
+            Suggestions d'actions
+          </div>
+          <div class="ia-content" [innerHTML]="suggestions"></div>
+        </div>
+
+        <div class="ia-card resume" *ngIf="resume">
+          <div class="ia-card-header">
+            <i class="pi pi-align-left"></i>
+            Résumé du plan
+          </div>
+          <div class="ia-content" [innerHTML]="resume"></div>
+        </div>
+      </div>
+
+      <div class="ia-empty" *ngIf="!suggestions && !resume && !chargementIA">
+        <i class="pi pi-bolt"></i>
+        <p>Prêt à analyser votre plan</p>
+        <span>Utilisez les boutons ci-dessus pour générer des suggestions ou un résumé.</span>
+      </div>
+    </div>
+
   </ng-container>
 
   <div class="empty" *ngIf="!chargement && !plan">Plan introuvable.</div>

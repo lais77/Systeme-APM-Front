@@ -8,10 +8,12 @@ import { AuthService } from '../../core/services/auth.service';
 import { User } from '../../core/models/models';
 import { API } from '../../core/services/api-endpoints';
 
+import { ChatbotComponent } from '../chatbot/chatbot.component';
+
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, RouterOutlet],
+  imports: [CommonModule, RouterModule, RouterOutlet, ChatbotComponent],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.scss'
 })
