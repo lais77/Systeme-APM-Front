@@ -349,6 +349,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.histogrammeChart = undefined;
     if (labels.length === 0) return;
 
+    const maxVal = Math.max(1, ...enRetard, ...cloturees);
+    const yMax = Math.max(5, Math.ceil(maxVal * 1.15));
+    const step = yMax <= 10 ? 1 : Math.max(1, Math.ceil(yMax / 5));
+
     this.histogrammeChart = new Chart(this.histogrammeCanvas.nativeElement, {
       type: 'bar',
       data: {

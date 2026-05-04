@@ -197,7 +197,6 @@ export class ReportingComponent implements OnInit, AfterViewInit {
             borderWidth: 1,
             padding: 12,
             cornerRadius: 10,
-            boxShadow: '0 4px 16px rgba(0,0,0,0.10)',
             titleFont: { family: 'Inter, Segoe UI, sans-serif', size: 13, weight: 'bold' },
             bodyFont: { family: 'Inter, Segoe UI, sans-serif', size: 12 },
             callbacks: {
