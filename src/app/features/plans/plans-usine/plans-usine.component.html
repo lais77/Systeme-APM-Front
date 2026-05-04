@@ -1,92 +1,95 @@
-<div class="page">
-  <div class="page-header">
-    <h1>Plans d'action Usine</h1>
-    <span class="total">{{ plansFiltres.length }} plan(s)</span>
+<div class="process-page">
+  <div class="page-header process-header">
+    <div>
+      <h1><i class="pi pi-chart-bar"></i> Plans Usine</h1>
+      <span class="subtitle">Vue consolidée par processus de fabrication</span>
+    </div>
+    <button type="button" class="btn-primary">
+      <i class="pi pi-plus"></i>
+      Nouveau processus
+    </button>
   </div>
 
-  <p class="lecture-note">
-    Cette page est en lecture et supervision globale des plans d'action usine.
-  </p>
-
-  <div class="summary-cards" *ngIf="!chargement">
-    <div class="summary-card">
-      <span class="summary-label">Total Plans</span>
-      <strong class="summary-value">{{ plansFiltres.length }}</strong>
-    </div>
-    <div class="summary-card">
-      <span class="summary-label">Total Actions</span>
-      <strong class="summary-value">{{ totalActions }}</strong>
-    </div>
-    <div class="summary-card">
-      <span class="summary-label">Total Pilotes</span>
-      <strong class="summary-value">{{ totalPilotes }}</strong>
-    </div>
+  <div class="stats-row">
+    <article class="stat-card stat-blue">
+      <span class="stat-label">Processus actifs</span>
+      <strong>{{ processStats.actifs }}</strong>
+      <span class="stat-icon"><i class="pi pi-chart-bar"></i></span>
+    </article>
+    <article class="stat-card stat-green">
+      <span class="stat-label">Plans total</span>
+      <strong>{{ processStats.plans }}</strong>
+      <span class="stat-icon"><i class="pi pi-arrow-up-right"></i></span>
+    </article>
+    <article class="stat-card stat-orange">
+      <span class="stat-label">Actions total</span>
+      <strong>{{ processStats.actions }}</strong>
+      <span class="stat-icon"><i class="pi pi-arrow-up-right"></i></span>
+    </article>
+    <article class="stat-card stat-red">
+      <span class="stat-label">Avancement moyen</span>
+      <strong>{{ processStats.avancement }}%</strong>
+      <span class="stat-icon"><i class="pi pi-arrow-up-right"></i></span>
+    </article>
   </div>
 
-  <div class="filtres">
-    <input
-      type="text"
-      [(ngModel)]="recherche"
-      (ngModelChange)="filtrer()"
-      placeholder="Rechercher un plan..."
-      class="input-recherche"
-    />
-    <select [(ngModel)]="filtreStatut" (ngModelChange)="filtrer()">
-      <option value="">Tous les statuts</option>
-      <option value="InProgress">En cours</option>
-      <option value="Closed">Clôturé</option>
-    </select>
-    <select [(ngModel)]="filtrePriorite" (ngModelChange)="filtrer()">
-      <option value="">Toutes les priorités</option>
-      <option value="Critical">Critique</option>
-      <option value="High">Haute</option>
-      <option value="Medium">Moyenne</option>
-      <option value="Low">Basse</option>
-    </select>
+  <div class="process-grid">
+    <article class="process-card card" *ngFor="let process of processRows">
+      <div class="process-card-top">
+        <span class="process-icon"><i class="pi pi-chart-bar"></i></span>
+        <span class="status-pill" [class.status-pause]="process.statut === 'En pause'">
+          <span></span>{{ process.statut }}
+        </span>
+      </div>
+      <h2>{{ process.name }}</h2>
+      <p>Responsable: {{ process.responsable }}</p>
+      <div class="process-meta">
+        <span>{{ process.plans }} plans</span>
+        <span>{{ process.actions }} actions</span>
+      </div>
+      <div class="process-progress">
+        <span class="progress-track"><span [style.width.%]="process.avancement"></span></span>
+        <strong>{{ process.avancement }}%</strong>
+      </div>
+      <div class="process-actions">
+        <button type="button" class="btn-mini"><i class="pi pi-eye"></i> Voir</button>
+        <button type="button" class="btn-mini"><i class="pi pi-cog"></i> Gérer</button>
+      </div>
+    </article>
   </div>
 
-  <div class="loading" *ngIf="chargement">Chargement...</div>
-
-  <div class="table-container" *ngIf="!chargement">
-    <table>
+  <section class="card synthese-card">
+    <div class="synthese-title">Synthèse des processus</div>
+    <table class="process-table">
       <thead>
         <tr>
-          <th>Titre</th>
-          <th>Pilote</th>
           <th>Processus</th>
-          <th>Priorité</th>
+          <th>Responsable</th>
+          <th>Plans</th>
+          <th>Actions</th>
           <th>Avancement</th>
           <th>Statut</th>
-          <th>Échéance</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let plan of plansFiltres" [routerLink]="['/plans', plan.id]" class="clickable">
-          <td>{{ plan.title }}</td>
-          <td>{{ plan.pilotName }}</td>
-          <td>{{ plan.processName }}</td>
+        <tr *ngFor="let process of processRows">
           <td>
-            <span class="badge" [ngClass]="getPrioriteClass(plan.priority)">
-              {{ plan.priority }}
+            <span class="process-name">
+              <i class="pi pi-chart-bar"></i>
+              {{ process.name }}
             </span>
           </td>
+          <td>{{ process.responsable }}</td>
+          <td>{{ process.plans }}</td>
+          <td>{{ process.actions }}</td>
+          <td>{{ process.avancement }}%</td>
           <td>
-            <div class="progress-wrap">
-              <div class="progress-bar" [style.width.%]="plan.progressPercentage"></div>
-            </div>
-            <span class="progress-text">{{ plan.progressPercentage }}%</span>
-          </td>
-          <td>
-            <span class="badge" [ngClass]="getStatutClass(plan.status)">
-              {{ getStatutLabel(plan.status) }}
+            <span class="status-pill" [class.status-pause]="process.statut === 'En pause'">
+              <span></span>{{ process.statut }}
             </span>
           </td>
-          <td>{{ plan.dueDate | date:'dd/MM/yyyy' }}</td>
-        </tr>
-        <tr *ngIf="plansFiltres.length === 0">
-          <td colspan="7" class="empty">Aucun plan trouvé.</td>
         </tr>
       </tbody>
     </table>
-  </div>
+  </section>
 </div>

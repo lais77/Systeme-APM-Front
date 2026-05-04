@@ -1,57 +1,92 @@
-<div class="page reporting-page">
-  <div class="page-header flex-header">
+<div class="reporting-page">
+  <div class="page-header reporting-header">
     <div>
-      <h1>Reporting & Statistiques</h1>
+      <h1>Reporting &amp; Statistiques</h1>
       <span class="subtitle">Performance globale par département</span>
     </div>
-    <button class="btn-primary" (click)="exporterExcel()">
-      <span class="icon">📊</span> Exporter en Excel
-    </button>
+    <div class="reporting-actions">
+      <button type="button" class="btn-ai" (click)="analyserIA()" [disabled]="aiLoading">
+        <i class="pi" [class.pi-spin]="aiLoading" [class.pi-spinner]="aiLoading" [class.pi-sparkles]="!aiLoading"></i>
+        {{ aiLoading ? 'Analyse...' : 'Analyse IA' }}
+      </button>
+      <button type="button" class="btn-primary" (click)="exporterExcel()">
+        <i class="pi pi-file-excel"></i>
+        Exporter en Excel
+      </button>
+    </div>
+  </div>
+  
+  <div class="ai-analysis-box" *ngIf="aiResult || aiLoading">
+    <div class="ai-loading" *ngIf="aiLoading">
+      <i class="pi pi-spinner pi-spin"></i>
+      <span>L'IA analyse vos indicateurs de performance...</span>
+    </div>
+    <div class="ai-result" *ngIf="aiResult && !aiLoading">
+      <div class="ai-result-header">
+        <i class="pi pi-sparkles"></i>
+        Synthèse Intelligente
+      </div>
+      <div class="ai-result-content">{{ aiResult }}</div>
+    </div>
   </div>
 
-  <div *ngIf="chargement" class="loading">Génération du rapport en cours...</div>
-
-  <div class="table-container" *ngIf="!chargement && statsDepartements.length > 0">
+  <section class="card table-card">
     <table class="reporting-table">
       <thead>
         <tr>
           <th>Département</th>
-          <th>Total Plans</th>
-          <th>Total Actions</th>
-          <th>Actions Clôturées</th>
-          <th>Taux de Clôture</th>
+          <th>Total plans</th>
+          <th>Total actions</th>
+          <th>Actions clôturées</th>
+          <th>Taux de clôture</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let dept of statsDepartements">
-          <td><strong>{{ dept.departmentName }}</strong></td>
+        <tr *ngFor="let dept of reportRows">
+          <td><strong>{{ dept.name }}</strong></td>
           <td>{{ dept.totalPlans }}</td>
-          <td>{{ dept.totalActions }}</td>
-          <td>{{ dept.actionsCloturees }}</td>
-          <td>
-            <div class="taux-cell">
-              <span class="badge" 
-                    [class.success]="dept.tauxCloture >= 75"
-                    [class.warning]="dept.tauxCloture >= 50 && dept.tauxCloture < 75"
-                    [class.danger]="dept.tauxCloture < 50">
-                {{ dept.tauxCloture }}%
-              </span>
-              <div class="mini-progress">
-                <div class="mini-progress-fill" 
-                     [style.width.%]="dept.tauxCloture"
-                     [class.bg-success]="dept.tauxCloture >= 75"
-                     [class.bg-warning]="dept.tauxCloture >= 50 && dept.tauxCloture < 75"
-                     [class.bg-danger]="dept.tauxCloture < 50">
-                </div>
-              </div>
-            </div>
-          </td>
+          <td [class.text-blue]="dept.totalActions > 0">{{ dept.totalActions }}</td>
+          <td [class.text-blue]="dept.actionsCloturees > 0">{{ dept.actionsCloturees }}</td>
+          <td [class.text-green]="dept.tauxCloture >= 75">{{ dept.tauxCloture }} %</td>
         </tr>
       </tbody>
     </table>
+  </section>
+
+  <div class="stats-row">
+    <article class="stat-card stat-blue">
+      <span class="stat-label">Total plans</span>
+      <strong>{{ reportTotals.totalPlans }}</strong>
+      <span class="stat-icon"><i class="pi pi-arrow-up-right"></i></span>
+    </article>
+    <article class="stat-card stat-green">
+      <span class="stat-label">Total actions</span>
+      <strong>{{ reportTotals.totalActions }}</strong>
+      <span class="stat-icon"><i class="pi pi-arrow-up-right"></i></span>
+    </article>
+    <article class="stat-card stat-green">
+      <span class="stat-label">Actions clôturées</span>
+      <strong>{{ reportTotals.actionsCloturees }}</strong>
+      <span class="stat-icon"><i class="pi pi-arrow-up-right"></i></span>
+    </article>
+    <article class="stat-card stat-green">
+      <span class="stat-label">Taux global</span>
+      <strong>{{ reportTotals.tauxGlobal }}%</strong>
+      <small>↑ Excellent</small>
+      <span class="stat-icon"><i class="pi pi-arrow-up-right"></i></span>
+    </article>
   </div>
 
-  <div *ngIf="!chargement && statsDepartements.length === 0" class="empty-state">
-    <p>Aucune donnée disponible pour le reporting.</p>
-  </div>
+  <section class="card evolution-card">
+    <div class="card-head">
+      <span class="card-title">
+        <i class="pi pi-chart-bar"></i>
+        Évolution mensuelle — Plans &amp; Actions
+      </span>
+    </div>
+    <div class="line-chart">
+      <canvas #evolutionCanvas></canvas>
+    </div>
+  </section>
 </div>
+

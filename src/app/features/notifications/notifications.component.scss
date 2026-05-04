@@ -381,3 +381,67 @@
     i { font-size: 11px; }
   }
 }
+
+/* Unified UI polish */
+.notif-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  color: var(--text-main);
+}
+
+.page-topbar {
+  margin-bottom: 0;
+}
+
+.status-card,
+.notif-panel {
+  border-radius: 8px;
+  border-color: var(--border-light);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+}
+
+.status-card-head,
+.notif-tabs,
+.notif-pagination {
+  border-color: var(--border-light);
+  background: var(--bg-head);
+}
+
+.counter-label,
+.notif-desc,
+.notif-time,
+.page-left .page-subtitle {
+  color: var(--text-muted);
+}
+
+.counter-value,
+.notif-title,
+.page-left .page-title {
+  color: var(--text-main);
+}
+
+.notif-item {
+  border-color: var(--border-light);
+}
+
+.notif-item:hover {
+  background: var(--bg-card-hover);
+}
+
+.notif-item.unread {
+  background: var(--primary-soft);
+}
+
+.tab-btn.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+}
+
+.type-badge,
+.tab-btn .tab-count,
+.pag-btn,
+.btn-outline {
+  border-radius: 6px;
+}

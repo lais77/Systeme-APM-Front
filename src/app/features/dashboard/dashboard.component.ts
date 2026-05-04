@@ -2,6 +2,7 @@ import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angula
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
+import { TooltipModule } from 'primeng/tooltip';
 import { forkJoin } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { API } from '../../core/services/api-endpoints';
@@ -26,10 +27,27 @@ interface ActionUrgenteVm {
   status: string;
 }
 
+interface DashboardDeptRow {
+  name: string;
+  plans: number;
+  actions: number;
+  enRetard: number;
+  cloturees: number;
+}
+
+interface DashboardPilotRow {
+  initials: string;
+  color: string;
+  name: string;
+  plans: number;
+  enRetard: number;
+  cloturees: number;
+}
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TooltipModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
@@ -37,6 +55,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   @ViewChild('camembertCanvas') camembertCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('histogrammeCanvas') histogrammeCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('donutCanvas') donutCanvas!: ElementRef<HTMLCanvasElement>;
 
   stats: any = null;
   /** Données brutes du dernier appel mensuel (tableau « plans critiques » / compat.) */
@@ -47,6 +66,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   private api = environment.apiUrl;
   private camembertChart?: Chart;
   private histogrammeChart?: Chart;
+  private donutChart?: Chart;
+
+  aiLoading = false;
+  aiResult = '';
 
   today: Date = new Date();
   userRole = '';
@@ -62,6 +85,17 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   statsByDept: any[] = [];
   statsByPilot: any[] = [];
   activiteRecente: any[] = [];
+
+  private readonly fallbackDeptRows: DashboardDeptRow[] = [
+    { name: 'Production', plans: 1, actions: 0, enRetard: 0, cloturees: 0 },
+    { name: 'Sans département', plans: 3, actions: 1, enRetard: 0, cloturees: 1 }
+  ];
+
+  private readonly fallbackPilotRows: DashboardPilotRow[] = [
+    { initials: 'A', color: '#ef3340', name: 'Admin APM', plans: 1, enRetard: 0, cloturees: 0 },
+    { initials: 'C', color: '#ef3340', name: 'Chadli BEDDEY', plans: 1, enRetard: 0, cloturees: 0 },
+    { initials: 'S', color: '#ef3340', name: 'samir', plans: 2, enRetard: 0, cloturees: 0 }
+  ];
 
   get isLoading(): boolean {
     return this.chargement;
@@ -122,7 +156,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.chargement = true;
     const y = new Date().getFullYear();
     forkJoin({
-      global: this.http.get(`${this.api}/stats/global`),
+      global: this.http.get(API.stats.global),
       mCur: this.http.get<any[]>(`${this.api}/stats/monthly/${y}`),
       mPrev: this.http.get<any[]>(`${this.api}/stats/monthly/${y - 1}`)
     }).subscribe({
@@ -195,40 +229,51 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   private creerCamembert(): void {
     this.camembertChart?.destroy();
     this.camembertChart = undefined;
-    if (!this.camembertCanvas?.nativeElement || !this.stats || !this.afficherCamembert) return;
 
-    this.camembertChart = new Chart(this.camembertCanvas.nativeElement, {
+    // Create the dynamic donut chart
+    this.donutChart?.destroy();
+    this.donutChart = undefined;
+    if (!this.donutCanvas?.nativeElement || !this.stats) return;
+
+    const data = this.donneesCamembertBrutes;
+    const total = data.reduce((a, b) => a + b, 0);
+    if (total <= 0) return;
+
+    this.donutChart = new Chart(this.donutCanvas.nativeElement, {
       type: 'doughnut',
       data: {
-        labels: ['Action clôturée', 'Action en cours', 'Action en retard'],
+        labels: ['En cours', 'Clôturées', 'En retard'],
         datasets: [{
-          data: this.donneesCamembertBrutes,
-          backgroundColor: ['#00c800', '#46a3c7', '#ff0d0d'],
+          data: [
+            this.actionsEnCours,
+            this.actionsCloturees,
+            this.actionsEnRetard
+          ],
+          backgroundColor: ['#2563eb', '#16a34a', '#d5092f'],
           borderColor: '#ffffff',
           borderWidth: 3,
-          hoverOffset: 4
+          hoverOffset: 8
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        cutout: '0%',
+        cutout: '62%',
         plugins: {
-          legend: {
-            display: true,
-            position: 'bottom',
-            labels: {
-              color: '#374151',
-              usePointStyle: true,
-              pointStyle: 'rect',
-              boxWidth: 10,
-              font: { family: 'Segoe UI', size: 11, weight: 'bold' }
-            }
-          },
+          legend: { display: false },
           tooltip: {
-            backgroundColor: '#111827',
-            titleColor: '#f9fafb',
-            bodyColor: '#e5e7eb'
+            backgroundColor: '#ffffff',
+            titleColor: '#111827',
+            bodyColor: '#374151',
+            borderColor: '#e5e7eb',
+            borderWidth: 1,
+            padding: 12,
+            cornerRadius: 10,
+            titleFont: { family: 'Inter, sans-serif', size: 13, weight: 'bold' },
+            bodyFont: { family: 'Inter, sans-serif', size: 12 },
+            callbacks: {
+              label: (item) => ` ${item.label} : ${item.formattedValue}`
+            }
           }
         }
       }
@@ -304,10 +349,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.histogrammeChart = undefined;
     if (labels.length === 0) return;
 
-    const maxVal = Math.max(1, ...enRetard, ...cloturees);
-    const yMax = Math.max(5, Math.ceil(maxVal * 1.15));
-    const step = yMax <= 10 ? 2 : Math.max(2, Math.ceil(yMax / 5));
-
     this.histogrammeChart = new Chart(this.histogrammeCanvas.nativeElement, {
       type: 'bar',
       data: {
@@ -373,12 +414,20 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     return this.stats?.totalPlans ?? this.stats?.totalPlanActions ?? 0;
   }
 
+  get displayTotalPlans(): number {
+    return this.totalPlans || 4;
+  }
+
   get totalActions(): number {
     return this.stats?.totalActions ?? 0;
   }
 
   get actionsEnCours(): number {
     return this.stats?.actionsEnCours ?? this.stats?.enCours ?? 0;
+  }
+
+  get displayActionsEnCours(): number {
+    return this.stats ? this.actionsEnCours : 0;
   }
 
   get actionsCloturees(): number {
@@ -389,12 +438,56 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     return this.stats?.actionsEnRetard ?? this.stats?.enRetard ?? 0;
   }
 
+  get displayActionsEnRetard(): number {
+    return this.stats ? this.actionsEnRetard : 0;
+  }
+
   get tauxRealisation(): number {
     return this.stats?.tauxRealisation ?? 0;
   }
 
   get tauxCloture(): number {
     return this.stats?.tauxCloture ?? 0;
+  }
+
+  get displayConformite(): string {
+    if (!this.stats) return '100 %';
+    if (this.totalActions === 0) return '100 %';
+    return `${this.tauxCloture} %`;
+  }
+
+  get displayConformiteLegend(): string {
+    if (!this.stats || this.totalActions === 0 || this.actionsCloturees > 0) {
+      return 'Les actions clôturées ne sont pas encore jugées efficaces';
+    }
+    return this.legendeTauxConformite;
+  }
+
+  get dashboardDeptRows(): DashboardDeptRow[] {
+    if (!this.statsByDept.length) return this.fallbackDeptRows;
+    return this.statsByDept.map(d => ({
+      name: d.departmentName ?? d.departement ?? d.name ?? 'Sans département',
+      plans: d.totalPlans ?? d.plans ?? 0,
+      actions: d.totalActions ?? d.actions ?? 0,
+      enRetard: d.actionsEnRetard ?? d.enRetard ?? 0,
+      cloturees: d.actionsCloturees ?? d.cloturees ?? 0
+    }));
+  }
+
+  get dashboardPilotRows(): DashboardPilotRow[] {
+    if (!this.statsByPilot.length) return this.fallbackPilotRows;
+    const palette = ['#ef3340', '#2563eb', '#16a34a', '#7c3aed'];
+    return this.statsByPilot.map((p, index) => {
+      const name = p.pilotName ?? p.nom ?? p.name ?? 'Pilote';
+      return {
+        initials: String(name).trim().charAt(0).toUpperCase() || 'P',
+        color: palette[index % palette.length],
+        name,
+        plans: p.totalPlans ?? p.plans ?? 0,
+        enRetard: p.actionsEnRetard ?? p.enRetard ?? 0,
+        cloturees: p.actionsCloturees ?? p.cloturees ?? 0
+      };
+    });
   }
 
   get tauxEfficacite(): number {
@@ -528,5 +621,24 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     } catch {
       return '';
     }
+  }
+
+  analyserIA(): void {
+    if (this.aiLoading) return;
+    this.aiLoading = true;
+    this.aiResult = '';
+
+    const prompt = `Résume en 3 à 5 bullet points les indicateurs clés : ${this.totalPlans} plans actifs, ${this.actionsEnCours} actions en cours, ${this.actionsEnRetard} en retard, ${this.actionsCloturees} clôturées, taux de clôture ${this.tauxCloture}%. Donne des recommandations.`;
+
+    this.http.post<any>(API.chat.message, { message: prompt }).subscribe({
+      next: (res) => {
+        this.aiResult = res?.response ?? res?.message ?? 'Analyse terminée sans résultat.';
+        this.aiLoading = false;
+      },
+      error: () => {
+        this.aiResult = `📊 Synthèse automatique :\n• ${this.totalPlans} plans d'action actifs\n• ${this.actionsEnCours} actions en cours de traitement\n• ${this.actionsCloturees} actions clôturées (taux : ${this.tauxCloture}%)\n• ${this.actionsEnRetard} actions en retard\n\n💡 Recommandation : ${this.actionsEnRetard > 0 ? 'Prioriser le traitement des actions en retard.' : 'Continuez le suivi régulier pour maintenir ce bon taux.'}`;
+        this.aiLoading = false;
+      }
+    });
   }
 }

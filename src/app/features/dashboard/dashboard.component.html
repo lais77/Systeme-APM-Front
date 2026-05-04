@@ -1,30 +1,21 @@
 <div class="dashboard">
 
-  <div class="page-topbar">
+  <div class="page-topbar dashboard-titlebar">
     <div>
       <div class="page-breadcrumb">
-        <i class="pi pi-home"></i>
-        Aperçu Système
+        <i class="pi pi-shield"></i>
+        Aperçu système
       </div>
       <h1 class="page-title">Centre de Contrôle Opérationnel</h1>
     </div>
   </div>
 
-  <div class="onboarding-strip" *ngIf="afficherBandeauOnboarding">
-    <i class="pi pi-compass"></i>
-    <div class="onboarding-texts">
-      <strong>Bienvenue dans APM</strong>
-      <span>Créez un premier plan d’action pour voir les indicateurs et graphiques prendre vie.</span>
-    </div>
-    <a routerLink="/plans" class="onboarding-cta">Créer ou ouvrir un plan</a>
-  </div>
-
-  <div class="charts-grid" *ngIf="!chargement">
-    <div class="card chart-card chart-left">
+  <div class="charts-grid">
+    <section class="card chart-card chart-left">
       <div class="card-head card-head--split">
         <span class="card-title">
-          <i class="pi pi-chart-bar"></i>
-          Plans d’action par mois
+          <i class="pi pi-chart-line"></i>
+          Plans d'action par mois
         </span>
         <div class="period-toggle" role="group" aria-label="Période du graphique">
           <button type="button" class="period-btn" [class.active]="periodeHistogramme === 0" (click)="setPeriode(0)">Auto</button>
@@ -33,125 +24,89 @@
           <button type="button" class="period-btn" [class.active]="periodeHistogramme === 12" (click)="setPeriode(12)">12 mois</button>
         </div>
       </div>
-      <div class="chart-body chart-body--histogram">
+
+      <div class="legend legend--top">
+        <span class="legend-item legend-red">Action en retard</span>
+        <span class="legend-item legend-green">Action clôturée</span>
+      </div>
+
+      <div class="bar-chart-shell" aria-label="Plans d'action par mois">
         <canvas #histogrammeCanvas></canvas>
       </div>
-    </div>
-    <div class="card chart-card chart-right">
+    </section>
+
+    <section class="card chart-card chart-right">
       <div class="card-head">
         <span class="card-title">
-          <i class="pi pi-chart-pie"></i>
+          <i class="pi pi-chart-line"></i>
           Répartition des actions par statut
         </span>
       </div>
-      <div class="chart-body">
-        <canvas #camembertCanvas *ngIf="afficherCamembert"></canvas>
-        <div class="chart-empty" *ngIf="!afficherCamembert">
-          <i class="pi pi-chart-pie"></i>
-          <p>Données insuffisantes</p>
-          <span class="chart-empty-hint">{{ messageEtatCamembert }}</span>
+      <div class="donut-area" aria-label="Répartition des actions par statut">
+        <div class="donut-canvas-wrap">
+          <canvas #donutCanvas></canvas>
+        </div>
+        <div class="legend donut-legend">
+          <span class="legend-item legend-blue">En cours</span>
+          <span class="legend-item legend-green">Clôturées</span>
+          <span class="legend-item legend-red">En retard</span>
         </div>
       </div>
-    </div>
+    </section>
   </div>
 
   <div class="kpi-grid">
+    <article class="kpi-card kpi-blue">
+      <span class="kpi-label">Plans actifs</span>
+      <strong class="kpi-value">{{ displayTotalPlans }}</strong>
+      <span class="kpi-sub sub-up">↑ Plans en cours de suivi</span>
+      <span class="kpi-icon kpi-icon-blue"><i class="pi pi-folder-open"></i></span>
+    </article>
 
-    <div class="kpi-card kpi-blue">
-      <div class="kpi-header">
-        <span class="kpi-label">Plans actifs</span>
-        <div class="kpi-icon kpi-icon-blue">
-          <i class="pi pi-folder-open"></i>
-        </div>
-      </div>
-      <div class="kpi-value">{{ totalPlans }}</div>
-      <div class="kpi-sub sub-up">
-        <i class="pi pi-arrow-up"></i>
-        Plans en cours de suivi
-      </div>
-    </div>
+    <article class="kpi-card kpi-green">
+      <span class="kpi-label">Taux de conformité</span>
+      <strong class="kpi-value">{{ displayConformite }}</strong>
+      <span class="kpi-sub kpi-legende">{{ displayConformiteLegend }}</span>
+      <span class="kpi-icon kpi-icon-green"><i class="pi pi-check-circle"></i></span>
+    </article>
 
-    <div class="kpi-card kpi-green" [class.kpi-card--neutral]="conformiteStyleNeutre">
-      <div class="kpi-header">
-        <span class="kpi-label">Taux de conformité</span>
-        <div class="kpi-icon kpi-icon-green">
-          <i class="pi pi-check-circle"></i>
-        </div>
-      </div>
-      <div class="kpi-value" [class.kpi-value--muted]="conformiteStyleNeutre || totalActions === 0">
-        {{ conformitePourcentageAffiche }}
-      </div>
-      <div class="kpi-sub kpi-legende" [class.sub-up]="!conformiteStyleNeutre && totalActions > 0">
-        <i class="pi pi-info-circle"></i>
-        <span>{{ legendeTauxConformite }}</span>
-      </div>
-    </div>
+    <article class="kpi-card kpi-yellow">
+      <span class="kpi-label">Actions en attente</span>
+      <strong class="kpi-value">{{ displayActionsEnCours }}</strong>
+      <span class="kpi-sub">⚠ Nécessitent un suivi</span>
+      <span class="kpi-icon kpi-icon-yellow"><i class="pi pi-clock"></i></span>
+    </article>
 
-    <div class="kpi-card kpi-yellow">
-      <div class="kpi-header">
-        <span class="kpi-label">Actions en attente</span>
-        <div class="kpi-icon kpi-icon-yellow">
-          <i class="pi pi-clock"></i>
-        </div>
-      </div>
-      <div class="kpi-value">{{ actionsEnCours }}</div>
-      <div class="kpi-sub sub-warn">
-        <i class="pi pi-info-circle"></i>
-        Nécessitent un suivi
-      </div>
-    </div>
-
-    <div class="kpi-card kpi-red">
-      <div class="kpi-header">
-        <span class="kpi-label">Actions en retard</span>
-        <div class="kpi-icon kpi-icon-red">
-          <i class="pi pi-exclamation-triangle"></i>
-        </div>
-      </div>
-      <div class="kpi-value">{{ actionsEnRetard }}</div>
-      <div class="kpi-sub" [class.sub-down]="actionsEnRetard > 0" [class.sub-up]="actionsEnRetard === 0">
-        <i class="pi" [class.pi-times-circle]="actionsEnRetard > 0" [class.pi-check]="actionsEnRetard === 0"></i>
-        {{ actionsEnRetard > 0 ? 'Intervention requise' : 'Aucun retard' }}
-      </div>
-    </div>
-
+    <article class="kpi-card kpi-red">
+      <span class="kpi-label">Actions en retard</span>
+      <strong class="kpi-value">{{ displayActionsEnRetard }}</strong>
+      <span class="kpi-sub">✓ Aucun retard</span>
+      <span class="kpi-icon kpi-icon-red"><i class="pi pi-exclamation-triangle"></i></span>
+    </article>
   </div>
 
-  <div class="urgent-widget card" *ngIf="!chargement">
-    <div class="card-head">
+  <section class="card urgent-widget">
+    <div class="card-head urgent-head">
       <span class="card-title">
         <i class="pi pi-bolt"></i>
-        Actions urgentes (&lt; 48 h)
+        Actions urgentes
       </span>
-      <span class="urgent-widget-hint">Échéance dans les 48 prochaines heures ou dépassée</span>
+      <span class="urgent-widget-hint">Échéance dans les 48h ou dépassée</span>
     </div>
-    <div class="urgent-widget-body">
-      <p class="urgent-loading" *ngIf="chargementActionsUrgentes">
-        <i class="pi pi-spinner urgent-spin"></i> Chargement…
-      </p>
-      <ul class="urgent-list" *ngIf="!chargementActionsUrgentes && actionsUrgentes.length > 0">
-        <li *ngFor="let a of actionsUrgentes">
-          <div class="urgent-main">
-            <a [routerLink]="['/actions', a.id]" class="urgent-title">{{ a.actionDescription }}</a>
-            <span class="urgent-meta" *ngIf="a.planTitle">{{ a.planTitle }}</span>
-          </div>
-          <div class="urgent-side">
-            <span class="urgent-deadline">{{ a.deadline | date:'dd/MM/yyyy HH:mm' }}</span>
-            <a [routerLink]="['/plans', a.actionPlanId]" class="urgent-plan-link">Plan</a>
-          </div>
-        </li>
-      </ul>
-      <div class="chart-empty chart-empty--compact" *ngIf="!chargementActionsUrgentes && actionsUrgentes.length === 0">
-        <i class="pi pi-check-circle"></i>
-        <p>Aucune action urgente</p>
-        <span class="chart-empty-hint">Rien d’échéant dans les 48 prochaines heures (hors actions clôturées ou annulées).</span>
-      </div>
-    </div>
-  </div>
+    <ul class="urgent-list" *ngIf="actionsUrgentes.length > 0">
+      <li *ngFor="let a of actionsUrgentes">
+        <div class="urgent-main">
+          <a [routerLink]="['/actions', a.id]" class="urgent-title">{{ a.actionDescription }}</a>
+          <span class="urgent-meta" *ngIf="a.planTitle">{{ a.planTitle }}</span>
+        </div>
+        <span class="urgent-deadline">{{ a.deadline | date:'dd/MM/yyyy HH:mm' }}</span>
+      </li>
+    </ul>
+    <div class="urgent-empty-space" *ngIf="actionsUrgentes.length === 0"></div>
+  </section>
 
-  <div class="content-grid" *ngIf="!chargement">
-
-    <div class="card">
+  <div class="content-grid">
+    <section class="card">
       <div class="card-head">
         <span class="card-title">
           <i class="pi pi-building"></i>
@@ -169,21 +124,21 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let d of statsByDept">
-            <td>{{ d.departmentName }}</td>
-            <td>{{ d.totalPlans }}</td>
-            <td>{{ d.totalActions }}</td>
-            <td><span class="badge badge-rejected">{{ d.actionsEnRetard }}</span></td>
-            <td><span class="badge badge-cloture">{{ d.actionsCloturees }}</span></td>
+          <tr *ngFor="let d of dashboardDeptRows">
+            <td>{{ d.name }}</td>
+            <td>{{ d.plans }}</td>
+            <td>{{ d.actions }}</td>
+            <td>{{ d.enRetard }}</td>
+            <td><span class="mini-count" [class.mini-count--green]="d.cloturees > 0">{{ d.cloturees }}</span></td>
           </tr>
         </tbody>
       </table>
-    </div>
+    </section>
 
-    <div class="card">
+    <section class="card">
       <div class="card-head">
         <span class="card-title">
-          <i class="pi pi-users"></i>
+          <i class="pi pi-user"></i>
           PDCA par pilote
         </span>
       </div>
@@ -197,46 +152,63 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let p of statsByPilot">
-            <td>{{ p.pilotName }}</td>
-            <td>{{ p.totalPlans }}</td>
-            <td><span class="badge badge-rejected">{{ p.actionsEnRetard }}</span></td>
-            <td><span class="badge badge-cloture">{{ p.actionsCloturees }}</span></td>
+          <tr *ngFor="let p of dashboardPilotRows">
+            <td>
+              <span class="pilot-cell">
+                <span class="pilot-avatar" [style.background]="p.color">{{ p.initials }}</span>
+                {{ p.name }}
+              </span>
+            </td>
+            <td>{{ p.plans }}</td>
+            <td>{{ p.enRetard }}</td>
+            <td><span class="mini-count">{{ p.cloturees }}</span></td>
           </tr>
         </tbody>
       </table>
-    </div>
-
-    <div class="card flux-section">
-      <div class="card-head">
-        <span class="card-title">
-          <i class="pi pi-bolt"></i>
-          Flux d'activité récent
-        </span>
-      </div>
-      <div class="activity-list">
-        <div class="activity-item" *ngFor="let item of activiteRecente">
-          <div class="activity-dot" [class.dot-blue]="item.entityType === 'Plan'" [class.dot-green]="item.entityType === 'Action'">
-            <i class="pi pi-circle-fill"></i>
-          </div>
-          <div class="activity-content">
-            <div class="activity-title">{{ item.action }}</div>
-            <div class="activity-desc">
-              {{ item.userName }} · {{ item.createdAt | date:'dd/MM HH:mm' }}
-            </div>
-          </div>
-        </div>
-        <div class="activity-empty" *ngIf="activiteRecente.length === 0">
-          Aucune activité récente.
-        </div>
-      </div>
-    </div>
-
+    </section>
   </div>
 
-  <div class="loading-state" *ngIf="chargement">
-    <i class="pi pi-spinner"></i>
-    <p>Chargement des données...</p>
-  </div>
+  <section class="card activity-card">
+    <div class="card-head">
+      <span class="card-title">
+        <i class="pi pi-chart-line"></i>
+        Flux d'activité récent
+      </span>
+    </div>
+    <div class="activity-empty" *ngIf="activiteRecente.length === 0">Aucune activité récente.</div>
+    <div class="activity-item" *ngFor="let item of activiteRecente">
+      <div class="activity-content">
+        <div class="activity-title">{{ item.action }}</div>
+        <div class="activity-desc">{{ item.userName }} · {{ item.createdAt | date:'dd/MM HH:mm' }}</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card ai-insights-card">
+    <div class="card-head card-head--split">
+      <span class="card-title ai-title">
+        <i class="pi pi-sparkles"></i>
+        Insights IA — Tableau de bord
+      </span>
+      <button class="btn-ai-analyze" (click)="analyserIA()" [disabled]="aiLoading">
+        <i class="pi" [class.pi-spin]="aiLoading" [class.pi-spinner]="aiLoading" [class.pi-play]="!aiLoading"></i>
+        {{ aiLoading ? 'Analyse en cours...' : 'Analyser' }}
+      </button>
+    </div>
+    <p>Analyse intelligente de vos plans et actions basée sur les données actuelles.</p>
+    <div class="ai-result" *ngIf="aiResult">
+      <div class="ai-result-text">{{ aiResult }}</div>
+    </div>
+    <div class="ai-empty" *ngIf="!aiResult && !aiLoading">
+      <i class="pi pi-lightbulb"></i>
+      <strong>Aucune analyse en cours</strong>
+      <span>Cliquez sur « Analyser » pour obtenir des insights</span>
+    </div>
+    <div class="ai-empty" *ngIf="aiLoading">
+      <i class="pi pi-spinner pi-spin"></i>
+      <strong>Analyse en cours...</strong>
+      <span>L'IA examine vos indicateurs</span>
+    </div>
+  </section>
 
 </div>

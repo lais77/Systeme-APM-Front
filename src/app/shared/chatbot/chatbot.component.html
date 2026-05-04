@@ -41,15 +41,6 @@
 
   <div class="chat-messages" #messagesContainer>
 
-    <div class="welcome-block" *ngIf="messages.length <= 1">
-      <p class="welcome-text">Posez-moi une question sur vos plans d'action, vos actions en retard ou vos indicateurs.</p>
-      <div class="suggestions">
-        <button type="button" class="suggestion-chip" *ngFor="let s of suggestions" (click)="sendSuggestion(s)">
-          {{ s }}
-        </button>
-      </div>
-    </div>
-
     <div *ngFor="let msg of messages; let i = index"
          class="message-row"
          [class.is-user]="msg.role === 'user'"
@@ -81,6 +72,12 @@
       </div>
     </div>
 
+  </div>
+
+  <div class="suggestions quick-suggestions" *ngIf="messages.length <= 1">
+    <button type="button" class="suggestion-chip" *ngFor="let s of suggestions" (click)="sendSuggestion(s)">
+      {{ s }}
+    </button>
   </div>
 
   <div class="chat-input-area">

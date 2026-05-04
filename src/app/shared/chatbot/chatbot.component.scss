@@ -52,7 +52,11 @@ $shadow-lg:  0 24px 64px rgba(0,0,0,0.45), 0 4px 16px rgba(0,0,0,0.3);
   .fab-icon {
     width: 22px;
     height: 22px;
-    transition: opacity 0.15s;
+    transition: opacity 0.25s ease, transform 0.3s ease;
+  }
+
+  &.is-open .fab-icon {
+    transform: rotate(90deg);
   }
 
   .fab-badge {
@@ -439,4 +443,133 @@ $shadow-lg:  0 24px 64px rgba(0,0,0,0.45), 0 4px 16px rgba(0,0,0,0.3);
     bottom: 20px;
     right: 20px;
   }
+}
+
+/* Figma Make chat skin */
+.apm-chat-fab {
+  right: 24px;
+  bottom: 24px;
+  width: 54px;
+  height: 54px;
+  background: var(--primary-color);
+  box-shadow: 0 10px 24px rgba(213, 9, 47, 0.32);
+}
+
+.apm-chat-fab.is-open {
+  background: #33445e;
+  border-color: transparent;
+}
+
+.apm-chat-window {
+  right: 18px;
+  bottom: 86px;
+  width: 350px;
+  height: 526px;
+  border: 0;
+  border-radius: 16px;
+  background: #1f2b3e;
+  box-shadow: 0 22px 54px rgba(15, 23, 42, 0.36);
+}
+
+.chat-header {
+  padding: 15px 16px 12px;
+  background: #1f2b3e;
+  border-bottom: 0;
+}
+
+.chat-header::before {
+  display: none;
+}
+
+.header-avatar,
+.message-avatar {
+  border: 0;
+  background: #7c3aed;
+  color: #ffffff;
+}
+
+.header-title {
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.header-status {
+  color: #22c55e;
+  font-weight: 800;
+}
+
+.header-close {
+  color: #9aa9bd;
+}
+
+.chat-messages {
+  padding: 18px 22px 10px 14px;
+}
+
+.message-row.is-assistant .message-bubble {
+  background: #3a4b64;
+  border: 0;
+  border-radius: 14px;
+  border-bottom-left-radius: 14px;
+}
+
+.message-text {
+  color: #f8fafc;
+  font-size: 0.86rem;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.message-time {
+  color: #8392a7;
+}
+
+.quick-suggestions {
+  align-items: flex-start;
+  padding: 0 22px 14px 14px;
+}
+
+.suggestion-chip {
+  min-height: 28px;
+  border: 0;
+  border-radius: 999px;
+  background: #344760;
+  color: #e2e8f0;
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.chat-input-area {
+  padding: 10px 14px 12px;
+  background: #1f2b3e;
+  border-top: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.input-wrapper {
+  min-height: 48px;
+  border: 0;
+  border-radius: 14px;
+  background: #2a3b52;
+  padding: 8px 10px 8px 14px;
+}
+
+.input-wrapper textarea {
+  color: #f8fafc;
+}
+
+.send-btn {
+  border-radius: 50%;
+  background: #9d174d;
+  color: #ffffff;
+}
+
+.send-btn.is-active {
+  background: #be185d;
+}
+
+.input-hint {
+  color: #66758a;
+  text-align: center;
 }

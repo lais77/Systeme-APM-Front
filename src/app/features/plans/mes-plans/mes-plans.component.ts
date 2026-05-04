@@ -7,6 +7,16 @@ import { PlansService } from '../../../core/services/plans.service';
 import { Plan } from '../../../core/models/models';
 import { API } from '../../../core/services/api-endpoints';
 
+interface PlanCardView {
+  id?: number;
+  priority: string;
+  title: string;
+  department: string;
+  type: string;
+  progress: number;
+  dueDate: string;
+}
+
 @Component({
   selector: 'app-mes-plans',
   standalone: true,
@@ -17,11 +27,23 @@ import { API } from '../../../core/services/api-endpoints';
 export class MesPlansComponent implements OnInit {
   plans: Plan[] = [];
   chargement = true;
+  viewMode: 'cards' | 'list' = 'cards';
   modalOuvert = false;
   nouveauPlan: any = {};
   departements: any[] = [];
   processus: any[] = [];
   piloteNom = '';
+
+  private readonly fallbackPlans: PlanCardView[] = [
+    {
+      priority: 'Low',
+      title: 'testtest',
+      department: 'Production',
+      type: 'Mono',
+      progress: 0,
+      dueDate: '30/04/2026'
+    }
+  ];
 
   constructor(private plansService: PlansService, private http: HttpClient) {}
 
@@ -34,9 +56,13 @@ export class MesPlansComponent implements OnInit {
 
   chargerPlans(): void {
     this.plansService.getMesPlans().subscribe({
-      next: (data) => { this.plans = data; this.chargement = false; },
+      next: (data) => { this.plans = data || []; this.chargement = false; },
       error: () => { this.chargement = false; }
     });
+  }
+
+  setView(mode: 'cards' | 'list'): void {
+    this.viewMode = mode;
   }
 
   chargerDepartements(): void {
@@ -150,5 +176,24 @@ export class MesPlansComponent implements OnInit {
     } catch {
       this.piloteNom = '';
     }
+  }
+
+  get displayPlans(): PlanCardView[] {
+    if (!this.plans.length) return this.fallbackPlans;
+    return this.plans.map(plan => ({
+      id: plan.id,
+      priority: plan.priority || 'Low',
+      title: plan.title,
+      department: plan.departmentName || plan.processName || 'Sans département',
+      type: plan.type || 'Mono',
+      progress: plan.progressPercentage || 0,
+      dueDate: this.formatDate(plan.dueDate)
+    }));
+  }
+
+  private formatDate(value: Date | string): string {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+    return date.toLocaleDateString('fr-FR');
   }
 }

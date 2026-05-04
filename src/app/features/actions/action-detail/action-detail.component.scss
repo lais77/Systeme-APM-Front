@@ -595,3 +595,62 @@ h1 { font-size: 1.4rem; font-weight: 600; color: #1e293b; margin-bottom: 0.75rem
   bottom: 0;
   background: linear-gradient(0deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.14) 100%);
 }
+
+/* Unified UI polish */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.detail-header,
+.info-card,
+.section,
+.commentaire-input-card,
+.fichiers-col,
+.modal {
+  border-radius: 8px !important;
+  border: 1px solid var(--border-light) !important;
+  background: var(--bg-card) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.detail-header h1,
+.info-card h3,
+.section h2,
+.bloc-title,
+.commentaire-auteur {
+  color: var(--text-main) !important;
+}
+
+.retour,
+.info-label,
+.info-value,
+.commentaire-date,
+.fichier-desc,
+.deadline-text {
+  color: var(--text-muted) !important;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-demarrer,
+.btn-soumettre,
+.btn-valider,
+.btn-evaluer,
+.btn-icon,
+.type-badge,
+.criticity-badge,
+.pdca-circle,
+.modal-header,
+.modal-footer,
+.form-group input,
+.form-group select,
+.form-group textarea {
+  border-radius: 6px !important;
+}
+
+.modal-header,
+.modal-footer {
+  background: var(--bg-head) !important;
+}

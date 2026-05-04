@@ -288,7 +288,24 @@ table {
   border-radius: 8px;
   font-size: 0.9rem;
   cursor: pointer;
+  transition: all 0.2s ease;
   &:hover { background: #1e40af; }
+}
+
+.btn-secondary {
+  padding: 0.625rem 1.25rem;
+  background: white;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  &:hover { 
+    background: #f8fafc;
+    color: #1e293b;
+    border-color: #cbd5e1;
+  }
 }
 
 .vert {
@@ -531,4 +548,69 @@ table {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Unified UI polish */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.detail-header,
+.stat-card,
+.workflow-strip,
+.section,
+.ia-card,
+.ia-empty {
+  border-radius: 8px !important;
+  border: 1px solid var(--border-light) !important;
+  background: var(--bg-card) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.detail-header::before,
+.section::before {
+  display: none !important;
+}
+
+.detail-header h1,
+.section h2,
+.stat-valeur,
+.ia-card-header {
+  color: var(--text-main) !important;
+}
+
+.retour,
+.processus,
+.pilote,
+.stat-label,
+.wf-pill,
+.ia-empty span {
+  color: var(--text-muted) !important;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-ia,
+.wf-pill,
+.delai-badge,
+.modal,
+.modal-header,
+.modal-footer,
+.form-group input,
+.form-group select,
+.form-group textarea {
+  border-radius: 6px !important;
+}
+
+.btn-secondary,
+.btn-ia {
+  border: 1px solid var(--border-light) !important;
+  background: var(--bg-card) !important;
+  color: var(--text-secondary) !important;
+}
+
+.table-container table {
+  min-width: 920px;
 }

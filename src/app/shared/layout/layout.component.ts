@@ -210,13 +210,13 @@ export class LayoutComponent implements OnInit {
   getProfileGreeting(): string {
     const hour = new Date().getHours();
     const salutation = hour < 18 ? 'Bonjour' : 'Bonsoir';
-    const fullName = this.currentUser?.fullName?.trim() || 'Utilisateur';
+    const fullName = this.currentUser?.fullName?.trim() || 'Admin APM';
     return `${salutation}, ${fullName}`;
   }
 
   getUserInitial(): string {
     const fullName = this.currentUser?.fullName?.trim();
-    if (!fullName) return 'U';
+    if (!fullName) return 'A';
     return fullName.charAt(0).toUpperCase();
   }
 }

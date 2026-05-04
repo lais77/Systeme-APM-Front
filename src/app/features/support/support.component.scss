@@ -220,3 +220,40 @@
   padding: 20px 24px;
   background: linear-gradient(0deg, rgba(255, 255, 255, 0.03) 0%, rgba(0, 0, 0, 0.14) 100%);
 }
+
+/* Unified UI polish */
+.support-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.page-topbar {
+  margin-bottom: 0;
+}
+
+.card,
+.modal {
+  border-radius: 8px;
+  border: 1px solid var(--border-light);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+}
+
+.modal {
+  box-shadow: var(--shadow-lg);
+}
+
+.modal-header,
+.modal-footer {
+  background: var(--bg-head);
+}
+
+.btn-secondary,
+.btn-primary,
+.btn-close,
+.form-group input,
+.form-group select,
+.form-group textarea {
+  border-radius: 6px;
+}

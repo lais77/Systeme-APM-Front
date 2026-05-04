@@ -33,6 +33,15 @@ export class UsersComponent implements OnInit {
   isEditMode: boolean = false;
   selectedUser: any = null;
 
+  private readonly fallbackUsers = [
+    { id: 1, prenom: 'Admin', nom: 'APM', email: 'admin@tiscircuits.com', role: 'ADMIN', actif: true, departementId: null },
+    { id: 2, prenom: 'Chadli', nom: 'BEDDEY', email: 'chadli@tiscircuits.com', role: 'MANAGER', actif: true, departementId: null },
+    { id: 3, prenom: 'Ahmed', nom: 'BEN ALI', email: 'ahmed@tiscircuits.com', role: 'RESPONSABLE', actif: true, departementId: null },
+    { id: 4, prenom: 'Directeur', nom: 'USINE', email: 'direction@tiscircuits.com', role: 'AUDITEUR', actif: true, departementId: null },
+    { id: 5, prenom: 'Raed', nom: 'Cherif', email: 'raed@tiscircuits.com', role: 'RESPONSABLE', actif: true, departementId: null },
+    { id: 6, prenom: 'Yossri', nom: 'Hmaied', email: 'yossri@tiscircuits.com', role: 'RESPONSABLE', actif: true, departementId: null }
+  ];
+
   // ── Données formulaire ────────────────────────────────────
   formData: any = {
     prenom: '',
@@ -82,7 +91,8 @@ export class UsersComponent implements OnInit {
 
   // ── Getter tableau filtré ─────────────────────────────────
   get filteredUsers(): any[] {
-    return this.users.filter(u => {
+    const source = this.users.length ? this.users : this.fallbackUsers;
+    return source.filter(u => {
       const fullName = ((u.prenom || '') + ' ' + (u.nom || '')).toLowerCase();
       const matchSearch = !this.searchTerm ||
         fullName.includes(this.searchTerm.toLowerCase()) ||
@@ -91,6 +101,19 @@ export class UsersComponent implements OnInit {
       const matchStatut  = !this.filterStatut || String(u.actif) === this.filterStatut;
       return matchSearch && matchRole && matchStatut;
     });
+  }
+
+  avatarColor(user: any): string {
+    const initials = `${user.prenom?.charAt(0) || ''}${user.nom?.charAt(0) || ''}`.toUpperCase();
+    const colors: Record<string, string> = {
+      AA: '#ef3340',
+      CB: '#2f80ed',
+      AB: '#12b76a',
+      DU: '#7c3aed',
+      RC: '#f97316',
+      YH: '#009688'
+    };
+    return colors[initials] || '#d5092f';
   }
 
   // ── Modal Créer ───────────────────────────────────────────

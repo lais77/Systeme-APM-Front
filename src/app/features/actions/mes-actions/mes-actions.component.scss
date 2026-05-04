@@ -1,148 +1,79 @@
-.page { padding: 0; }
+:host {
+  display: block;
+}
 
-.page-header {
+.page {
   display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-
-  h1 { font-size: 1.5rem; font-weight: 600; color: #1e293b; }
-  .total { font-size: 0.85rem; color: #64748b; background: #f1f5f9; padding: 3px 10px; border-radius: 999px; }
+  flex-direction: column;
+  gap: 18px;
 }
 
 .resume-row {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  gap: 12px;
 }
 
 .resume-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 0.7rem 0.9rem;
+  min-height: 82px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 15px;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
 }
 
 .resume-label {
-  display: block;
-  color: #64748b;
-  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .resume-value {
-  color: #1e293b;
-  font-size: 1.1rem;
+  color: var(--text-main);
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1;
 }
 
-.filtres {
-  margin-bottom: 1.5rem;
-
-  select {
-    padding: 0.625rem 0.875rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    min-width: 200px;
-    &:focus { outline: none; border-color: #1d4ed8; }
-  }
+.table-container table {
+  min-width: 1080px;
 }
-
-.table-container {
-  background: white;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  overflow: hidden;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-
-  th {
-    background: #f8fafc;
-    padding: 0.875rem 1rem;
-    text-align: left;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #64748b;
-    text-transform: uppercase;
-    border-bottom: 1px solid #e2e8f0;
-  }
-
-  td {
-    padding: 0.875rem 1rem;
-    font-size: 0.9rem;
-    color: #334155;
-    border-bottom: 1px solid #f1f5f9;
-    vertical-align: middle;
-  }
-
-  tr:last-child td { border-bottom: none; }
-}
-
-.badge {
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.badge-cree { background: #f1f5f9; color: #64748b; }
-.badge-assigne { background: #dbeafe; color: #1d4ed8; }
-.badge-encours { background: #ede9fe; color: #5b21b6; }
-.badge-revision { background: #ffedd5; color: #ea580c; }
-.badge-valide { background: #dcfce7; color: #16a34a; }
-.badge-rejete { background: #fee2e2; color: #dc2626; }
-.badge-cloture { background: #f1f5f9; color: #64748b; }
-.badge-critique { background: #fee2e2; color: #dc2626; }
-.badge-moyenne { background: #fef9c3; color: #ca8a04; }
-.badge-basse { background: #dcfce7; color: #16a34a; }
 
 .progress-wrap {
-  width: 80px;
-  height: 6px;
-  background: #e2e8f0;
-  border-radius: 999px;
-  overflow: hidden;
   display: inline-block;
+  width: 82px;
+  margin-right: 7px;
   vertical-align: middle;
-  margin-right: 6px;
 }
 
-.progress-bar {
-  height: 100%;
-  background: #1d4ed8;
-  border-radius: 999px;
+.retard {
+  color: var(--color-danger);
+  font-weight: 800;
 }
 
-.retard { color: #dc2626; }
-.retard-label { font-size: 0.75rem; margin-left: 4px; }
+.retard-label {
+  display: inline-flex;
+  margin-left: 5px;
+  color: var(--color-danger);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
 
 .etat-pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 26px;
-  height: 24px;
-  padding: 0 6px;
+  min-width: 28px;
   border-radius: 6px;
-  background: #e2e8f0;
-  color: #334155;
-  font-size: 0.78rem;
-  font-weight: 700;
+  background: var(--bg-muted);
+  color: var(--text-secondary);
 }
 
-.btn-detail {
-  padding: 4px 12px;
-  background: #1d4ed8;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.8rem;
-  cursor: pointer;
-  &:hover { background: #1e40af; }
+@media (max-width: 900px) {
+  .resume-row {
+    grid-template-columns: 1fr;
+  }
 }
-
-.empty { text-align: center; color: #94a3b8; padding: 2rem !important; }
-.loading { text-align: center; color: #64748b; padding: 2rem; }

@@ -1,102 +1,84 @@
-<div class="page">
-  <div class="page-header">
-    <h1>Mes Plans d'action</h1>
-    <button class="btn-primary" (click)="ouvrirModal()">+ Nouveau Plan</button>
+<div class="mes-plans-page">
+  <div class="page-header plans-header">
+    <div>
+      <h1><i class="pi pi-clipboard"></i> Mes Plans d'action</h1>
+    </div>
+    <div class="plans-actions">
+      <button type="button" class="btn-ai">
+        <i class="pi pi-sparkles"></i>
+        IA — Suggérer un plan
+      </button>
+      <button type="button" class="btn-primary" (click)="ouvrirModal()">
+        <i class="pi pi-plus"></i>
+        Nouveau Plan
+      </button>
+    </div>
   </div>
 
-  <div class="loading" *ngIf="chargement">Chargement...</div>
+  <div class="view-toggle" role="group" aria-label="Mode d'affichage">
+    <button type="button" [class.active]="viewMode === 'cards'" (click)="setView('cards')">Vue cartes</button>
+    <button type="button" [class.active]="viewMode === 'list'" (click)="setView('list')">Vue liste</button>
+  </div>
 
-  <div class="plans-grid" *ngIf="!chargement">
-
-    <div class="plan-card" *ngFor="let plan of plans" [routerLink]="['/plans', plan.id]">
+  <div class="plans-grid" *ngIf="viewMode === 'cards'">
+    <article class="plan-card card" *ngFor="let plan of displayPlans" [routerLink]="plan.id ? ['/plans', plan.id] : null">
       <div class="plan-card-header">
-        <span class="badge" [ngClass]="getPrioriteClass(plan.priority)">{{ plan.priority }}</span>
-        <span class="plan-statut">{{ plan.status === 'InProgress' ? '🟢' : '⚫' }}</span>
-      </div>
-      <h3 class="plan-titre">{{ plan.title }}</h3>
-      <p class="plan-processus">{{ plan.processName }}</p>
-      <p class="plan-processus">Type: {{ plan.type || 'Mono' }}</p>
-      <div class="plan-progress">
-        <div class="progress-wrap">
-          <div class="progress-bar" [style.width.%]="plan.progressPercentage"></div>
-        </div>
-        <span>{{ plan.progressPercentage }}%</span>
-      </div>
-      <div class="plan-footer">
-        <span class="plan-date">📅 {{ plan.dueDate | date:'dd/MM/yyyy' }}</span>
-        <button
-          class="btn-cloturer"
-          *ngIf="plan.status === 'InProgress'"
-          (click)="cloturerPlan(plan.id, $event)"
-        >
-          Clôturer
+        <span class="priority-pill" [class.priority-medium]="plan.priority === 'Medium'" [class.priority-high]="plan.priority === 'High'">
+          {{ plan.priority }}
+        </span>
+        <button type="button" class="menu-btn" aria-label="Options" (click)="$event.stopPropagation()">
+          <i class="pi pi-ellipsis-v"></i>
         </button>
       </div>
-    </div>
-
-    <div class="empty-state" *ngIf="plans.length === 0">
-      <p>Aucun plan créé. Commencez par créer votre premier plan.</p>
-      <button class="btn-primary" (click)="ouvrirModal()">+ Nouveau Plan</button>
-    </div>
-
+      <h2>{{ plan.title }}</h2>
+      <p class="department">{{ plan.department }}</p>
+      <p>Type: {{ plan.type }}</p>
+      <div class="plan-progress">
+        <span class="progress-track"><span [style.width.%]="plan.progress"></span></span>
+        <strong>{{ plan.progress }}%</strong>
+      </div>
+      <span class="plan-date"><i class="pi pi-calendar"></i>{{ plan.dueDate }}</span>
+    </article>
   </div>
 
-  <div class="legacy-section" *ngIf="!chargement">
-    <h2 class="legacy-title">Vue liste (référence manuel)</h2>
-    <div class="legacy-table-wrap">
-      <table class="legacy-table">
-        <thead>
-          <tr>
-            <th>Titre</th>
-            <th>Date création</th>
-            <th>Processus</th>
-            <th>Pilote</th>
-            <th>Nombre d’actions</th>
-            <th>Clôture</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let plan of plans" [routerLink]="['/plans', plan.id]" class="legacy-clickable">
-            <td>{{ plan.title }}</td>
-            <td>{{ plan.createdAt | date:'dd/MM/yyyy' }}</td>
-            <td>{{ plan.processName }}</td>
-            <td>{{ plan.pilotName }}</td>
-            <td>{{ plan.totalActions }}</td>
-            <td>{{ getPlanStatutLabel(plan.status) }}</td>
-          </tr>
-          <tr *ngIf="plans.length === 0">
-            <td colspan="6" class="legacy-empty">Aucun plan disponible.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+  <section class="card plans-list" *ngIf="viewMode === 'list'">
+    <table>
+      <thead>
+        <tr>
+          <th>Titre</th>
+          <th>Priorité</th>
+          <th>Département</th>
+          <th>Type</th>
+          <th>Avancement</th>
+          <th>Échéance</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let plan of displayPlans">
+          <td>{{ plan.title }}</td>
+          <td><span class="priority-pill">{{ plan.priority }}</span></td>
+          <td>{{ plan.department }}</td>
+          <td>{{ plan.type }}</td>
+          <td>{{ plan.progress }}%</td>
+          <td>{{ plan.dueDate }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
 
-  <!-- Modal -->
   <div class="modal-overlay" *ngIf="modalOuvert" (click)="fermerModal()">
     <div class="modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h2>Nouveau Plan d'action</h2>
-        <button (click)="fermerModal()">✕</button>
+        <div class="modal-title">
+          <i class="pi pi-clipboard"></i>
+          Nouveau Plan d'action
+        </div>
+        <button class="btn-close" (click)="fermerModal()"><i class="pi pi-times"></i></button>
       </div>
       <div class="modal-body">
         <div class="form-group">
           <label>Titre *</label>
           <input type="text" [(ngModel)]="nouveauPlan.title" placeholder="Titre du plan" />
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Pilote</label>
-            <input type="text" [ngModel]="piloteNom" readonly />
-          </div>
-          <div class="form-group">
-            <label>Date création</label>
-            <input type="date" [ngModel]="nouveauPlan.createdAtDisplay" readonly />
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Description</label>
-          <textarea [(ngModel)]="nouveauPlan.description" rows="3" placeholder="Description..."></textarea>
         </div>
         <div class="form-row">
           <div class="form-group">
@@ -107,6 +89,15 @@
             </select>
           </div>
           <div class="form-group">
+            <label>Processus *</label>
+            <select [(ngModel)]="nouveauPlan.processId" (ngModelChange)="onProcessusChange($event)">
+              <option value="">Sélectionner...</option>
+              <option *ngFor="let p of processus" [value]="p.id">{{ p.nom }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
             <label>Type *</label>
             <select [(ngModel)]="nouveauPlan.type">
               <option value="Mono">Mono</option>
@@ -114,28 +105,12 @@
             </select>
           </div>
           <div class="form-group">
-            <label>Processus *</label>
-            <select [(ngModel)]="nouveauPlan.processId" (ngModelChange)="onProcessusChange($event)">
-              <option value="">Sélectionner...</option>
-              <option *ngFor="let p of processus" [value]="p.id">{{ p.nom }}</option>
-            </select>
-          </div>
-          <div class="form-group">
             <label>Priorité *</label>
             <select [(ngModel)]="nouveauPlan.priority">
-              <option value="Critical">Critique</option>
-              <option value="High">Haute</option>
-              <option value="Medium">Moyenne</option>
               <option value="Low">Basse</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Visibilité</label>
-            <select [(ngModel)]="nouveauPlan.visibility">
-              <option value="Publique">Publique</option>
-              <option value="Interne">Interne</option>
+              <option value="Medium">Moyenne</option>
+              <option value="High">Haute</option>
+              <option value="Critical">Critique</option>
             </select>
           </div>
         </div>
@@ -156,5 +131,4 @@
       </div>
     </div>
   </div>
-
 </div>

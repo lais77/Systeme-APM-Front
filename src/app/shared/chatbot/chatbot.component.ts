@@ -32,9 +32,9 @@ export class ChatbotComponent implements OnInit {
   messages: Message[] = [];
 
   suggestions = [
-    'Quelles sont mes actions en retard ?',
-    'Résume l\'état de mes plans actifs',
-    'Que dois-je valider aujourd\'hui ?'
+    'Résumer mes indicateurs',
+    'Quels plans sont en retard ?',
+    'Suggérer des actions prioritaires'
   ];
 
   constructor(
