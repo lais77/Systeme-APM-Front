@@ -321,6 +321,25 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     const curY = now.getFullYear();
     const curM = now.getMonth() + 1;
 
+    const getSeries = (from: number, to: number, year: number) => {
+      const labels: string[] = [];
+      const enRetard: number[] = [];
+      const cloturees: number[] = [];
+      for (let m = from; m <= to; m++) {
+        const p = this.getMonthly(year, m);
+        const total = p.actionsCloturees + p.actionsEnRetard;
+        labels.push(mois[m - 1]);
+        if (total > 0) {
+          enRetard.push(Math.round((p.actionsEnRetard / total) * 100));
+          cloturees.push(Math.round((p.actionsCloturees / total) * 100));
+        } else {
+          enRetard.push(0);
+          cloturees.push(0);
+        }
+      }
+      return { labels, enRetard, cloturees };
+    };
+
     if (this.periodeHistogramme === 0) {
       const withData: number[] = [];
       for (let m = 1; m <= 12; m++) {
@@ -330,16 +349,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       if (withData.length === 0) {
         const to = curM;
         const from = Math.max(1, to - 2);
-        const labels: string[] = [];
-        const enRetard: number[] = [];
-        const cloturees: number[] = [];
-        for (let m = from; m <= to; m++) {
-          const p = this.getMonthly(curY, m);
-          labels.push(mois[m - 1]);
-          enRetard.push(p.actionsEnRetard);
-          cloturees.push(p.actionsCloturees);
-        }
-        return { labels, enRetard, cloturees };
+        return getSeries(from, to, curY);
       }
       let from = Math.min(...withData);
       let to = Math.max(...withData);
@@ -347,16 +357,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         if (from > 1) from--;
         else if (to < 12) to++;
       }
-      const labels: string[] = [];
-      const enRetard: number[] = [];
-      const cloturees: number[] = [];
-      for (let m = from; m <= to; m++) {
-        const p = this.getMonthly(curY, m);
-        labels.push(mois[m - 1]);
-        enRetard.push(p.actionsEnRetard);
-        cloturees.push(p.actionsCloturees);
-      }
-      return { labels, enRetard, cloturees };
+      return getSeries(from, to, curY);
     }
 
     const n = this.periodeHistogramme;
@@ -368,10 +369,16 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       const y = d.getFullYear();
       const m = d.getMonth() + 1;
       const p = this.getMonthly(y, m);
+      const total = p.actionsCloturees + p.actionsEnRetard;
       const label = y === curY ? mois[m - 1] : `${mois[m - 1]} ’${String(y).slice(-2)}`;
       labels.push(label);
-      enRetard.push(p.actionsEnRetard);
-      cloturees.push(p.actionsCloturees);
+      if (total > 0) {
+        enRetard.push(Math.round((p.actionsEnRetard / total) * 100));
+        cloturees.push(Math.round((p.actionsCloturees / total) * 100));
+      } else {
+        enRetard.push(0);
+        cloturees.push(0);
+      }
     }
     return { labels, enRetard, cloturees };
   }
@@ -385,10 +392,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       this.histogrammeChart = undefined;
       if (labels.length === 0) return;
 
-      const maxVal = Math.max(1, ...enRetard, ...cloturees);
-      const yMax = Math.max(5, Math.ceil(maxVal * 1.15));
-      const step = yMax <= 10 ? 1 : Math.max(1, Math.ceil(yMax / 5));
-
       this.histogrammeChart = new Chart(this.histogrammeCanvas.nativeElement, {
         type: 'bar',
         data: {
@@ -397,7 +400,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
             {
               label: 'Action en retard',
               data: enRetard,
-              backgroundColor: '#46a3c7',
+              backgroundColor: '#d5092f',
               borderRadius: 2,
               borderSkipped: false,
               barPercentage: 0.55,
@@ -427,6 +430,20 @@ export class DashboardComponent implements OnInit, AfterViewInit {
                 boxWidth: 10,
                 font: { family: 'Segoe UI', size: 11, weight: 'bold' }
               }
+            },
+            tooltip: {
+              backgroundColor: '#ffffff',
+              titleColor: '#111827',
+              bodyColor: '#374151',
+              borderColor: '#e5e7eb',
+              borderWidth: 1,
+              padding: 12,
+              cornerRadius: 10,
+              titleFont: { family: 'Inter, sans-serif', size: 13, weight: 'bold' },
+              bodyFont: { family: 'Inter, sans-serif', size: 12 },
+              callbacks: {
+                label: (context: any) => ` ${context.dataset.label} : ${context.parsed.y}%`
+              }
             }
           },
           scales: {
@@ -436,13 +453,13 @@ export class DashboardComponent implements OnInit, AfterViewInit {
             },
             y: {
               beginAtZero: true,
-              max: yMax,
+              max: 100,
               grid: { color: '#e5e7eb' },
               ticks: {
                 color: '#6b7280',
                 font: { size: 11 },
-                stepSize: step,
-                precision: 0
+                stepSize: 25,
+                callback: (value: any) => `${value}%`
               }
             }
           }

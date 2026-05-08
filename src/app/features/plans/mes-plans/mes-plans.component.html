@@ -107,13 +107,6 @@
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label>Processus *</label>
-            <select [(ngModel)]="nouveauPlan.processId" (ngModelChange)="onProcessusChange($event)">
-              <option value="">Sélectionner...</option>
-              <option *ngFor="let p of processus" [value]="p.id">{{ p.nom }}</option>
-            </select>
-          </div>
-          <div class="form-group">
             <label>Visibilité</label>
             <select [(ngModel)]="nouveauPlan.visibility">
               <option value="Publique">Publique</option>

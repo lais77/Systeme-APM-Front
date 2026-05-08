@@ -264,15 +264,15 @@
           <label>Efficacité</label>
           <div class="efficacite-options">
             <button type="button" class="efficacite-choice good" [class.active]="evaluationData.effectiveness === 'Effective'" (click)="evaluationData.effectiveness = 'Effective'">
-              <i class="pi pi-check-circle"></i>
+              <span class="emoji">😊</span>
               Efficace
             </button>
             <button type="button" class="efficacite-choice medium" [class.active]="evaluationData.effectiveness === 'Medium'" (click)="evaluationData.effectiveness = 'Medium'">
-              <i class="pi pi-minus-circle"></i>
+              <span class="emoji">😐</span>
               Moyen
             </button>
             <button type="button" class="efficacite-choice bad" [class.active]="evaluationData.effectiveness === 'Ineffective'" (click)="evaluationData.effectiveness = 'Ineffective'">
-              <i class="pi pi-times-circle"></i>
+              <span class="emoji">😟</span>
               Inefficace
             </button>
           </div>

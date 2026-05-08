@@ -21,14 +21,10 @@
 
   <div class="filtres">
     <select [(ngModel)]="filtreStatut" (ngModelChange)="filtrer()">
-      <option value="">Tous les statuts</option>
-      <option value="Created">Créé</option>
-      <option value="Assigned">Assigné</option>
-      <option value="InProgress">En cours</option>
-      <option value="UnderReview">En révision</option>
-      <option value="Validated">Validé</option>
-      <option value="Rejected">Rejeté</option>
-      <option value="Closed">Clôturé</option>
+      <option value="">Toutes les actions</option>
+      <option value="P">Phase P - Planifiées</option>
+      <option value="D">Phase D - Réalisées (À valider)</option>
+      <option value="C">Phase C - Clôturées / Vérifiées</option>
     </select>
   </div>
 

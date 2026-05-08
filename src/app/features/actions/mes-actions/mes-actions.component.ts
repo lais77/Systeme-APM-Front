@@ -34,9 +34,11 @@ export class MesActionsComponent implements OnInit {
   }
 
   filtrer(): void {
-    this.actionsFiltrees = this.actions.filter(a =>
-      !this.filtreStatut || a.status === this.filtreStatut
-    );
+    if (!this.filtreStatut) {
+      this.actionsFiltrees = this.actions;
+    } else {
+      this.actionsFiltrees = this.actions.filter(a => this.getEtatCode(a.status) === this.filtreStatut);
+    }
   }
 
   getStatutClass(status: string): string {
@@ -85,14 +87,14 @@ export class MesActionsComponent implements OnInit {
   }
 
   get nbRetard(): number {
-    return this.actionsFiltrees.filter(a => this.isEnRetard(a.deadline) && a.status !== 'Closed').length;
+    return this.actions.filter(a => this.isEnRetard(a.deadline) && a.status !== 'Closed').length;
   }
 
   get nbCloturees(): number {
-    return this.actionsFiltrees.filter(a => a.status === 'Closed').length;
+    return this.actions.filter(a => a.status === 'Closed').length;
   }
 
   get nbEncours(): number {
-    return this.actionsFiltrees.filter(a => a.status === 'InProgress').length;
+    return this.actions.filter(a => a.status === 'InProgress' || a.status === 'Assigned').length;
   }
 }
