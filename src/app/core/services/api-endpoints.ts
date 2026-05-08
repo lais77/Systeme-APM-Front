@@ -80,13 +80,11 @@ export const API = {
   },
   stats: {
     global: `${BASE}/stats/global`,
-    byDepartement: `${BASE}/stats/by-department`,
-    byPilote: `${BASE}/stats/by-pilot`,
+    byDepartment: `${BASE}/stats/by-department`,
+    byPilot: `${BASE}/stats/by-pilot`,
     byPeriode: `${BASE}/stats/by-periode`,
     performance: `${BASE}/stats/performance`,
     plansCritiques: `${BASE}/stats/plans-critiques`,
-    byDepartment: `${BASE}/stats/by-department`,
-    byPilot: `${BASE}/stats/by-pilot`,
     activiteRecente: `${BASE}/stats/activite-recente`,
     export: {
       pdf: `${BASE}/export/pdf`,

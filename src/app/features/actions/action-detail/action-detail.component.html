@@ -18,14 +18,14 @@
         <button class="btn-demarrer" *ngIf="peutDemarrer()" (click)="demarrer()">
           ▶ Démarrer l'action
         </button>
-        <button class="btn-soumettre" *ngIf="peutSoumettre()" (click)="modalSoumission = true">
-          Clôturer action
+        <button class="btn-soumettre" *ngIf="peutSoumettre()" (click)="ouvrirModalSoumission()">
+          Clôturer Action
         </button>
         <button class="btn-valider" *ngIf="peutValider()" (click)="modalValidation = true">
-          Valider / Rejeter
+          Valider Action
         </button>
         <button class="btn-evaluer" *ngIf="peutEvaluer()" (click)="modalEvaluation = true">
-          Évaluer l'efficacité
+          Evaluation finale
         </button>
       </div>
     </div>
@@ -171,14 +171,14 @@
           <h3 class="bloc-title">Fichier annexe à cette action</h3>
           <div class="fichiers-list">
             <div class="fichier" *ngFor="let f of fichiers">
-              <span class="fichier-icon">📎</span>
+              <span class="fichier-icon"><i class="pi pi-paperclip"></i></span>
               <div class="fichier-info">
-                <span class="fichier-nom">{{ f.fileName }}</span>
+                <button class="file-link" type="button" (click)="telechargerFichier(f.id, f.fileName)">{{ f.fileName }}</button>
                 <span class="fichier-desc" *ngIf="f.description">{{ f.description }}</span>
               </div>
               <div class="fichier-actions">
-                <button class="btn-icon" (click)="telechargerFichier(f.id, f.fileName)">⬇️</button>
-                <button class="btn-icon" (click)="supprimerFichier(f.id)" [disabled]="estEnLectureSeule()">🗑️</button>
+                <button class="btn-icon" (click)="telechargerFichier(f.id, f.fileName)" title="Télécharger"><i class="pi pi-download"></i></button>
+                <button class="btn-icon" (click)="supprimerFichier(f.id)" [disabled]="estEnLectureSeule()" title="Supprimer"><i class="pi pi-trash"></i></button>
               </div>
             </div>
             <div class="empty" *ngIf="fichiers.length === 0">Aucune pièce jointe.</div>
@@ -190,7 +190,7 @@
             <input type="file" (change)="onFichierChange($event)" id="fileInput" [disabled]="estEnLectureSeule()" />
             <input type="text" [(ngModel)]="descriptionFichier" placeholder="Description du fichier" [disabled]="estEnLectureSeule()" />
             <button class="btn-primary" (click)="uploadFichier()" [disabled]="!fichierSelectionne || estEnLectureSeule()">
-              Uploader
+              Upload
             </button>
           </div>
         </div>
@@ -203,14 +203,14 @@
   <div class="modal-overlay" *ngIf="modalSoumission" (click)="modalSoumission = false">
     <div class="modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h2>Soumettre l'action</h2>
+        <h2>Clôture d'Action</h2>
         <button (click)="modalSoumission = false">✕</button>
       </div>
       <div class="modal-body">
         <p class="modal-hint">{{ getSoumissionHint() }}</p>
         <div class="form-group">
-          <label>Méthode de réalisation *</label>
-          <textarea [(ngModel)]="soumissionData.realizationMethod" rows="3" placeholder="Décrivez la méthode..."></textarea>
+          <label>Méthode de vérification *</label>
+          <textarea [(ngModel)]="soumissionData.realizationMethod" rows="3" placeholder="Décrivez la méthode de vérification..."></textarea>
         </div>
         <div class="form-group">
           <label>Date de réalisation *</label>
@@ -219,7 +219,7 @@
       </div>
       <div class="modal-footer">
         <button class="btn-secondary" (click)="modalSoumission = false">Annuler</button>
-        <button class="btn-primary" (click)="soumettre()">Soumettre</button>
+        <button class="btn-primary" (click)="soumettre()">Enregistrer</button>
       </div>
     </div>
   </div>
@@ -228,7 +228,7 @@
   <div class="modal-overlay" *ngIf="modalValidation" (click)="modalValidation = false">
     <div class="modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h2>Valider / Rejeter l'action</h2>
+        <h2>Valider Action</h2>
         <button (click)="modalValidation = false">✕</button>
       </div>
       <div class="modal-body">
@@ -247,7 +247,7 @@
       </div>
       <div class="modal-footer">
         <button class="btn-secondary" (click)="modalValidation = false">Annuler</button>
-        <button class="btn-primary" (click)="valider()">Confirmer</button>
+        <button class="btn-primary" (click)="valider()">Valider</button>
       </div>
     </div>
   </div>
@@ -256,30 +256,29 @@
   <div class="modal-overlay" *ngIf="modalEvaluation" (click)="modalEvaluation = false">
     <div class="modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h2>Évaluer l'efficacité</h2>
+        <h2>Evaluation finale de l'Action</h2>
         <button (click)="modalEvaluation = false">✕</button>
       </div>
       <div class="modal-body">
         <div class="form-group">
           <label>Efficacité</label>
-          <select [(ngModel)]="evaluationData.effectiveness">
-            <option value="Effective">Efficace 😊</option>
-            <option value="Medium">Moyen 😐</option>
-            <option value="Ineffective">Inefficace 😟</option>
-          </select>
+          <div class="efficacite-options">
+            <button type="button" class="efficacite-choice good" [class.active]="evaluationData.effectiveness === 'Effective'" (click)="evaluationData.effectiveness = 'Effective'">
+              <i class="pi pi-check-circle"></i>
+              Efficace
+            </button>
+            <button type="button" class="efficacite-choice medium" [class.active]="evaluationData.effectiveness === 'Medium'" (click)="evaluationData.effectiveness = 'Medium'">
+              <i class="pi pi-minus-circle"></i>
+              Moyen
+            </button>
+            <button type="button" class="efficacite-choice bad" [class.active]="evaluationData.effectiveness === 'Ineffective'" (click)="evaluationData.effectiveness = 'Ineffective'">
+              <i class="pi pi-times-circle"></i>
+              Inefficace
+            </button>
+          </div>
         </div>
         <div class="form-group">
-          <label>Note (étoiles)</label>
-          <select [(ngModel)]="evaluationData.starRating">
-            <option [ngValue]="1">⭐</option>
-            <option [ngValue]="2">⭐⭐</option>
-            <option [ngValue]="3">⭐⭐⭐</option>
-            <option [ngValue]="4">⭐⭐⭐⭐</option>
-            <option [ngValue]="5">⭐⭐⭐⭐⭐</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Commentaire</label>
+          <label>Vérification de l'efficacité</label>
           <textarea [(ngModel)]="evaluationData.comment" rows="3"></textarea>
         </div>
         <div *ngIf="evaluationData.effectiveness === 'Ineffective'">
@@ -291,6 +290,25 @@
           <div class="form-group">
             <label>Description *</label>
             <textarea [(ngModel)]="actionRemplacement.actionDescription" rows="2"></textarea>
+          </div>
+          <div class="form-group">
+            <label>PREV/CORR *</label>
+            <select [(ngModel)]="actionRemplacement.type">
+              <option value="Corrective">Correctif</option>
+              <option value="Preventive">Préventif</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Cause</label>
+            <input type="text" [(ngModel)]="actionRemplacement.cause" />
+          </div>
+          <div class="form-group">
+            <label>Criticité *</label>
+            <select [(ngModel)]="actionRemplacement.criticity">
+              <option value="High">Haute</option>
+              <option value="Medium">Moyenne</option>
+              <option value="Low">Basse</option>
+            </select>
           </div>
           <div class="form-group">
             <label>Délai *</label>
@@ -307,7 +325,23 @@
       </div>
       <div class="modal-footer">
         <button class="btn-secondary" (click)="modalEvaluation = false">Annuler</button>
-        <button class="btn-primary" (click)="evaluer()">Confirmer</button>
+        <button class="btn-primary" (click)="evaluer()">Valider</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="modalSuppressionFichier" (click)="modalSuppressionFichier = false">
+    <div class="modal" style="max-width:400px" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Supprimer ce fichier ?</h2>
+        <button type="button" (click)="modalSuppressionFichier = false">×</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-hint">Le fichier annexe sera retiré de cette action.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" type="button" (click)="modalSuppressionFichier = false">Annuler</button>
+        <button class="btn-primary" type="button" (click)="confirmerSuppressionFichier()">Supprimer</button>
       </div>
     </div>
   </div>

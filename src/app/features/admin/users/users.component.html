@@ -25,14 +25,14 @@
         <input type="text" placeholder="Rechercher un utilisateur..."
                [(ngModel)]="searchTerm" />
       </div>
-      <select [(ngModel)]="filterRole">
+      <select [(ngModel)]="filterRole" (ngModelChange)="applyFilter()">
         <option value="">Tous les rôles</option>
         <option value="ADMIN">Admin</option>
         <option value="MANAGER">Manager</option>
         <option value="RESPONSABLE">Responsable</option>
         <option value="AUDITEUR">Auditeur</option>
       </select>
-      <select [(ngModel)]="filterStatut">
+      <select [(ngModel)]="filterStatut" (ngModelChange)="applyFilter()">
         <option value="">Tous les statuts</option>
         <option value="true">Actif</option>
         <option value="false">Inactif</option>

@@ -1,16 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { PlansService } from '../../../core/services/plans.service';
 import { Plan } from '../../../core/models/models';
 import { HttpClient } from '@angular/common/http';
 import { API } from '../../../core/services/api-endpoints';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { ActionsService } from '../../../core/services/actions.service';
 
 @Component({
   selector: 'app-plan-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './plan-detail.component.html',
   styleUrl: './plan-detail.component.scss'
 })
@@ -22,12 +24,19 @@ export class PlanDetailComponent implements OnInit {
   suggestions = '';
   resume = '';
   chargementIA = false;
+  modalValidationPlan = false;
+  modalCloturePlan = false;
+  modalNouvelleAction = false;
+  nouvelleAction: any = {};
+  responsables: any[] = [];
+  actionSaving = false;
 
   // SVG circular progress properties
   circumference = 2 * Math.PI * 45; // radius = 45
 
   constructor(
     private plansService: PlansService,
+    private actionsService: ActionsService,
     private route: ActivatedRoute,
     private http: HttpClient,
     private sanitizer: DomSanitizer
@@ -39,6 +48,7 @@ export class PlanDetailComponent implements OnInit {
       next: (data) => { this.plan = data; this.chargement = false; },
       error: () => { this.chargement = false; }
     });
+    this.chargerResponsables();
   }
 
   getPrioriteClass(priority: string): string {
@@ -112,10 +122,15 @@ export class PlanDetailComponent implements OnInit {
 
   validerPlan(): void {
     if (!this.planEnCours() || !this.plan) return;
-    if (!confirm('Valider ce plan ?')) return;
+    this.modalValidationPlan = true;
+  }
+
+  confirmerValiderPlan(): void {
+    if (!this.planEnCours() || !this.plan) return;
 
     this.plansService.validerPlan(this.plan.id).subscribe({
       next: () => {
+        this.modalValidationPlan = false;
         this.rechargerPlan();
       }
     });
@@ -123,12 +138,65 @@ export class PlanDetailComponent implements OnInit {
 
   cloturerPlan(): void {
     if (!this.planEnCours() || !this.plan) return;
-    if (!confirm('Clôturer ce plan ?')) return;
+    this.modalCloturePlan = true;
+  }
+
+  confirmerCloturerPlan(): void {
+    if (!this.planEnCours() || !this.plan) return;
 
     this.plansService.cloturerPlan(this.plan.id).subscribe({
       next: () => {
+        this.modalCloturePlan = false;
         this.rechargerPlan();
       }
+    });
+  }
+
+  ouvrirModalAction(): void {
+    if (!this.plan || this.planLectureSeule()) return;
+    this.nouvelleAction = {
+      theme: '',
+      anomalyDescription: '',
+      actionDescription: '',
+      type: 'Corrective',
+      criticity: 'Medium',
+      cause: '',
+      responsibleId: '',
+      deadline: new Date().toISOString().split('T')[0],
+      commentaire: ''
+    };
+    this.modalNouvelleAction = true;
+  }
+
+  fermerModalAction(): void {
+    this.modalNouvelleAction = false;
+    this.actionSaving = false;
+  }
+
+  creerAction(): void {
+    if (!this.plan || this.planLectureSeule()) return;
+    if (!this.nouvelleAction.theme?.trim() || !this.nouvelleAction.actionDescription?.trim() || !this.nouvelleAction.responsibleId || !this.nouvelleAction.deadline) {
+      alert('Veuillez renseigner les champs obligatoires de l’action.');
+      return;
+    }
+
+    this.actionSaving = true;
+    this.actionsService.creerAction(this.plan.id, this.nouvelleAction).subscribe({
+      next: () => {
+        this.fermerModalAction();
+        this.rechargerPlan();
+      },
+      error: () => {
+        this.actionSaving = false;
+        alert("Ajout de l'action impossible. Vérifiez les champs.");
+      }
+    });
+  }
+
+  private chargerResponsables(): void {
+    this.http.get<any[]>(API.users.responsables).subscribe({
+      next: (data) => { this.responsables = data || []; },
+      error: () => { this.responsables = []; }
     });
   }
 

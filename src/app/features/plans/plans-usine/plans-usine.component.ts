@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { PlansService } from '../../../core/services/plans.service';
 import { Plan } from '../../../core/models/models';
 
@@ -29,6 +30,10 @@ export class PlansUsineComponent implements OnInit {
   filtreStatut = '';
   filtrePriorite = '';
 
+  // Propriétés pour éviter les boucles de change detection
+  displayProcessRows: ProcessRow[] = [];
+  displayProcessStats = { actifs: 0, plans: 0, actions: 0, avancement: 0 };
+
   private readonly fallbackProcessRows: ProcessRow[] = [
     { name: 'Production PCB', responsable: 'Admin APM', plans: 2, actions: 5, avancement: 60, statut: 'Actif' },
     { name: 'Contrôle Qualité', responsable: 'Chadli BEDDEY', plans: 1, actions: 3, avancement: 33, statut: 'Actif' },
@@ -44,9 +49,14 @@ export class PlansUsineComponent implements OnInit {
       next: (data) => {
         this.plans = data || [];
         this.plansFiltres = data || [];
+        this.updateDerivedStats();
         this.chargement = false;
       },
-      error: () => { this.chargement = false; }
+      error: (err) => { 
+        console.error('Erreur chargement plans usine:', err);
+        this.updateDerivedStats();
+        this.chargement = false; 
+      }
     });
   }
 
@@ -58,6 +68,7 @@ export class PlansUsineComponent implements OnInit {
       const matchPriorite = !this.filtrePriorite || p.priority === this.filtrePriorite;
       return matchRecherche && matchStatut && matchPriorite;
     });
+    this.updateDerivedStats();
   }
 
   getPrioriteClass(priority: string): string {
@@ -78,54 +89,52 @@ export class PlansUsineComponent implements OnInit {
     return status === 'Closed' ? 'Clôturé' : 'En cours';
   }
 
-  get totalActions(): number {
-    return this.plansFiltres.reduce((sum, p) => sum + (p.totalActions || 0), 0);
-  }
+  private updateDerivedStats(): void {
+    // 1. Calcul des lignes par processus
+    if (!this.plansFiltres.length) {
+      this.displayProcessRows = this.fallbackProcessRows;
+    } else {
+      const grouped = new Map<string, ProcessRow & { progressTotal: number }>();
+      for (const plan of this.plansFiltres) {
+        const name = plan.processName || 'Sans processus';
+        const existing = grouped.get(name) || {
+          name,
+          responsable: plan.pilotName || 'Admin APM',
+          plans: 0,
+          actions: 0,
+          avancement: 0,
+          progressTotal: 0,
+          statut: 'Actif' as const
+        };
+        existing.plans += 1;
+        existing.actions += plan.totalActions || 0;
+        existing.progressTotal += plan.progressPercentage || 0;
+        existing.responsable = existing.responsable || plan.pilotName || 'Admin APM';
+        grouped.set(name, existing);
+      }
 
-  get totalPilotes(): number {
-    return new Set(this.plansFiltres.map(p => p.pilotName).filter(Boolean)).size;
-  }
-
-  get processRows(): ProcessRow[] {
-    if (!this.plansFiltres.length) return this.fallbackProcessRows;
-
-    const grouped = new Map<string, ProcessRow & { progressTotal: number }>();
-    for (const plan of this.plansFiltres) {
-      const name = plan.processName || 'Sans processus';
-      const existing = grouped.get(name) || {
-        name,
-        responsable: plan.pilotName || 'Admin APM',
-        plans: 0,
-        actions: 0,
-        avancement: 0,
-        progressTotal: 0,
-        statut: 'Actif' as const
-      };
-      existing.plans += 1;
-      existing.actions += plan.totalActions || 0;
-      existing.progressTotal += plan.progressPercentage || 0;
-      existing.responsable = existing.responsable || plan.pilotName || 'Admin APM';
-      grouped.set(name, existing);
+      this.displayProcessRows = Array.from(grouped.values()).map(row => ({
+        name: row.name,
+        responsable: row.responsable,
+        plans: row.plans,
+        actions: row.actions,
+        avancement: row.plans ? Math.round(row.progressTotal / row.plans) : 0,
+        statut: row.statut
+      }));
     }
 
-    return Array.from(grouped.values()).map(row => ({
-      name: row.name,
-      responsable: row.responsable,
-      plans: row.plans,
-      actions: row.actions,
-      avancement: row.plans ? Math.round(row.progressTotal / row.plans) : 0,
-      statut: row.statut
-    }));
-  }
-
-  get processStats() {
-    const rows = this.processRows;
+    // 2. Calcul des stats globales
+    const rows = this.displayProcessRows;
     const plans = rows.reduce((sum, row) => sum + row.plans, 0);
     const actions = rows.reduce((sum, row) => sum + row.actions, 0);
     const avancement = rows.length
       ? Math.round(rows.reduce((sum, row) => sum + row.avancement, 0) / rows.length)
       : 0;
     const actifs = rows.filter(row => row.statut === 'Actif').length;
-    return { actifs, plans, actions, avancement };
+    
+    this.displayProcessStats = { actifs, plans, actions, avancement };
   }
+
+  get processRows() { return this.displayProcessRows; }
+  get processStats() { return this.displayProcessStats; }
 }

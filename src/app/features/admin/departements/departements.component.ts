@@ -23,35 +23,19 @@ export class DepartementsComponent implements OnInit {
   formData: any = {};
   expandedDepartmentIds = new Set<number>();
 
+  // Propriétés pour éviter les boucles de change detection
+  displayDepartmentRows: any[] = [];
+  displayFilteredDepartements: any[] = [];
+  displayTotalDepartements = 0;
+  displayTotalUsersDepartements = 0;
+  displayTotalPlansDepartements = 0;
+  displayTotalActionsDepartements = 0;
+
   private readonly fallbackDepartments = [
     { id: 1, nom: "Service Système d'Information", utilisateurs: 2, plansActifs: 0, createdAt: '01/01/2026' },
     { id: 2, nom: 'DQSSE', utilisateurs: 1, plansActifs: 0, createdAt: '01/01/2026' },
     { id: 3, nom: 'Production', utilisateurs: 1, plansActifs: 1, createdAt: '01/01/2026' }
   ];
-
-  get filteredDepartements() {
-    const source = this.departmentRows;
-    if (!this.searchTerm) return source;
-    return source.filter(d =>
-      d.nom?.toLowerCase().includes(this.searchTerm.toLowerCase())
-    );
-  }
-
-  get totalDepartements(): number {
-    return this.departmentRows.length;
-  }
-
-  get totalUsersDepartements(): number {
-    return this.departmentRows.reduce((total, dep) => total + (dep.utilisateurs || 0), 0);
-  }
-
-  get totalPlansDepartements(): number {
-    return this.departements.reduce((total, dep) => total + this.getPlansByDepartment(dep.id).length, 0);
-  }
-
-  get totalActionsDepartements(): number {
-    return this.departements.reduce((total, dep) => total + this.getTotalActionsForDepartment(dep.id), 0);
-  }
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -66,16 +50,65 @@ export class DepartementsComponent implements OnInit {
       },
       error: () => {
         this.departements = [];
+        this.chargerPlans();
       }
     });
   }
 
   chargerPlans(): void {
     this.http.get<any[]>(API.plans.getAll).subscribe({
-      next: (plans) => this.plans = plans || [],
-      error: () => this.plans = []
+      next: (plans) => {
+        this.plans = plans || [];
+        this.updateDerivedStats();
+      },
+      error: () => {
+        this.plans = [];
+        this.updateDerivedStats();
+      }
     });
   }
+
+  private updateDerivedStats(): void {
+    // 1. Department Rows
+    if (!this.departements.length) {
+      this.displayDepartmentRows = this.fallbackDepartments;
+    } else {
+      this.displayDepartmentRows = this.departements.map((dep: any) => ({
+        id: dep.id,
+        nom: dep.nom,
+        utilisateurs: dep.utilisateurs ?? dep.usersCount ?? 1,
+        plansActifs: this.getPlansByDepartment(dep.id).length,
+        createdAt: this.formatDate(dep.dateCreation ?? dep.createdAt ?? '2026-01-01')
+      }));
+    }
+
+    // 2. Filtered
+    this.applyFilter();
+
+    // 3. Totals
+    this.displayTotalDepartements = this.displayDepartmentRows.length;
+    this.displayTotalUsersDepartements = this.displayDepartmentRows.reduce((total, dep) => total + (dep.utilisateurs || 0), 0);
+    this.displayTotalPlansDepartements = this.departements.reduce((total, dep) => total + this.getPlansByDepartment(dep.id).length, 0);
+    this.displayTotalActionsDepartements = this.departements.reduce((total, dep) => total + this.getTotalActionsForDepartment(dep.id), 0);
+  }
+
+  applyFilter(): void {
+    const source = this.displayDepartmentRows;
+    if (!this.searchTerm) {
+      this.displayFilteredDepartements = source;
+    } else {
+      const term = this.searchTerm.toLowerCase();
+      this.displayFilteredDepartements = source.filter(d =>
+        d.nom?.toLowerCase().includes(term)
+      );
+    }
+  }
+
+  get filteredDepartements() { return this.displayFilteredDepartements; }
+  get totalDepartements() { return this.displayTotalDepartements; }
+  get totalUsersDepartements() { return this.displayTotalUsersDepartements; }
+  get totalPlansDepartements() { return this.displayTotalPlansDepartements; }
+  get totalActionsDepartements() { return this.displayTotalActionsDepartements; }
 
   openCreateModal(): void {
     this.isEditMode = false;
@@ -154,14 +187,7 @@ export class DepartementsComponent implements OnInit {
   }
 
   get departmentRows() {
-    if (!this.departements.length) return this.fallbackDepartments;
-    return this.departements.map((dep: any) => ({
-      id: dep.id,
-      nom: dep.nom,
-      utilisateurs: dep.utilisateurs ?? dep.usersCount ?? 1,
-      plansActifs: this.getPlansByDepartment(dep.id).length,
-      createdAt: this.formatDate(dep.dateCreation ?? dep.createdAt ?? '2026-01-01')
-    }));
+    return this.displayDepartmentRows;
   }
 
   private formatDate(value: string | Date): string {

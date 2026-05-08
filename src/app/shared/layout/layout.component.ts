@@ -23,36 +23,34 @@ export class LayoutComponent implements OnInit {
   currentUser: User | null = null;
   userRole: string = '';
   currentYear = new Date().getFullYear();
+  profileGreeting: string = 'Bonjour';
+  userInitial: string = 'A';
 
   // ── Badge notifications ───────────────────────────────────
   unreadCount: number = 0;
   notificationMenuOpen = false;
   settingsMenuOpen = false;
   userMenuOpen = false;
-  /** Aligné sur l’apparence claire par défaut (:root) ; persistant dans localStorage */
+  
   isLightMode = true;
   private readonly themeStorageKey = 'apm-ui-light-mode';
   notifications: Array<{ id?: number; title: string; details: string; time: string; read: boolean }> = [
-    { title: 'Nouveau departement cree', details: 'cree par Admin APM', time: "A l'instant", read: false },
-    { title: 'Rapport mensuel prêt', details: 'disponible pour téléchargement', time: 'Il y a 10 min', read: false },
-    { title: 'Alerte système', details: 'Stockage saturé à 90%', time: 'Il y a 25 min', read: false },
-    { title: 'Ticket support résolu', details: 'Ticket #241 marqué résolu', time: 'Il y a 1 h', read: true },
-    { title: 'Nouveau département', details: 'Département Qualité ajouté', time: 'Hier', read: true }
+    { title: 'Nouveau departement cree', details: 'cree par Admin APM', time: "A l'instant", read: false }
   ];
 
   // ── Titre page (topbar) ───────────────────────────────────
-  pageTitle: string = 'Dashboard';
+  pageTitle: string = 'Accueil';
 
   // ── Mapping route → titre ─────────────────────────────────
   private routeTitles: { [key: string]: string } = {
-    '/dashboard':             'Tableau de bord',
-    '/reporting':             'Reporting',
+    '/dashboard':             'Accueil',
+    '/reporting':             'Statistiques',
     '/admin/users':           'Utilisateurs',
     '/admin/departements':    'Départements',
     '/notifications':         'Notifications',
     '/support':               'Support',
-    '/plans-usine':           'Plans Usine',
-    '/mes-plans':             'Mes Plans',
+    '/plans-usine':           "Plans d'Action Usine",
+    '/mes-plans':             "Mes Plans d'Action",
     '/mes-actions':           'Mes Actions',
   };
 
@@ -71,12 +69,13 @@ export class LayoutComponent implements OnInit {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
       this.userRole = user?.role ? user.role.toUpperCase() : '';
+      this.updateProfileInfo();
     });
     this.loadUnreadCount();
     this.watchRouteChanges();
+    this.updateProfileInfo();
   }
 
-  /** Ne pas fermer les menus sur un clic à l’intérieur d’une zone header (sinon le menu disparaît avant le handler du bouton). */
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const t = event.target as HTMLElement | null;
@@ -86,7 +85,6 @@ export class LayoutComponent implements OnInit {
     this.closeMenus();
   }
 
-  // ── Charger le nombre de notifications non lues ──────────
   private loadUnreadCount(): void {
     this.http.get<any[]>(API.notifications.getMes).subscribe({
       next: (data) => {
@@ -100,18 +98,12 @@ export class LayoutComponent implements OnInit {
           read: !!(n.isRead ?? n.lue)
         }));
       },
-      error: () => {
-        this.unreadCount = this.notifications.filter(n => !n.read).length;
-      }
+      error: () => {}
     });
   }
 
-  // ── Mettre à jour le titre selon la route active ─────────
   private watchRouteChanges(): void {
-    // Titre initial
     this.updateTitle(this.router.url);
-
-    // Titre à chaque navigation
     this.router.events
       .pipe(filter(e => e instanceof NavigationEnd))
       .subscribe((e: any) => this.updateTitle(e.urlAfterRedirects));
@@ -120,6 +112,14 @@ export class LayoutComponent implements OnInit {
   private updateTitle(url: string): void {
     const cleanUrl = url.split('?')[0];
     this.pageTitle = this.routeTitles[cleanUrl] || 'APM';
+  }
+
+  private updateProfileInfo(): void {
+    const hour = new Date().getHours();
+    const salutation = hour < 18 ? 'Bonjour' : 'Bonsoir';
+    const fullName = this.currentUser?.fullName?.trim() || 'Admin APM';
+    this.profileGreeting = `${salutation}, ${fullName}`;
+    this.userInitial = fullName.charAt(0).toUpperCase();
   }
 
   toggleNotificationMenu(event: MouseEvent): void {
@@ -200,23 +200,13 @@ export class LayoutComponent implements OnInit {
     return 'Hier';
   }
 
-  // ── Déconnexion ───────────────────────────────────────────
   logout(event?: MouseEvent): void {
     event?.stopPropagation();
     this.closeMenus();
     this.authService.logout();
   }
 
-  getProfileGreeting(): string {
-    const hour = new Date().getHours();
-    const salutation = hour < 18 ? 'Bonjour' : 'Bonsoir';
-    const fullName = this.currentUser?.fullName?.trim() || 'Admin APM';
-    return `${salutation}, ${fullName}`;
-  }
-
-  getUserInitial(): string {
-    const fullName = this.currentUser?.fullName?.trim();
-    if (!fullName) return 'A';
-    return fullName.charAt(0).toUpperCase();
-  }
+  // Ces méthodes renvoient maintenant des propriétés pré-calculées
+  getProfileGreeting(): string { return this.profileGreeting; }
+  getUserInitial(): string { return this.userInitial; }
 }

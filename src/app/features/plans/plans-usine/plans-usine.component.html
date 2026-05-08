@@ -1,30 +1,26 @@
 <div class="process-page">
   <div class="page-header process-header">
     <div>
-      <h1><i class="pi pi-chart-bar"></i> Plans Usine</h1>
-      <span class="subtitle">Vue consolidée par processus de fabrication</span>
+      <h1><i class="pi pi-chart-bar"></i> Plans d'Action Usine</h1>
+      <span class="subtitle">Liste des plans lancés dans l'usine en lecture seule</span>
     </div>
-    <button type="button" class="btn-primary">
-      <i class="pi pi-plus"></i>
-      Nouveau processus
-    </button>
   </div>
 
   <div class="stats-row">
     <article class="stat-card stat-blue">
-      <span class="stat-label">Processus actifs</span>
-      <strong>{{ processStats.actifs }}</strong>
-      <span class="stat-icon"><i class="pi pi-chart-bar"></i></span>
+      <span class="stat-label">Total plans</span>
+      <strong>{{ plansFiltres.length || processStats.plans }}</strong>
+      <span class="stat-icon"><i class="pi pi-folder-open"></i></span>
     </article>
     <article class="stat-card stat-green">
-      <span class="stat-label">Plans total</span>
-      <strong>{{ processStats.plans }}</strong>
-      <span class="stat-icon"><i class="pi pi-arrow-up-right"></i></span>
+      <span class="stat-label">Total actions</span>
+      <strong>{{ processStats.actions }}</strong>
+      <span class="stat-icon"><i class="pi pi-list-check"></i></span>
     </article>
     <article class="stat-card stat-orange">
-      <span class="stat-label">Actions total</span>
-      <strong>{{ processStats.actions }}</strong>
-      <span class="stat-icon"><i class="pi pi-arrow-up-right"></i></span>
+      <span class="stat-label">Processus</span>
+      <strong>{{ processStats.actifs }}</strong>
+      <span class="stat-icon"><i class="pi pi-chart-bar"></i></span>
     </article>
     <article class="stat-card stat-red">
       <span class="stat-label">Avancement moyen</span>
@@ -33,61 +29,66 @@
     </article>
   </div>
 
-  <div class="process-grid">
-    <article class="process-card card" *ngFor="let process of processRows">
-      <div class="process-card-top">
-        <span class="process-icon"><i class="pi pi-chart-bar"></i></span>
-        <span class="status-pill" [class.status-pause]="process.statut === 'En pause'">
-          <span></span>{{ process.statut }}
-        </span>
-      </div>
-      <h2>{{ process.name }}</h2>
-      <p>Responsable: {{ process.responsable }}</p>
-      <div class="process-meta">
-        <span>{{ process.plans }} plans</span>
-        <span>{{ process.actions }} actions</span>
-      </div>
-      <div class="process-progress">
-        <span class="progress-track"><span [style.width.%]="process.avancement"></span></span>
-        <strong>{{ process.avancement }}%</strong>
-      </div>
-      <div class="process-actions">
-        <button type="button" class="btn-mini"><i class="pi pi-eye"></i> Voir</button>
-        <button type="button" class="btn-mini"><i class="pi pi-cog"></i> Gérer</button>
-      </div>
-    </article>
-  </div>
-
   <section class="card synthese-card">
-    <div class="synthese-title">Synthèse des processus</div>
+    <div class="plans-toolbar">
+      <div class="search-wrap">
+        <i class="pi pi-search"></i>
+        <input type="text" placeholder="Rechercher un plan..." [(ngModel)]="recherche" (ngModelChange)="filtrer()" />
+      </div>
+      <select [(ngModel)]="filtreStatut" (ngModelChange)="filtrer()">
+        <option value="">Tous les statuts</option>
+        <option value="InProgress">En cours</option>
+        <option value="Closed">Clôturé</option>
+      </select>
+      <select [(ngModel)]="filtrePriorite" (ngModelChange)="filtrer()">
+        <option value="">Toutes les priorités</option>
+        <option value="Low">Basse</option>
+        <option value="Medium">Moyenne</option>
+        <option value="High">Haute</option>
+        <option value="Critical">Critique</option>
+      </select>
+    </div>
+
+    <div class="synthese-title">Liste des Plans d'Action Usine</div>
     <table class="process-table">
       <thead>
         <tr>
+          <th>Titre</th>
+          <th>Date Création</th>
           <th>Processus</th>
-          <th>Responsable</th>
-          <th>Plans</th>
-          <th>Actions</th>
+          <th>Pilote</th>
+          <th>Nombre d'actions</th>
           <th>Avancement</th>
-          <th>Statut</th>
+          <th>Clôture</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let process of processRows">
+        <tr *ngFor="let plan of plansFiltres">
+          <td>{{ plan.title }}</td>
+          <td>{{ plan.createdAt | date:'dd/MM/yyyy' }}</td>
+          <td>{{ plan.processName }}</td>
+          <td>{{ plan.pilotName }}</td>
+          <td>{{ plan.totalActions || plan.actions?.length || 0 }}</td>
           <td>
-            <span class="process-name">
-              <i class="pi pi-chart-bar"></i>
-              {{ process.name }}
+            <div class="progress-inline">
+              <span class="progress-track"><span [style.width.%]="plan.progressPercentage || 0"></span></span>
+              <strong>{{ plan.progressPercentage || 0 }}%</strong>
+            </div>
+          </td>
+          <td>
+            <span class="status-pill" [class.status-pause]="plan.status === 'Closed'">
+              <span></span>{{ getStatutLabel(plan.status) }}
             </span>
           </td>
-          <td>{{ process.responsable }}</td>
-          <td>{{ process.plans }}</td>
-          <td>{{ process.actions }}</td>
-          <td>{{ process.avancement }}%</td>
           <td>
-            <span class="status-pill" [class.status-pause]="process.statut === 'En pause'">
-              <span></span>{{ process.statut }}
-            </span>
+            <button type="button" class="btn-mini" [routerLink]="['/plans', plan.id]">
+              <i class="pi pi-eye"></i> Voir
+            </button>
           </td>
+        </tr>
+        <tr *ngIf="!chargement && plansFiltres.length === 0">
+          <td colspan="8" class="empty">Aucun plan d'action usine trouvé.</td>
         </tr>
       </tbody>
     </table>

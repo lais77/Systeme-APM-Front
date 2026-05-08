@@ -612,5 +612,13 @@ table {
 }
 
 .table-container table {
-  min-width: 920px;
+  min-width: 1320px;
+}
+
+.action-modal {
+  max-width: 760px !important;
+}
+
+.confirm-modal {
+  max-width: 620px !important;
 }

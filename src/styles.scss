@@ -361,6 +361,31 @@ textarea {
   background: #9f1f17;
 }
 
+.btn-primary:disabled,
+.btn-secondary:disabled,
+.btn-danger:disabled,
+.btn-outline:disabled,
+.btn-detail:disabled,
+.btn-cloturer:disabled,
+.btn-action-open:disabled,
+.onboarding-cta:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-primary:disabled:hover,
+.btn-secondary:disabled:hover,
+.btn-danger:disabled:hover,
+.btn-outline:disabled:hover,
+.btn-detail:disabled:hover,
+.btn-cloturer:disabled:hover,
+.btn-action-open:disabled:hover,
+.onboarding-cta:disabled:hover {
+  transform: none;
+}
+
 .btn-action {
   width: 30px;
   height: 30px;

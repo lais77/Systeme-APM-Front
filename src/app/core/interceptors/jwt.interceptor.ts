@@ -7,9 +7,12 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   const token = authService.getToken();
 
   if (token) {
+    console.log(`[JWT Interceptor] Attaching token to: ${req.url}`);
     req = req.clone({
       setHeaders: { Authorization: `Bearer ${token}` }
     });
+  } else {
+    console.warn(`[JWT Interceptor] No token found for: ${req.url}`);
   }
 
   return next(req);

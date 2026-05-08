@@ -4,11 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { API } from '../../../core/services/api-endpoints';
 
-// ─────────────────────────────────────────────────────────────
-// Adaptez cet import selon votre structure réelle :
-// import { UserService } from '../../../core/services/user.service';
-// ─────────────────────────────────────────────────────────────
-
 @Component({
   selector: 'app-users',
   standalone: true,
@@ -32,6 +27,9 @@ export class UsersComponent implements OnInit {
   showConfirmModal: boolean = false;
   isEditMode: boolean = false;
   selectedUser: any = null;
+
+  // ── Propriétés pour éviter les boucles de change detection
+  displayFilteredUsers: any[] = [];
 
   private readonly fallbackUsers = [
     { id: 1, prenom: 'Admin', nom: 'APM', email: 'admin@tiscircuits.com', role: 'ADMIN', actif: true, departementId: null },
@@ -77,8 +75,12 @@ export class UsersComponent implements OnInit {
             departementId: u.departmentId ?? u.departementId ?? null
           };
         });
+        this.updateDerivedStats();
       },
-      error: (err) => { console.error('Erreur chargement utilisateurs', err); }
+      error: (err) => { 
+        console.error('Erreur chargement utilisateurs', err);
+        this.updateDerivedStats();
+      }
     });
   }
 
@@ -89,18 +91,28 @@ export class UsersComponent implements OnInit {
     });
   }
 
-  // ── Getter tableau filtré ─────────────────────────────────
-  get filteredUsers(): any[] {
+  // ── Mise à jour des données filtrées ───────────────────────
+  private updateDerivedStats(): void {
     const source = this.users.length ? this.users : this.fallbackUsers;
-    return source.filter(u => {
+    const search = this.searchTerm.toLowerCase();
+    
+    this.displayFilteredUsers = source.filter(u => {
       const fullName = ((u.prenom || '') + ' ' + (u.nom || '')).toLowerCase();
       const matchSearch = !this.searchTerm ||
-        fullName.includes(this.searchTerm.toLowerCase()) ||
-        (u.email || '').toLowerCase().includes(this.searchTerm.toLowerCase());
+        fullName.includes(search) ||
+        (u.email || '').toLowerCase().includes(search);
       const matchRole    = !this.filterRole   || u.role === this.filterRole;
       const matchStatut  = !this.filterStatut || String(u.actif) === this.filterStatut;
       return matchSearch && matchRole && matchStatut;
     });
+  }
+
+  applyFilter(): void {
+    this.updateDerivedStats();
+  }
+
+  get filteredUsers(): any[] {
+    return this.displayFilteredUsers;
   }
 
   avatarColor(user: any): string {
@@ -207,7 +219,6 @@ export class UsersComponent implements OnInit {
   // ── Désactiver l'utilisateur ──────────────────────────────
   disableUser(): void {
     if (!this.selectedUser) return;
-    // Adaptez l'URL selon votre API :
     this.http.patch(API.users.deactivate(this.selectedUser.id), {}).subscribe({
       next: () => {
         this.loadUsers();

@@ -101,6 +101,19 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     return this.chargement;
   }
 
+  // Propriétés pour éviter les boucles de change detection
+  displayTotalPlans = 0;
+  displayTotalActions = 0;
+  displayActionsEnCours = 0;
+  displayActionsCloturees = 0;
+  displayActionsEnRetard = 0;
+  displayTauxCloture = 0;
+  displayTauxEfficacite = 0;
+  displayConformite = '0 %';
+  displayConformiteLegend = '';
+  dashboardDeptRows: DashboardDeptRow[] = [];
+  dashboardPilotRows: DashboardPilotRow[] = [];
+
   constructor(
     private http: HttpClient,
     private authService: AuthService
@@ -119,29 +132,40 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   chargerPlansCritiques(): void {
     this.http.get<any[]>(API.stats.plansCritiques).subscribe({
-      next: data => this.plansCritiques = data,
-      error: () => {}
+      next: data => {
+        this.plansCritiques = data;
+        this.updateDerivedStats();
+      },
+      error: (err) => console.error('PlansCritiques error:', err)
     });
   }
 
   chargerStatsByDept(): void {
     this.http.get<any[]>(API.stats.byDepartment).subscribe({
-      next: data => this.statsByDept = data,
-      error: () => {}
+      next: data => {
+        this.statsByDept = data;
+        this.updateDerivedStats();
+      },
+      error: (err) => console.error('StatsByDept error:', err)
     });
   }
 
   chargerStatsByPilot(): void {
     this.http.get<any[]>(API.stats.byPilot).subscribe({
-      next: data => this.statsByPilot = data,
-      error: () => {}
+      next: data => {
+        this.statsByPilot = data;
+        this.updateDerivedStats();
+      },
+      error: (err) => console.error('StatsByPilot error:', err)
     });
   }
 
   chargerActiviteRecente(): void {
     this.http.get<any[]>(API.stats.activiteRecente).subscribe({
-      next: data => this.activiteRecente = data,
-      error: () => {}
+      next: data => {
+        this.activiteRecente = data;
+      },
+      error: (err) => console.error('ActiviteRecente error:', err)
     });
   }
 
@@ -166,12 +190,15 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         this.mensuelMap.clear();
         this.mergeMonthlyYear(y, mCur || []);
         this.mergeMonthlyYear(y - 1, mPrev || []);
+        this.updateDerivedStats();
         this.chargement = false;
         setTimeout(() => this.creerGraphiques(), 100);
         this.chargerActionsUrgentes();
       },
-      error: () => {
+      error: (err) => {
         this.chargement = false;
+        console.error('Stats global error:', err);
+        this.updateDerivedStats();
       }
     });
   }
@@ -219,65 +246,73 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   private get donneesCamembertBrutes(): number[] {
     if (!this.stats) return [0, 0, 0];
+    const val = (v: any) => {
+      const n = Number(v);
+      return isNaN(n) ? 0 : n;
+    };
     return [
-      this.stats.actionsCloturees ?? this.stats.cloturees ?? 0,
-      this.stats.actionsEnCours ?? this.stats.enCours ?? 0,
-      this.stats.actionsEnRetard ?? this.stats.enRetard ?? 0
+      val(this.stats.actionsCloturees ?? this.stats.cloturees ?? 0),
+      val(this.stats.actionsEnCours ?? this.stats.enCours ?? 0),
+      val(this.stats.actionsEnRetard ?? this.stats.enRetard ?? 0)
     ];
   }
 
   private creerCamembert(): void {
-    this.camembertChart?.destroy();
-    this.camembertChart = undefined;
+    try {
+      this.camembertChart?.destroy();
+      this.camembertChart = undefined;
 
-    // Create the dynamic donut chart
-    this.donutChart?.destroy();
-    this.donutChart = undefined;
-    if (!this.donutCanvas?.nativeElement || !this.stats) return;
+      // Create the dynamic donut chart
+      this.donutChart?.destroy();
+      this.donutChart = undefined;
+      if (!this.donutCanvas?.nativeElement || !this.stats) return;
 
-    const data = this.donneesCamembertBrutes;
-    const total = data.reduce((a, b) => a + b, 0);
-    if (total <= 0) return;
+      const data = this.donneesCamembertBrutes;
+      const total = data.reduce((a, b) => a + b, 0);
+      if (total <= 0) return;
 
-    this.donutChart = new Chart(this.donutCanvas.nativeElement, {
-      type: 'doughnut',
-      data: {
-        labels: ['En cours', 'Clôturées', 'En retard'],
-        datasets: [{
-          data: [
-            this.actionsEnCours,
-            this.actionsCloturees,
-            this.actionsEnRetard
-          ],
-          backgroundColor: ['#2563eb', '#16a34a', '#d5092f'],
-          borderColor: '#ffffff',
-          borderWidth: 3,
-          hoverOffset: 8
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '62%',
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: '#ffffff',
-            titleColor: '#111827',
-            bodyColor: '#374151',
-            borderColor: '#e5e7eb',
-            borderWidth: 1,
-            padding: 12,
-            cornerRadius: 10,
-            titleFont: { family: 'Inter, sans-serif', size: 13, weight: 'bold' },
-            bodyFont: { family: 'Inter, sans-serif', size: 12 },
-            callbacks: {
-              label: (item) => ` ${item.label} : ${item.formattedValue}`
+      this.donutChart = new Chart(this.donutCanvas.nativeElement, {
+        type: 'doughnut',
+        data: {
+          labels: ['En cours', 'Clôturées', 'En retard'],
+          datasets: [{
+            data: [
+              this.displayActionsEnCours,
+              this.displayActionsCloturees,
+              this.displayActionsEnRetard
+            ],
+            backgroundColor: ['#2563eb', '#16a34a', '#d5092f'],
+            borderColor: '#ffffff',
+            borderWidth: 3,
+            hoverOffset: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '62%',
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#ffffff',
+              titleColor: '#111827',
+              bodyColor: '#374151',
+              borderColor: '#e5e7eb',
+              borderWidth: 1,
+              padding: 12,
+              cornerRadius: 10,
+              titleFont: { family: 'Inter, sans-serif', size: 13, weight: 'bold' },
+              bodyFont: { family: 'Inter, sans-serif', size: 12 },
+              callbacks: {
+                label: (item) => ` ${item.label} : ${item.formattedValue}`
+              }
             }
           }
         }
-      }
-    });
+      });
+    } catch (e) {
+      console.error('Erreur lors de la création du Donut Chart:', e);
+    }
   }
 
   private buildHistogramSeries(): { labels: string[]; enRetard: number[]; cloturees: number[] } {
@@ -344,192 +379,164 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   private creerHistogramme(): void {
     if (!this.histogrammeCanvas?.nativeElement) return;
 
-    const { labels, enRetard, cloturees } = this.buildHistogramSeries();
-    this.histogrammeChart?.destroy();
-    this.histogrammeChart = undefined;
-    if (labels.length === 0) return;
+    try {
+      const { labels, enRetard, cloturees } = this.buildHistogramSeries();
+      this.histogrammeChart?.destroy();
+      this.histogrammeChart = undefined;
+      if (labels.length === 0) return;
 
-    const maxVal = Math.max(1, ...enRetard, ...cloturees);
-    const yMax = Math.max(5, Math.ceil(maxVal * 1.15));
-    const step = yMax <= 10 ? 1 : Math.max(1, Math.ceil(yMax / 5));
+      const maxVal = Math.max(1, ...enRetard, ...cloturees);
+      const yMax = Math.max(5, Math.ceil(maxVal * 1.15));
+      const step = yMax <= 10 ? 1 : Math.max(1, Math.ceil(yMax / 5));
 
-    this.histogrammeChart = new Chart(this.histogrammeCanvas.nativeElement, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'Action en retard',
-            data: enRetard,
-            backgroundColor: '#46a3c7',
-            borderRadius: 2,
-            borderSkipped: false,
-            barPercentage: 0.55,
-            categoryPercentage: 0.75
-          },
-          {
-            label: 'Action clôturée',
-            data: cloturees,
-            backgroundColor: '#00c800',
-            borderRadius: 2,
-            borderSkipped: false,
-            barPercentage: 0.55,
-            categoryPercentage: 0.75
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'top',
-            align: 'center',
-            labels: {
-              color: '#374151',
-              usePointStyle: false,
-              boxWidth: 10,
-              font: { family: 'Segoe UI', size: 11, weight: 'bold' }
+      this.histogrammeChart = new Chart(this.histogrammeCanvas.nativeElement, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Action en retard',
+              data: enRetard,
+              backgroundColor: '#46a3c7',
+              borderRadius: 2,
+              borderSkipped: false,
+              barPercentage: 0.55,
+              categoryPercentage: 0.75
+            },
+            {
+              label: 'Action clôturée',
+              data: cloturees,
+              backgroundColor: '#00c800',
+              borderRadius: 2,
+              borderSkipped: false,
+              barPercentage: 0.55,
+              categoryPercentage: 0.75
             }
-          }
+          ]
         },
-        scales: {
-          x: {
-            grid: { display: false },
-            ticks: { color: '#6b7280', font: { size: 11 } }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+              align: 'center',
+              labels: {
+                color: '#374151',
+                usePointStyle: false,
+                boxWidth: 10,
+                font: { family: 'Segoe UI', size: 11, weight: 'bold' }
+              }
+            }
           },
-          y: {
-            beginAtZero: true,
-            max: yMax,
-            grid: { color: '#e5e7eb' },
-            ticks: {
-              color: '#6b7280',
-              font: { size: 11 },
-              stepSize: step,
-              precision: 0
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: '#6b7280', font: { size: 11 } }
+            },
+            y: {
+              beginAtZero: true,
+              max: yMax,
+              grid: { color: '#e5e7eb' },
+              ticks: {
+                color: '#6b7280',
+                font: { size: 11 },
+                stepSize: step,
+                precision: 0
+              }
             }
           }
         }
+      });
+    } catch (e) {
+      console.error('Erreur lors de la création de l\'Histogramme:', e);
+    }
+  }
+
+  private updateDerivedStats(): void {
+    const val = (v: any) => {
+      const n = Number(v);
+      return isNaN(n) ? 0 : n;
+    };
+
+    // 1. Stats globales
+    this.displayTotalPlans = val(this.stats?.totalPlans ?? this.stats?.totalPlanActions ?? 0);
+    this.displayTotalActions = val(this.stats?.totalActions ?? 0);
+    this.displayActionsEnCours = val(this.stats?.actionsEnCours ?? this.stats?.enCours ?? 0);
+    this.displayActionsCloturees = val(this.stats?.actionsCloturees ?? this.stats?.cloturees ?? 0);
+    this.displayActionsEnRetard = val(this.stats?.actionsEnRetard ?? this.stats?.enRetard ?? 0);
+    this.displayTauxCloture = val(this.stats?.tauxCloture ?? 0);
+    this.displayTauxEfficacite = val(this.stats?.tauxEfficacite ?? 0);
+
+    // 2. Conformité
+    if (!this.stats || this.displayTotalActions === 0) {
+      this.displayConformite = '100 %';
+      this.displayConformiteLegend = 'Aucune action enregistrée.';
+    } else {
+      this.displayConformite = `${this.displayTauxCloture} %`;
+      if (this.displayActionsCloturees === 0) {
+        this.displayConformiteLegend = 'Aucune action clôturée pour le moment.';
+      } else if (this.displayTauxEfficacite === 0) {
+        this.displayConformiteLegend = 'Les actions clôturées ne sont pas encore jugées efficaces.';
+      } else {
+        this.displayConformiteLegend = `${this.displayActionsCloturees} action(s) clôturée(s) sur ${this.displayTotalActions}.`;
       }
-    });
-  }
+    }
 
-  get totalPlans(): number {
-    return this.stats?.totalPlans ?? this.stats?.totalPlanActions ?? 0;
-  }
+    // 3. Départements
+    if (!this.statsByDept.length) {
+      this.dashboardDeptRows = this.fallbackDeptRows;
+    } else {
+      this.dashboardDeptRows = this.statsByDept.map(d => ({
+        name: d.departmentName ?? d.departement ?? d.name ?? 'Sans département',
+        plans: val(d.totalPlans ?? d.plans ?? 0),
+        actions: val(d.totalActions ?? d.actions ?? 0),
+        enRetard: val(d.actionsEnRetard ?? d.enRetard ?? 0),
+        cloturees: val(d.actionsCloturees ?? d.cloturees ?? 0)
+      }));
+    }
 
-  get displayTotalPlans(): number {
-    return this.totalPlans || 4;
-  }
-
-  get totalActions(): number {
-    return this.stats?.totalActions ?? 0;
+    // 4. Pilotes
+    if (!this.statsByPilot.length) {
+      this.dashboardPilotRows = this.fallbackPilotRows;
+    } else {
+      const palette = ['#ef3340', '#2563eb', '#16a34a', '#7c3aed'];
+      this.dashboardPilotRows = this.statsByPilot.map((p, index) => {
+        const name = p.pilotName ?? p.nom ?? p.name ?? 'Pilote';
+        return {
+          initials: String(name).trim().charAt(0).toUpperCase() || 'P',
+          color: palette[index % palette.length],
+          name,
+          plans: val(p.totalPlans ?? p.plans ?? 0),
+          enRetard: val(p.actionsEnRetard ?? p.enRetard ?? 0),
+          cloturees: val(p.actionsCloturees ?? p.cloturees ?? 0)
+        };
+      });
+    }
   }
 
   get actionsEnCours(): number {
-    return this.stats?.actionsEnCours ?? this.stats?.enCours ?? 0;
-  }
-
-  get displayActionsEnCours(): number {
-    return this.stats ? this.actionsEnCours : 0;
+    return this.displayActionsEnCours;
   }
 
   get actionsCloturees(): number {
-    return this.stats?.actionsCloturees ?? this.stats?.cloturees ?? 0;
+    return this.displayActionsCloturees;
   }
 
   get actionsEnRetard(): number {
-    return this.stats?.actionsEnRetard ?? this.stats?.enRetard ?? 0;
+    return this.displayActionsEnRetard;
   }
 
-  get displayActionsEnRetard(): number {
-    return this.stats ? this.actionsEnRetard : 0;
-  }
-
-  get tauxRealisation(): number {
-    return this.stats?.tauxRealisation ?? 0;
+  get totalPlans(): number {
+    return this.displayTotalPlans;
   }
 
   get tauxCloture(): number {
-    return this.stats?.tauxCloture ?? 0;
-  }
-
-  get displayConformite(): string {
-    if (!this.stats) return '100 %';
-    if (this.totalActions === 0) return '100 %';
-    return `${this.tauxCloture} %`;
-  }
-
-  get displayConformiteLegend(): string {
-    if (!this.stats || this.totalActions === 0 || this.actionsCloturees > 0) {
-      return 'Les actions clôturées ne sont pas encore jugées efficaces';
-    }
-    return this.legendeTauxConformite;
-  }
-
-  get dashboardDeptRows(): DashboardDeptRow[] {
-    if (!this.statsByDept.length) return this.fallbackDeptRows;
-    return this.statsByDept.map(d => ({
-      name: d.departmentName ?? d.departement ?? d.name ?? 'Sans département',
-      plans: d.totalPlans ?? d.plans ?? 0,
-      actions: d.totalActions ?? d.actions ?? 0,
-      enRetard: d.actionsEnRetard ?? d.enRetard ?? 0,
-      cloturees: d.actionsCloturees ?? d.cloturees ?? 0
-    }));
-  }
-
-  get dashboardPilotRows(): DashboardPilotRow[] {
-    if (!this.statsByPilot.length) return this.fallbackPilotRows;
-    const palette = ['#ef3340', '#2563eb', '#16a34a', '#7c3aed'];
-    return this.statsByPilot.map((p, index) => {
-      const name = p.pilotName ?? p.nom ?? p.name ?? 'Pilote';
-      return {
-        initials: String(name).trim().charAt(0).toUpperCase() || 'P',
-        color: palette[index % palette.length],
-        name,
-        plans: p.totalPlans ?? p.plans ?? 0,
-        enRetard: p.actionsEnRetard ?? p.enRetard ?? 0,
-        cloturees: p.actionsCloturees ?? p.cloturees ?? 0
-      };
-    });
-  }
-
-  get tauxEfficacite(): number {
-    return this.stats?.tauxEfficacite ?? 0;
-  }
-
-  get conformiteStyleNeutre(): boolean {
-    return (
-      !!this.stats &&
-      this.totalActions > 0 &&
-      this.actionsCloturees === 0 &&
-      this.tauxCloture === 0
-    );
-  }
-
-  get conformitePourcentageAffiche(): string {
-    if (!this.stats) return '—';
-    if (this.totalActions === 0) return '—';
-    return `${this.tauxCloture} %`;
-  }
-
-  /** Légende sous le KPI « conformité » (taux de clôture). */
-  get legendeTauxConformite(): string {
-    if (!this.stats) return '';
-    if (this.totalActions === 0) {
-      return 'Aucune action enregistrée — le taux s’affichera lorsque des actions existeront.';
-    }
-    if (this.actionsCloturees === 0) {
-      return 'Aucune action clôturée pour le moment — 0 % est normal tant qu’aucune action n’est terminée.';
-    }
-    if (this.actionsCloturees > 0 && this.tauxEfficacite === 0) {
-      return 'Les actions clôturées ne sont pas encore jugées efficaces (ou aucune n’a été évaluée).';
-    }
-    return `${this.actionsCloturees} action(s) clôturée(s) sur ${this.totalActions}.`;
+    return this.displayTauxCloture;
   }
 
   get afficherBandeauOnboarding(): boolean {
-    return !this.chargement && this.totalPlans === 0 && this.totalActions === 0;
+    return !this.chargement && this.displayTotalPlans === 0 && this.displayTotalActions === 0;
   }
 
   actionDetailLink(id: number): string {

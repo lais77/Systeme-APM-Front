@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { PlansService } from '../../../core/services/plans.service';
@@ -12,9 +12,14 @@ interface PlanCardView {
   priority: string;
   title: string;
   department: string;
+  process: string;
+  pilot: string;
   type: string;
   progress: number;
+  createdAt: string;
   dueDate: string;
+  totalActions: number;
+  status: string;
 }
 
 @Component({
@@ -27,28 +32,45 @@ interface PlanCardView {
 export class MesPlansComponent implements OnInit {
   plans: Plan[] = [];
   chargement = true;
-  viewMode: 'cards' | 'list' = 'cards';
+  viewMode: 'cards' | 'list' = 'list';
   modalOuvert = false;
   nouveauPlan: any = {};
   departements: any[] = [];
   processus: any[] = [];
   piloteNom = '';
 
+  // Propriétés pour éviter les boucles de change detection
+  displayPlansList: PlanCardView[] = [];
+
   private readonly fallbackPlans: PlanCardView[] = [
     {
       priority: 'Low',
       title: 'testtest',
       department: 'Production',
+      process: 'Informatique',
+      pilot: 'Admin APM',
       type: 'Mono',
       progress: 0,
-      dueDate: '30/04/2026'
+      createdAt: '08/05/2026',
+      dueDate: '30/04/2026',
+      totalActions: 0,
+      status: 'InProgress'
     }
   ];
 
-  constructor(private plansService: PlansService, private http: HttpClient) {}
+  filtreProcessus: string | null = null;
+
+  constructor(
+    private plansService: PlansService, 
+    private http: HttpClient,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
-    this.chargerPlans();
+    this.route.queryParams.subscribe(params => {
+      this.filtreProcessus = params['process'] || null;
+      this.chargerPlans();
+    });
     this.chargerDepartements();
     this.chargerProcessus();
     this.chargerPiloteConnecte();
@@ -56,8 +78,15 @@ export class MesPlansComponent implements OnInit {
 
   chargerPlans(): void {
     this.plansService.getMesPlans().subscribe({
-      next: (data) => { this.plans = data || []; this.chargement = false; },
-      error: () => { this.chargement = false; }
+      next: (data) => { 
+        this.plans = data || []; 
+        this.updateDerivedStats();
+        this.chargement = false; 
+      },
+      error: () => { 
+        this.updateDerivedStats();
+        this.chargement = false; 
+      }
     });
   }
 
@@ -100,7 +129,7 @@ export class MesPlansComponent implements OnInit {
   onDepartementChange(value: string): void {
     const id = Number(value);
     this.nouveauPlan.departmentId = Number.isFinite(id) ? id : null;
-    if (!this.nouveauPlan.processId) {
+    if (!this.nouveauPlan.processId && this.processus.length === 0) {
       // Compatibilite backend: processId est requis.
       this.nouveauPlan.processId = this.nouveauPlan.departmentId;
     }
@@ -121,6 +150,11 @@ export class MesPlansComponent implements OnInit {
 
     if (!this.nouveauPlan.departmentId) {
       alert('Veuillez selectionner un departement.');
+      return;
+    }
+
+    if (!this.nouveauPlan.processId) {
+      alert('Veuillez selectionner un processus.');
       return;
     }
 
@@ -149,11 +183,9 @@ export class MesPlansComponent implements OnInit {
 
   cloturerPlan(id: number, event: Event): void {
     event.stopPropagation();
-    if (confirm('Clôturer ce plan ?')) {
-      this.plansService.cloturerPlan(id).subscribe({
-        next: () => this.chargerPlans()
-      });
-    }
+    this.plansService.cloturerPlan(id).subscribe({
+      next: () => this.chargerPlans()
+    });
   }
 
   private chargerProcessus(): void {
@@ -178,17 +210,38 @@ export class MesPlansComponent implements OnInit {
     }
   }
 
+  private updateDerivedStats(): void {
+    if (!this.plans.length) {
+      this.displayPlansList = this.fallbackPlans;
+    } else {
+      let filteredPlans = this.plans;
+      if (this.filtreProcessus) {
+        filteredPlans = this.plans.filter(p => p.processName === this.filtreProcessus);
+      }
+
+      if (filteredPlans.length === 0) {
+        this.displayPlansList = [];
+      } else {
+        this.displayPlansList = filteredPlans.map(plan => ({
+          id: plan.id,
+          priority: plan.priority || 'Low',
+          title: plan.title,
+          department: plan.departmentName || plan.processName || 'Sans département',
+          process: plan.processName || 'Sans processus',
+          pilot: plan.pilotName || this.piloteNom || 'Pilote',
+          type: plan.type || 'Mono',
+          progress: plan.progressPercentage || 0,
+          createdAt: this.formatDate(plan.createdAt),
+          dueDate: this.formatDate(plan.dueDate),
+          totalActions: plan.totalActions ?? plan.actions?.length ?? 0,
+          status: plan.status || 'InProgress'
+        }));
+      }
+    }
+  }
+
   get displayPlans(): PlanCardView[] {
-    if (!this.plans.length) return this.fallbackPlans;
-    return this.plans.map(plan => ({
-      id: plan.id,
-      priority: plan.priority || 'Low',
-      title: plan.title,
-      department: plan.departmentName || plan.processName || 'Sans département',
-      type: plan.type || 'Mono',
-      progress: plan.progressPercentage || 0,
-      dueDate: this.formatDate(plan.dueDate)
-    }));
+    return this.displayPlansList;
   }
 
   private formatDate(value: Date | string): string {

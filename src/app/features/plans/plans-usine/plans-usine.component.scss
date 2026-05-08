@@ -236,6 +236,28 @@
   overflow: hidden;
 }
 
+.plans-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  padding: 18px 22px 0;
+}
+
+.plans-toolbar .search-wrap {
+  min-width: 260px;
+  flex: 1;
+}
+
+.plans-toolbar select {
+  min-height: 42px;
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--text-main);
+  padding: 9px 12px;
+}
+
 .synthese-title {
   padding: 20px 22px 16px;
   color: var(--text-primary);
@@ -262,6 +284,19 @@
 
 .process-name i {
   color: var(--primary-color);
+}
+
+.progress-inline {
+  display: grid;
+  grid-template-columns: minmax(90px, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.empty {
+  padding: 28px !important;
+  text-align: center;
+  color: var(--text-muted);
 }
 
 @media (max-width: 1180px) {

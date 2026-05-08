@@ -35,7 +35,7 @@
           Valider plan
         </button>
         <button class="btn-secondary" *ngIf="planEnCours()" (click)="cloturerPlan()">
-          Clôturer plan
+          Clôturer Plan
         </button>
       </div>
     </div>
@@ -50,8 +50,8 @@
         <span class="stat-label">En cours</span>
       </div>
       <div class="stat-card stat-retard">
-        <span class="stat-valeur">{{ (plan.actions ?? []).filter(a => a.status === 'Rejected').length }}</span>
-        <span class="stat-label">Rejetées</span>
+        <span class="stat-valeur">{{ actionsEnRetard }}</span>
+        <span class="stat-label">En retard</span>
       </div>
       <div class="stat-card stat-cloture">
         <span class="stat-valeur">{{ (plan.actions ?? []).filter(a => a.status === 'Closed').length }}</span>
@@ -70,8 +70,8 @@
     <div class="section">
       <div class="section-header">
         <h2>Actions</h2>
-        <button class="btn-primary" [routerLink]="['/plans', plan.id, 'actions', 'nouvelle']" [disabled]="planLectureSeule()">
-          + Ajouter une action
+        <button class="btn-primary" (click)="ouvrirModalAction()" [disabled]="planLectureSeule()">
+          Ajouter action
         </button>
       </div>
 
@@ -79,32 +79,42 @@
         <table>
           <thead>
             <tr>
+              <th>N°</th>
               <th>Thème</th>
-              <th>Description</th>
+              <th>Anomalie/Amélioration</th>
+              <th>PREV/CORR</th>
+              <th>Cause</th>
               <th>Responsable</th>
-              <th>Type</th>
               <th>Criticité</th>
               <th>Délai</th>
+              <th>Date réalisation</th>
+              <th>Méthode validation</th>
+              <th>Eff.</th>
               <th>Statut</th>
               <th>Avancement</th>
             </tr>
           </thead>
           <tbody>
             <tr
-              *ngFor="let action of plan.actions"
+              *ngFor="let action of plan.actions; let i = index"
               [routerLink]="['/actions', action.id]"
               class="clickable"
             >
+              <td>{{ i + 1 }}</td>
               <td>{{ action.theme }}</td>
-              <td>{{ action.actionDescription }}</td>
-              <td>{{ action.responsibleName }}</td>
+              <td>{{ action.anomalyDescription || action.actionDescription }}</td>
               <td>{{ action.type }}</td>
+              <td>{{ action.cause || '—' }}</td>
+              <td>{{ action.responsibleName }}</td>
               <td>{{ action.criticity }}</td>
               <td>
                 <span class="delai-badge" [ngClass]="getDelaiCouleur(action.deadline)">
                   {{ action.deadline | date:'dd/MM/yyyy' }}
                 </span>
               </td>
+              <td>{{ action.realizationDate ? (action.realizationDate | date:'dd/MM/yyyy') : '—' }}</td>
+              <td>{{ action.verificationMethod || action.realizationMethod || '—' }}</td>
+              <td>{{ action.effectiveness || '—' }}</td>
               <td>
                 <span class="badge" [ngClass]="getStatutActionClass(action.status)">
                   {{ getStatutActionLabel(action.status) }}
@@ -118,7 +128,7 @@
               </td>
             </tr>
             <tr *ngIf="!plan.actions || plan.actions.length === 0">
-              <td colspan="8" class="empty">Aucune action pour ce plan.</td>
+              <td colspan="13" class="empty">Aucune action pour ce plan.</td>
             </tr>
           </tbody>
         </table>
@@ -173,6 +183,104 @@
     </div>
 
   </ng-container>
+
+  <div class="modal-overlay" *ngIf="modalNouvelleAction" (click)="fermerModalAction()">
+    <div class="modal action-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Nouvelle Action</h2>
+        <button type="button" (click)="fermerModalAction()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Thème *</label>
+            <input type="text" [(ngModel)]="nouvelleAction.theme" />
+          </div>
+          <div class="form-group">
+            <label>Anomalie/Amélioration</label>
+            <input type="text" [(ngModel)]="nouvelleAction.anomalyDescription" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>PREV/CORR *</label>
+            <select [(ngModel)]="nouvelleAction.type">
+              <option value="Corrective">Correctif</option>
+              <option value="Preventive">Préventif</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Criticité *</label>
+            <select [(ngModel)]="nouvelleAction.criticity">
+              <option value="High">Haute</option>
+              <option value="Medium">Moyenne</option>
+              <option value="Low">Basse</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Cause</label>
+            <input type="text" [(ngModel)]="nouvelleAction.cause" />
+          </div>
+          <div class="form-group">
+            <label>Responsable *</label>
+            <select [(ngModel)]="nouvelleAction.responsibleId">
+              <option value="">Sélectionner...</option>
+              <option *ngFor="let u of responsables" [value]="u.id">{{ u.fullName }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Action *</label>
+            <textarea [(ngModel)]="nouvelleAction.actionDescription" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Délai *</label>
+            <input type="date" [(ngModel)]="nouvelleAction.deadline" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Commentaire</label>
+          <textarea [(ngModel)]="nouvelleAction.commentaire" rows="2"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" type="button" (click)="fermerModalAction()">Annuler</button>
+        <button class="btn-primary" type="button" (click)="creerAction()" [disabled]="actionSaving">Ajouter</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="modalValidationPlan" (click)="modalValidationPlan = false">
+    <div class="modal confirm-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Voulez vous vraiment valider ce Plan d'Action ?</h2>
+        <button type="button" (click)="modalValidationPlan = false">×</button>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" type="button" (click)="modalValidationPlan = false">Annuler</button>
+        <button class="btn-primary" type="button" (click)="confirmerValiderPlan()">Valider</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="modalCloturePlan" (click)="modalCloturePlan = false">
+    <div class="modal confirm-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Voulez vous vraiment clôturer ce Plan d'Action ?</h2>
+        <button type="button" (click)="modalCloturePlan = false">×</button>
+      </div>
+      <div class="modal-body">
+        <p>Si un plan d'action est clôturé, aucune nouvelle action ne peut être ajoutée ni modifiée. Le plan sera seulement en lecture seule.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" type="button" (click)="modalCloturePlan = false">Annuler</button>
+        <button class="btn-primary" type="button" (click)="confirmerCloturerPlan()">Clôturer Plan</button>
+      </div>
+    </div>
+  </div>
 
   <div class="empty" *ngIf="!chargement && !plan">Plan introuvable.</div>
 

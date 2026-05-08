@@ -26,10 +26,12 @@ export class ActionDetailComponent implements OnInit {
   modalSoumission = false;
   modalValidation = false;
   modalEvaluation = false;
+  modalSuppressionFichier = false;
+  fichierASupprimerId: number | null = null;
   soumissionData: any = {};
   validationData: any = { isApproved: true };
   evaluationData: any = { effectiveness: 'Effective', starRating: 5 };
-  actionRemplacement: any = {};
+  actionRemplacement: any = { type: 'Corrective', criticity: 'Medium' };
   currentUser: any;
   responsables: any[] = [];
 
@@ -110,7 +112,6 @@ export class ActionDetailComponent implements OnInit {
 
   demarrer(): void {
     if (!this.action || !this.peutDemarrer()) return;
-    if (!confirm("Passer cette action à l'état En réalisation ?")) return;
     this.actionsService.demarrer(this.action.id).subscribe({
       next: (data) => { this.action = data; }
     });
@@ -118,7 +119,6 @@ export class ActionDetailComponent implements OnInit {
 
   soumettre(): void {
     if (!this.action || !this.peutSoumettre()) return;
-    if (!confirm("Confirmer la clôture de l'action et l'envoyer pour validation ?")) return;
     this.actionsService.soumettre(this.action.id, this.soumissionData).subscribe({
       next: (data) => {
         this.action = data;
@@ -129,8 +129,6 @@ export class ActionDetailComponent implements OnInit {
 
   valider(): void {
     if (!this.action || !this.peutValider()) return;
-    const decision = this.validationData?.isApproved ? 'valider' : 'rejeter';
-    if (!confirm(`Confirmer: ${decision} cette action ?`)) return;
     this.actionsService.valider(this.action.id, this.validationData).subscribe({
       next: (data) => {
         this.action = data;
@@ -141,7 +139,6 @@ export class ActionDetailComponent implements OnInit {
 
   evaluer(): void {
     if (!this.action || !this.peutEvaluer()) return;
-    if (!confirm("Enregistrer l'évaluation finale de cette action ?")) return;
     const data = {
       ...this.evaluationData,
       replacementAction: this.evaluationData.effectiveness === 'Ineffective'
@@ -158,6 +155,15 @@ export class ActionDetailComponent implements OnInit {
 
   retour(): void {
     window.history.back();
+  }
+
+  ouvrirModalSoumission(): void {
+    if (!this.peutSoumettre()) return;
+    this.soumissionData = {
+      ...this.soumissionData,
+      realizationDate: this.soumissionData?.realizationDate || new Date().toISOString().split('T')[0]
+    };
+    this.modalSoumission = true;
   }
 
   isManager(): boolean {
@@ -245,13 +251,20 @@ export class ActionDetailComponent implements OnInit {
 
   supprimerFichier(id: number): void {
     if (this.estEnLectureSeule()) return;
-    if (confirm('Supprimer ce fichier ?')) {
-      this.http.delete(API.fichiers.delete(id)).subscribe({
-        next: () => {
-          this.fichiers = this.fichiers.filter(f => f.id !== id);
-        }
-      });
-    }
+    this.fichierASupprimerId = id;
+    this.modalSuppressionFichier = true;
+  }
+
+  confirmerSuppressionFichier(): void {
+    if (!this.fichierASupprimerId) return;
+    const id = this.fichierASupprimerId;
+    this.http.delete(API.fichiers.delete(id)).subscribe({
+      next: () => {
+        this.fichiers = this.fichiers.filter(f => f.id !== id);
+        this.modalSuppressionFichier = false;
+        this.fichierASupprimerId = null;
+      }
+    });
   }
 
   isAfterStage(stageCode: 'P' | 'D' | 'C'): boolean {
