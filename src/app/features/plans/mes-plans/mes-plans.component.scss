@@ -214,3 +214,42 @@
     width: 100%;
   }
 }
+
+// Styles pour la sélection des pilotes (Mono/Multi)
+.pilot-checkbox-list {
+  max-height: 140px;
+  overflow-y: auto;
+  border: 1px solid #e9eef5;
+  border-radius: 10px;
+  padding: 8px 12px;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pilot-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  padding: 6px 0;
+  border-bottom: 1px solid #f8fafc;
+}
+
+.pilot-checkbox-item:last-child {
+  border-bottom: 0;
+}
+
+.pilot-checkbox-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary-color);
+  cursor: pointer;
+}
+
+.pilot-checkbox-item small {
+  color: var(--text-muted);
+  font-style: italic;
+}

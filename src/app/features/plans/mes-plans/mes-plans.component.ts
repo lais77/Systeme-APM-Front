@@ -37,6 +37,7 @@ export class MesPlansComponent implements OnInit {
   nouveauPlan: any = {};
   departements: any[] = [];
   processus: any[] = [];
+  utilisateurs: any[] = [];
   piloteNom = '';
 
   // Propriétés pour éviter les boucles de change detection
@@ -74,6 +75,7 @@ export class MesPlansComponent implements OnInit {
     this.chargerDepartements();
     this.chargerProcessus();
     this.chargerPiloteConnecte();
+    this.chargerUtilisateurs();
   }
 
   chargerPlans(): void {
@@ -113,15 +115,19 @@ export class MesPlansComponent implements OnInit {
   }
 
   ouvrirModal(): void {
+    const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+
     this.nouveauPlan = {
       priority: 'Medium',
       type: 'Mono',
       departmentId: null,
       processId: null,
+      pilotId: currentUser.id || null,
       visibility: 'Publique',
       createdAtDisplay: new Date().toISOString().split('T')[0],
       startDate: new Date().toISOString().split('T')[0],
-      dueDate: new Date().toISOString().split('T')[0]
+      dueDate: new Date().toISOString().split('T')[0],
+      coPilotIds: []
     };
     this.modalOuvert = true;
   }
@@ -138,6 +144,26 @@ export class MesPlansComponent implements OnInit {
     this.nouveauPlan.processId = Number.isFinite(id) ? id : null;
   }
 
+  onTypeChange(type: string): void {
+    if (type === 'Mono') {
+      this.nouveauPlan.coPilotIds = [];
+    }
+  }
+
+  togglePilote(userId: number): void {
+    if (!this.nouveauPlan.coPilotIds) this.nouveauPlan.coPilotIds = [];
+    const index = this.nouveauPlan.coPilotIds.indexOf(userId);
+    if (index > -1) {
+      this.nouveauPlan.coPilotIds.splice(index, 1);
+    } else {
+      this.nouveauPlan.coPilotIds.push(userId);
+    }
+  }
+
+  isPiloteSelected(userId: number): boolean {
+    return this.nouveauPlan.coPilotIds?.includes(userId) || false;
+  }
+
   fermerModal(): void { this.modalOuvert = false; }
 
   creerPlan(): void {
@@ -148,6 +174,12 @@ export class MesPlansComponent implements OnInit {
 
     if (!this.nouveauPlan.departmentId) {
       alert('Veuillez selectionner un departement.');
+      return;
+    }
+
+    // Validation du pilote
+    if (!this.nouveauPlan.pilotId && (this.nouveauPlan.type === 'Mono' || !this.nouveauPlan.coPilotIds?.length)) {
+      alert('Veuillez selectionner au moins un responsable (pilote).');
       return;
     }
 
@@ -190,6 +222,13 @@ export class MesPlansComponent implements OnInit {
     this.http.get<any[]>(API.processus.getAll).subscribe({
       next: (data) => { this.processus = data || []; },
       error: () => { this.processus = []; }
+    });
+  }
+
+  private chargerUtilisateurs(): void {
+    this.http.get<any[]>(API.utilisateurs.getAll).subscribe({
+      next: (data) => { this.utilisateurs = data || []; },
+      error: () => { this.utilisateurs = []; }
     });
   }
 

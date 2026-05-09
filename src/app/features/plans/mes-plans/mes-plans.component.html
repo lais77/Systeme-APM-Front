@@ -88,8 +88,22 @@
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label>Pilote</label>
-            <input type="text" [value]="piloteNom" readonly />
+            <label>Pilote *</label>
+            <!-- Mono mode: Simple selection -->
+            <select *ngIf="nouveauPlan.type === 'Mono'" [(ngModel)]="nouveauPlan.pilotId">
+              <option [value]="null">Sélectionner un pilote...</option>
+              <option *ngFor="let u of utilisateurs" [value]="u.id">
+                {{ u.fullName }}
+              </option>
+            </select>
+
+            <!-- Multi mode: Checkbox list -->
+            <div *ngIf="nouveauPlan.type === 'Multi'" class="pilot-checkbox-list">
+              <div *ngFor="let u of utilisateurs" class="pilot-checkbox-item">
+                <input type="checkbox" [checked]="isPiloteSelected(u.id)" (change)="togglePilote(u.id)">
+                <span>{{ u.fullName }} <small>({{ u.departement }})</small></span>
+              </div>
+            </div>
           </div>
           <div class="form-group">
             <label>Date Création</label>
@@ -117,7 +131,7 @@
         <div class="form-row">
           <div class="form-group">
             <label>Type *</label>
-            <select [(ngModel)]="nouveauPlan.type">
+            <select [(ngModel)]="nouveauPlan.type" (ngModelChange)="onTypeChange($event)">
               <option value="Mono">Mono</option>
               <option value="Multi">Multi</option>
             </select>
