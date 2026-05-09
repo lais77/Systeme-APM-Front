@@ -129,10 +129,8 @@ export class MesPlansComponent implements OnInit {
   onDepartementChange(value: string): void {
     const id = Number(value);
     this.nouveauPlan.departmentId = Number.isFinite(id) ? id : null;
-    if (!this.nouveauPlan.processId && this.processus.length === 0) {
-      // Compatibilite backend: processId est requis.
-      this.nouveauPlan.processId = this.nouveauPlan.departmentId;
-    }
+    // Compatibilité backend : si le processus n'est plus géré à part, on utilise l'ID du département
+    this.nouveauPlan.processId = this.nouveauPlan.departmentId;
   }
 
   onProcessusChange(value: string): void {
@@ -153,9 +151,9 @@ export class MesPlansComponent implements OnInit {
       return;
     }
 
+    // Le processId est maintenant automatiquement lié au département
     if (!this.nouveauPlan.processId) {
-      alert('Veuillez selectionner un processus.');
-      return;
+      this.nouveauPlan.processId = this.nouveauPlan.departmentId;
     }
 
     this.plansService.creerPlan(this.nouveauPlan).subscribe({
