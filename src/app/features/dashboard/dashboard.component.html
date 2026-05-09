@@ -30,8 +30,12 @@
         <span class="legend-item legend-green">Action clôturée</span>
       </div>
 
-      <div class="bar-chart-shell" aria-label="Plans d'action par mois">
+      <div class="bar-chart-shell" aria-label="Plans d'action par mois" *ngIf="displayTotalActions > 0">
         <canvas #histogrammeCanvas></canvas>
+      </div>
+      <div class="chart-empty-msg" *ngIf="displayTotalActions === 0">
+        <i class="pi pi-chart-bar"></i>
+        <p>Aucune action pour cette période</p>
       </div>
     </section>
 
@@ -43,8 +47,12 @@
         </span>
       </div>
       <div class="donut-area" aria-label="Répartition des actions par statut">
-        <div class="donut-canvas-wrap">
+        <div class="donut-canvas-wrap" *ngIf="displayTotalActions > 0">
           <canvas #donutCanvas></canvas>
+        </div>
+        <div class="chart-empty-msg" *ngIf="displayTotalActions === 0">
+          <i class="pi pi-chart-pie"></i>
+          <p>Aucune donnée de statut</p>
         </div>
         <div class="legend donut-legend">
           <span class="legend-item legend-blue">En cours</span>

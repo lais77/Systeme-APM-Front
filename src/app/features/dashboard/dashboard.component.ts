@@ -7,9 +7,7 @@ import { forkJoin } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { API } from '../../core/services/api-endpoints';
 import { AuthService } from '../../core/services/auth.service';
-import { Chart, registerables } from 'chart.js';
-
-Chart.register(...registerables);
+import Chart from 'chart.js/auto';
 
 type PeriodeHistogramme = 0 | 3 | 6 | 12;
 
@@ -64,7 +62,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   private mensuelMap = new Map<string, MonthlyPoint>();
   chargement = true;
   private api = environment.apiUrl;
-  private camembertChart?: Chart;
   private histogrammeChart?: Chart;
   private donutChart?: Chart;
 
@@ -192,13 +189,17 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         this.mergeMonthlyYear(y - 1, mPrev || []);
         this.updateDerivedStats();
         this.chargement = false;
-        setTimeout(() => this.creerGraphiques(), 100);
+        
+        // On attend que le DOM soit mis à jour
+        setTimeout(() => this.creerGraphiques(), 50);
         this.chargerActionsUrgentes();
       },
       error: (err) => {
         this.chargement = false;
         console.error('Stats global error:', err);
         this.updateDerivedStats();
+        // Fallback graphique même en erreur
+        setTimeout(() => this.creerGraphiques(), 50);
       }
     });
   }
@@ -223,8 +224,12 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   creerGraphiques(): void {
-    this.creerCamembert();
-    this.creerHistogramme();
+    try {
+      this.creerDonut();
+      this.creerHistogramme();
+    } catch (err) {
+      console.error('Erreur creation graphiques:', err);
+    }
   }
 
   /** Camembert pertinent seulement s’il y a au moins deux segments non nuls. */
@@ -257,14 +262,13 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     ];
   }
 
-  private creerCamembert(): void {
+  private creerDonut(): void {
     try {
-      this.camembertChart?.destroy();
-      this.camembertChart = undefined;
-
-      // Create the dynamic donut chart
-      this.donutChart?.destroy();
-      this.donutChart = undefined;
+      if (this.donutChart) {
+        this.donutChart.destroy();
+        this.donutChart = undefined;
+      }
+      
       if (!this.donutCanvas?.nativeElement || !this.stats) return;
 
       const data = this.donneesCamembertBrutes;
