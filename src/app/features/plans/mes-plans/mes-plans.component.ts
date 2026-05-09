@@ -226,7 +226,7 @@ export class MesPlansComponent implements OnInit {
   }
 
   private chargerUtilisateurs(): void {
-    this.http.get<any[]>(API.utilisateurs.getAll).subscribe({
+    this.http.get<any[]>(API.users.getAll).subscribe({
       next: (data) => { this.utilisateurs = data || []; },
       error: () => { this.utilisateurs = []; }
     });
