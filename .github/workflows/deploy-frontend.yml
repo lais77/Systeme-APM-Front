@@ -22,10 +22,9 @@ jobs:
 
       - name: Build and push Frontend
         run: |
-          docker build -t acrapmtis.azurecr.io/apm-frontend:${{ github.sha }} .
-          docker build -t acrapmtis.azurecr.io/apm-frontend:latest .
-          docker push acrapmtis.azurecr.io/apm-frontend:${{ github.sha }}
+          docker build -t acrapmtis.azurecr.io/apm-frontend:latest -t acrapmtis.azurecr.io/apm-frontend:${{ github.sha }} .
           docker push acrapmtis.azurecr.io/apm-frontend:latest
+          docker push acrapmtis.azurecr.io/apm-frontend:${{ github.sha }}
 
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v2
